@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>スクール生詳細画面</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        margin-top: 20px;
+        overflow: hidden;
+      }
+
+      .card {
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .card-header {
+        background-color: #007bff;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .card-body {
+        padding: 20px;
+        background-color: #ffffff;
+      }
+      .form-label {
+        font-weight: bold;
+        color: #555;
+      }
+      .form-control[readonly] {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+      }
+      .btn-container {
+        display: flex;
+        gap: 10px;
+      }
+      .btn-container .btn {
+        width: 100px;
+      }
+
+      /* iframeは初期非表示 */
+      #iframeClass,
+      #iframeBank,
+      #iframeNotes,
+      #iframeMemberCard,
+      #iframeGroup {
+        width: 100%;
+        height: 800px;
+        border: none;
+        display: none;
+      }
+
+      .button-next {
+        width: 130px !important;
+      }
+
+      @media (max-width: 767.98px) {
+        .btn-container {
+          flex-direction: column;
+          width: 100%;
+        }
+        .btn-container .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 基本情報カード -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-user"></i> 会員基本情報</span>
+          <div class="btn-container">
+            <button id="editButton" class="btn btn-warning" onclick="toggleEditMode()">
+              編集
+            </button>
+            <button id="saveButton" class="btn btn-success" onclick="saveInfo()" style="display: none">
+              保存
+            </button>
+            <button id="saveNextButton" class="btn btn-success button-next" onclick="saveInfo()" style="display: none">
+              キャンセル
+            </button>
+            <button id="suspendButton" class="btn btn-info" onclick="confirmSuspend()">
+              休会
+            </button>
+            <button id="withdrawButton" class="btn btn-danger" onclick="confirmResignation()">
+              退会
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="memberForm">
+            <div class="row">
+              <div class="col-md-6">
+                <!-- 左カラム -->
+                <div class="mb-3">
+                  <label for="memberId" class="form-label">会員番号</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="memberId"
+                    value="001"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="memberName" class="form-label">氏名</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="memberName"
+                    value="山田 太郎"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="kana" class="form-label">フリガナ</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="kana"
+                    value="ヤマダ タロウ"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="postalCode" class="form-label">郵便番号</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="postalCode"
+                    value="460-0000"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="address" class="form-label">住所</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="address"
+                    value="愛知県名古屋市中区1-2-3"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="phone" class="form-label">電話番号</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="phone"
+                    value="090-1234-5678"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <!-- 右カラム -->
+                <div class="mb-3">
+                  <label for="email" class="form-label">メール</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    value="taro.yamada@example.com"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="gender" class="form-label">性別</label>
+                  <select class="form-control" id="gender" disabled>
+                    <option selected>男性</option>
+                    <option>女性</option>
+                    <option>その他</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="birthDate" class="form-label">生年月日</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="birthDate"
+                    value="1980-05-15"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="joinDate" class="form-label">入会日</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="joinDate"
+                    value="2021-04-01"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="status" class="form-label">ステータス</label>
+                  <select class="form-control" id="status" disabled>
+                    <option value="active" selected>在籍中</option>
+                    <option value="suspended">休会中</option>
+                    <option value="withdrawn">退会済</option>
+                  </select>
+                </div>
+
+                <!-- 緊急連絡先追加部分 -->
+                <hr>
+                <h5 class="mb-3">緊急連絡先</h5>
+                <div class="mb-3">
+                  <label for="emergencyName" class="form-label">氏名</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="emergencyName"
+                    value="山田 花子"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="emergencyRelation" class="form-label">関係性</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="emergencyRelation"
+                    value="妻"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="emergencyPhone" class="form-label">電話番号</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="emergencyPhone"
+                    value="090-1111-2222"
+                    readonly
+                  />
+                </div>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- タブメニュー -->
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeClass">
+            コース・クラス
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeBank">
+            口座情報
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeNotes">
+            申し送り事項
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeMemberCard">
+            会員カルテ
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeGroup">
+            グループ
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content mt-3">
+        <iframe id="iframeClass" src="./student_setting/tab_class.html"></iframe>
+        <iframe id="iframeBank" src="./student_setting/tab_bank.html"></iframe>
+        <iframe id="iframeNotes" src="./student_setting/tab_notes.html"></iframe>
+        <iframe id="iframeMemberCard" src="./student_setting/tab_memberCard.html"></iframe>
+        <iframe id="iframeGroup" src="./student_setting/tab_group.html"></iframe>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const tabButtons = document.querySelectorAll('.nav-link[data-target]');
+        const iframes = {
+          iframeClass: document.getElementById('iframeClass'),
+          iframeBank: document.getElementById('iframeBank'),
+          iframeNotes: document.getElementById('iframeNotes'),
+          iframeMemberCard: document.getElementById('iframeMemberCard'),
+          iframeGroup: document.getElementById('iframeGroup')
+        };
+
+        // 初期表示: レッスンタブを表示
+        showIframe('iframeClass');
+
+        tabButtons.forEach(btn => {
+          btn.addEventListener('click', (event) => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            const target = event.currentTarget.getAttribute('data-target');
+            showIframe(target);
+          });
+        });
+
+        function showIframe(targetId) {
+          // 全て非表示
+          Object.values(iframes).forEach(iframe => {
+            iframe.style.display = 'none';
+          });
+          // 対象のみ表示
+          iframes[targetId].style.display = 'block';
+        }
+      });
+
+      function toggleEditMode() {
+        const isReadOnly = document.getElementById("memberId").readOnly;
+        const formControls = document.querySelectorAll("#memberForm .form-control");
+        const selects = document.querySelectorAll("#memberForm select");
+
+        formControls.forEach((control) => {
+          control.readOnly = !isReadOnly;
+          control.classList.toggle("bg-white", isReadOnly);
+        });
+
+        selects.forEach((select) => {
+          select.disabled = !select.disabled;
+        });
+
+        document.getElementById("editButton").style.display = isReadOnly ? "none" : "inline-block";
+        document.getElementById("withdrawButton").style.display = isReadOnly ? "none" : "inline-block";
+        document.getElementById("suspendButton").style.display = isReadOnly ? "none" : "inline-block";
+        document.getElementById("saveButton").style.display = isReadOnly ? "inline-block" : "none";
+        document.getElementById("saveNextButton").style.display = isReadOnly ? "inline-block" : "none";
+      }
+
+      function saveInfo() {
+        alert("情報を保存しました。");
+        toggleEditMode();
+      }
+
+      function confirmResignation() {
+        const memberId = document.getElementById("memberId").value;
+        const memberName = document.getElementById("memberName").value;
+        const confirmation = confirm(`会員番号: ${memberId}\n氏名: ${memberName}\n\nこの会員を退会させてよろしいですか？`);
+        if (confirmation) {
+          alert("退会処理が完了しました。");
+          document.getElementById('status').value = 'withdrawn';
+        }
+      }
+
+      function confirmSuspend() {
+        const memberId = document.getElementById("memberId").value;
+        const memberName = document.getElementById("memberName").value;
+        const confirmation = confirm(`会員番号: ${memberId}\n氏名: ${memberName}\n\nこの会員を休会させてよろしいですか？`);
+        if (confirmation) {
+          alert("休会処理が完了しました。");
+          document.getElementById('status').value = 'suspended';
+        }
+      }
+    </script>
+  </body>
+</html>

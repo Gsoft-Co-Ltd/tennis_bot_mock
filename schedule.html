@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>テニススクール管理ダッシュボード</title>
+<style>
+:root {
+  --primary-blue: #3498db;
+  --primary-green: #2ecc71;
+  --background-color: #f8fafc;
+  --border-color: #e2e8f0;
+  --text-color: #334155;
+  --hour-height: 60px; /* 1h=60px */
+  --total-height: 750px; /* 9:00～21:30=12.5h=750px */
+  --time-col-width: 60px;
+  --timeslot-col-width: 120px;
+  --court-width: 100px;
+  --day-count:7; /* 月～日 */
+  --court-count:3; /* コートA～C */
+}
+
+/* 全要素リセット */
+* {margin:0; padding:0; box-sizing:border-box;}
+
+body {
+  font-family:"Noto Sans JP",sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  overflow-x:auto;
+}
+
+.controls {
+  display:flex; gap:12px; margin:20px; align-items:center;
+}
+
+button {
+  background-color: var(--primary-blue);
+  color:white; border:none; padding:8px 16px; border-radius:6px;
+  font-size:14px; cursor:pointer; transition:opacity 0.2s;
+}
+button:hover {opacity:0.9;}
+
+select {
+  padding:8px 12px;
+  border:1px solid var(--border-color);
+  border-radius:6px;
+  font-size:14px;
+  background:white;
+}
+
+/* 計算： 3コート*100=300px/日。7日で2100px。
+   左に60+120=180px必要なので total=180+2100=2280px */
+.main-container {
+  position: relative;
+  width: 2280px;
+  height: calc(var(--total-height) + 82px);
+  margin:20px;
+  border:1px solid var(--border-color);
+  overflow:hidden;
+}
+
+/* 時間・時間割・レッスン配置等共通スタイル */
+.hour-line {
+  position:absolute; left:0; right:0; height:1px; background:#ccc;
+}
+
+.time-label {
+  position:absolute; width:100%; text-align:center; font-size:11px;
+  color:#64748b;
+}
+
+.timeslot-block {
+  position:absolute;
+  left:8px; right:8px;
+  border:1px solid var(--border-color);
+  border-radius:4px;
+  background:#ecf5ff;
+  font-size:11px;
+  text-align:center;
+  padding:2px;
+  box-sizing:border-box;
+}
+
+.day-header {
+  position:absolute;
+  top:0;
+  height:40px;
+  color:white; 
+  font-size:14px; display:flex;align-items:center;justify-content:center;font-weight:500;
+}
+
+/* 平日は交互：月(薄青)・火(白)・水(薄青)・木(白)・金(薄青) 
+   土:青(#3498db) 日:赤(#e74c3c) */
+.day-header[data-day="月曜日"] {background:#f0f8ff; color:#333;}
+.day-header[data-day="火曜日"] {background:#ffffff; color:#333; border-top:2px solid #ccc;}
+.day-header[data-day="水曜日"] {background:#f0f8ff; color:#333;}
+.day-header[data-day="木曜日"] {background:#ffffff; color:#333;}
+.day-header[data-day="金曜日"] {background:#f0f8ff; color:#333;}
+.day-header[data-day="土曜日"] {background:#3498db; color:#fff;}
+.day-header[data-day="日曜日"] {background:#e74c3c; color:#fff;}
+
+.court-header {
+  position:absolute;
+  height:40px; background:var(--primary-green);color:white;
+  font-size:13px; display:flex;align-items:center;justify-content:center;font-weight:500;
+}
+
+.court-column {
+  position:absolute;
+  top:80px; /* 40px day-header + 40px court-header */
+  border:1px solid var(--border-color);
+  background:#fff;
+  width:var(--court-width);
+  height:var(--total-height);
+  overflow:hidden;
+}
+
+/* レッスン */
+.lesson {
+  position:absolute; left:4px; right:4px; border-radius:6px; padding:8px;
+  font-size:12px; color:white; overflow:hidden; cursor:pointer;
+}
+.lesson:hover {transform:scale(1.02);transition:transform 0.2s;}
+
+.lesson.beginner { background:#3498db; }
+.lesson.intermediate {background:#2ecc71;}
+.lesson.advanced {background:#9b59b6;}
+
+.lesson-title {font-weight:500; margin-bottom:2px;}
+.lesson-info {font-size:11px; opacity:0.9;}
+
+/* オーバーレイ・ポップアップ */
+.overlay {
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.5);
+  z-index:999;
+}
+
+.popup {
+  display:none;
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  padding:24px;
+  border-radius:8px;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+  z-index:1000;
+  width:90%;max-width:400px;
+}
+.popup h2 {font-size:18px;margin-bottom:16px;}
+.participant-list {list-style:none;margin-bottom:20px;}
+.participant-list li {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--border-color);
+}
+.status {
+  padding:4px 8px; border-radius:12px; font-size:12px; color:white;
+}
+.status-レギュラー{background:#2ecc71;}
+.status-欠席{background:#e74c3c;}
+.status-振替{background:#f39c12;}
+</style>
+</head>
+<body>
+<div class="controls">
+  <button id="today-button">今日の予定</button>
+  <button id="week-button">一週間の予定</button>
+  <select id="filter-day">
+    <option value="all">全ての曜日</option>
+    <option value="月曜日">月曜日</option>
+    <option value="火曜日">火曜日</option>
+    <option value="水曜日">水曜日</option>
+    <option value="木曜日">木曜日</option>
+    <option value="金曜日">金曜日</option>
+    <option value="土曜日">土曜日</option>
+    <option value="日曜日">日曜日</option>
+  </select>
+</div>
+
+<div class="main-container" id="main-container"></div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+  <h2>受講者一覧 <span id="participant-count"></span></h2>
+  <ul class="participant-list" id="participant-list"></ul>
+  <button onclick="closePopup()">閉じる</button>
+</div>
+
+<script>
+function getTodayName() {
+  const weekday=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
+  return weekday[new Date().getDay()];
+}
+
+const timeslots = [
+  { code: "A", start: "09:00", end: "10:30" },
+  { code: "B", start: "10:45", end: "12:15" },
+  { code: "C", start: "13:00", end: "14:30" },
+  { code: "D", start: "14:45", end: "16:15" },
+  { code: "E", start: "16:30", end: "18:00" },
+  { code: "F", start: "18:15", end: "19:45" },
+  { code: "G", start: "20:00", end: "21:30" },
+];
+
+const days = ["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"];
+const courts = ["コートA","コートB","コートC"];
+const levels=["beginner","intermediate","advanced"];
+const coaches=["田中","佐藤","鈴木","山田","加藤","渡辺","高橋","松本","伊藤","中村","橋本","清水","林","斎藤","森田","原田","川島","石井","木村","山本"];
+const statuses=["レギュラー","欠席","振替"];
+
+function randomParticipants(count,cap){
+  const names=["田中","佐藤","鈴木","高橋","伊藤","渡辺","中村","小林","加藤","山本","松本","清水","木村","林","斎藤","山崎","原田","森田","桜井","相川","橋本","内田","石井","川島","藤田","島田","中村優子","加藤太一","山口美紀","松本麗子"];
+  const parts=[];
+  for(let i=0;i<count;i++){
+    const name=names[Math.floor(Math.random()*names.length)];
+    const st=statuses[Math.floor(Math.random()*statuses.length)];
+    parts.push({name, status:st});
+  }
+  return parts;
+}
+
+// ランダムレッスン作成
+const lessons=[];
+days.forEach(day=>{
+  timeslots.forEach(ts=>{
+    courts.forEach(court=>{
+      const lvl=levels[Math.floor(Math.random()*levels.length)];
+      const cch=coaches[Math.floor(Math.random()*coaches.length)];
+      const cap=5+Math.floor(Math.random()*10);
+      const pCount=2+Math.floor(Math.random()*cap);
+      const parts=randomParticipants(pCount,cap);
+
+      lessons.push({
+        day, court,
+        startTime:ts.start,
+        endTime:ts.end,
+        level:lvl,
+        coach:cch,
+        capacity:cap,
+        participants:parts
+      });
+    });
+  });
+});
+
+const dayWidth=courts.length*100; //3*100=300px/日
+const baseX=60+120; //180px offset
+
+function generateSchedule(filterDay="all"){
+  const container=document.getElementById('main-container');
+  container.innerHTML='';
+
+  generateHourLines(container);
+  generateTimeLabels(container);
+  generateTimeslotBlocks(container);
+  generateDayBoundaries(container);
+
+  days.forEach(day=>{
+    if(filterDay!=="all" && day!==filterDay) return;
+    const dIndex=days.indexOf(day);
+    const dayX=baseX+(dIndex*dayWidth);
+    const dayHdr=document.createElement('div');
+    dayHdr.className='day-header';
+    dayHdr.textContent=day;
+    dayHdr.dataset.day=day; //曜日判定用
+    dayHdr.style.left=dayX+'px';
+    dayHdr.style.top='0px';
+    dayHdr.style.width=dayWidth+'px';
+    dayHdr.style.position='absolute';
+    dayHdr.style.zIndex='10';
+    container.appendChild(dayHdr);
+
+    courts.forEach(court=>{
+      const cIndex=courts.indexOf(court);
+      const courtX=dayX+(cIndex*100);
+      const cHdr=document.createElement('div');
+      cHdr.className='court-header';
+      cHdr.textContent=court;
+      cHdr.style.position='absolute';
+      cHdr.style.top='40px';
+      cHdr.style.left=courtX+'px';
+      cHdr.style.width='100px';
+      cHdr.style.zIndex='10';
+      container.appendChild(cHdr);
+
+      const cCol=document.createElement('div');
+      cCol.className='court-column';
+      cCol.style.position='absolute';
+      cCol.style.top='80px';
+      cCol.style.left=courtX+'px';
+      cCol.style.width='100px';
+      cCol.style.height='750px';
+      container.appendChild(cCol);
+
+      const dayLessons=lessons.filter(l=>l.day===day && l.court===court);
+      dayLessons.forEach(lesson=>{
+        const lessonEl=document.createElement('div');
+        lessonEl.className='lesson '+lesson.level;
+        const top=calculateTop(lesson.startTime);
+        const height=calculateHeight(lesson.startTime,lesson.endTime);
+        lessonEl.style.top=top+'px';
+        lessonEl.style.height=height+'px';
+
+        lessonEl.innerHTML=`
+          <div class="lesson-title">${levelToText(lesson.level)}</div>
+          <div class="lesson-info">${lesson.coach}コーチ</div>
+          <div class="lesson-info">${lesson.startTime}-${lesson.endTime}</div>
+        `;
+        lessonEl.addEventListener('click',()=>showPopup(lesson));
+        cCol.appendChild(lessonEl);
+      });
+    });
+  });
+}
+
+function generateHourLines(container){
+  //9:00〜21:00まで+21:30ライン
+  for(let h=9;h<=21;h++){
+    const top=(h-9)*60; 
+    const line=document.createElement('div');
+    line.className='hour-line';
+    line.style.position='absolute';
+    line.style.top=(82+top)+'px';
+    line.style.left='0';
+    line.style.width='100%';
+    container.appendChild(line);
+  }
+  //21:30ライン
+  const line21_30=document.createElement('div');
+  line21_30.className='hour-line';
+  line21_30.style.position='absolute';
+  line21_30.style.top=(82+750)+'px';
+  line21_30.style.left='0';
+  line21_30.style.width='100%';
+  container.appendChild(line21_30);
+}
+
+function generateTimeLabels(container){
+  for(let h=9;h<=21;h++){
+    const top=(h-9)*60;
+    const lbl=document.createElement('div');
+    lbl.className='time-label';
+    lbl.style.position='absolute';
+    lbl.style.top=(82+top-10)+'px';
+    lbl.style.left='0px';
+    lbl.style.width='60px';
+    lbl.textContent=`${h}:00`;
+    container.appendChild(lbl);
+  }
+}
+
+function generateTimeslotBlocks(container){
+  const timeslotX=60; 
+  timeslots.forEach(ts=>{
+    const block=document.createElement('div');
+    block.className='timeslot-block';
+    const top=calculateTop(ts.start);
+    const height=calculateHeight(ts.start,ts.end);
+    block.style.position='absolute';
+    block.style.top=(82+top)+'px';
+    block.style.left=timeslotX+'px';
+    block.style.width=(120-16)+'px';
+    block.style.height=height+'px';
+    block.innerHTML=`<strong>${ts.code}</strong><br>${ts.start}-${ts.end}`;
+    container.appendChild(block);
+  });
+}
+
+function generateDayBoundaries(container){
+  const dayWidth=3*100; //3コート=300px/day
+  const baseX=180; //60+120
+  for(let d=1; d<days.length; d++){
+    const lineX=baseX+(d*dayWidth);
+    const vline=document.createElement('div');
+    vline.style.position='absolute';
+    vline.style.top='0';
+    vline.style.left=lineX+'px';
+    vline.style.width='2px';
+    vline.style.height='calc(var(--total-height)+82px)';
+    vline.style.background='#000';
+    vline.style.zIndex='5';
+    container.appendChild(vline);
+  }
+}
+
+function calculateTop(time){
+  const [h,m]=time.split(":").map(Number);
+  return (h-9)*60+m;
+}
+function calculateHeight(start,end){
+  const [sh,sm]=start.split(":").map(Number);
+  const [eh,em]=end.split(":").map(Number);
+  return (eh*60+em)-(sh*60+sm);
+}
+function levelToText(l){
+  const map={beginner:"初級",intermediate:"中級",advanced:"上級"};
+  return map[l]||l;
+}
+
+function showPopup(lesson){
+  const popup=document.getElementById("popup");
+  const overlay=document.getElementById("overlay");
+  const participantList=document.getElementById("participant-list");
+  const participantCount=document.getElementById("participant-count");
+
+  participantList.innerHTML="";
+  lesson.participants.forEach(p=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span>${p.name}</span><span class="status status-${p.status}">${p.status}</span>`;
+    participantList.appendChild(li);
+  });
+  const activeCount=lesson.participants.filter(p=>p.status!=="欠席").length;
+  participantCount.textContent=`(${activeCount}/${lesson.capacity})`;
+
+  popup.style.display='block';
+  overlay.style.display='block';
+}
+function closePopup(){
+  document.getElementById("popup").style.display='none';
+  document.getElementById("overlay").style.display='none';
+}
+function getTodayName(){
+  const weekday=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
+  return weekday[new Date().getDay()];
+}
+
+document.getElementById("today-button").addEventListener("click",()=>{
+  const today=getTodayName();
+  document.getElementById("filter-day").value=today;
+  generateSchedule(today);
+});
+
+document.getElementById("week-button").addEventListener("click",()=>{
+  document.getElementById("filter-day").value="all";
+  generateSchedule("all");
+});
+
+document.getElementById("filter-day").addEventListener("change",function(){
+  generateSchedule(this.value);
+});
+
+document.getElementById("overlay").addEventListener("click",closePopup);
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const today=getTodayName();
+  document.getElementById("filter-day").value=today;
+  generateSchedule(today);
+});
+</script>
+</body>
+</html>

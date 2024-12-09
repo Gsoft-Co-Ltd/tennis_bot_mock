@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>テニススクール顧客管理</title>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet"
+/>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+  body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #f5f7fa;
+    margin: 0;
+  }
+
+  .main-container {
+    display: flex;
+    flex: 1;
+    /* 全体スクロールでサイドバーが下まで見れるようにするためoverflowを管理しない */
+  }
+
+  .navbar {
+    background-color: #334e68;
+    color: #ffffff;
+  }
+
+  .navbar a.navbar-brand {
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+
+  .navbar .user-actions span.user-name {
+    color: #bcd4e6;
+    font-weight: bold;
+  }
+
+  .navbar button {
+    color: #ffffff;
+    border-color: #4a90e2;
+    background-color: #4a90e2;
+    margin-left: 5px;
+  }
+
+  .navbar button:hover {
+    background-color: #2a6fb3;
+    color: #ffffff;
+  }
+
+  .sidebar {
+    min-width: 210px;
+    max-width: 210px;
+    background-color: #3a506b;
+    padding-top: 20px;
+    border-right: 2px solid #2b3e50;
+  }
+
+  .sidebar a {
+    color: #e0e8f9 !important;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .sidebar a:hover {
+    background-color: #4c738e;
+    color: #ffffff !important;
+  }
+
+  .accordion-button {
+    background-color: #334e68;
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .accordion-button:not(.collapsed) {
+    background-color: #4a90e2;
+    color: #ffffff;
+  }
+
+  .accordion {
+    --bs-accordion-btn-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 1 1-.708.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3E%3C/svg%3E");
+  }
+
+  .accordion-body {
+    background-color: #334e68;
+    color: #ffffff;
+  }
+
+  .content {
+    flex: 1;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  #mainFrame {
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 56px);
+    border: none;
+  }
+
+  .navbar-brand .material-icons {
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+
+  .role-selector {
+    margin-right: 20px;
+  }
+</style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="navbar navbar-expand-lg px-3">
+    <a class="navbar-brand" href="#">
+      <span class="material-icons">sports_tennis</span>
+      東別院テニスクラブ事務管理画面
+    </a>
+    <div class="role-selector" style="display: none">
+      <label for="roleSelect" class="form-label text-white">権限選択:</label>
+      <select id="roleSelect" class="form-select">
+        <option value="systemAdmin">システム管理者</option>
+        <option value="companyAdmin">企業管理者</option>
+        <option value="schoolAdmin">スクール管理者</option>
+      </select>
+    </div>
+    <div class="user-actions ms-auto">
+      <span class="user-name">山田太郎</span>
+      <button class="btn btn-outline-light me-2">
+        <a
+          class="nav-link sidebar-link"
+          href="#"
+          data-url="usersettings.html"
+        >
+          <i class="bi bi-gear-fill"></i> 管理者設定</a
+        >
+      </button>
+      <button id="logout" class="btn btn-outline-light">
+        <i class="bi bi-box-arrow-right"></i> ログアウト
+      </button>
+    </div>
+  </header>
+
+  <!-- 確認モーダル -->
+  <div
+    class="modal fade"
+    id="logoutConfirmationModal"
+    tabindex="-1"
+    aria-labelledby="logoutConfirmationLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger" id="logoutConfirmationLabel">
+            <i class="bi bi-box-arrow-right"></i> ログアウト確認
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="閉じる"
+          ></button>
+        </div>
+        <div class="modal-body">本当にログアウトしますか？</div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            キャンセル
+          </button>
+          <button type="button" class="btn btn-danger" id="confirmLogout">
+            ログアウト
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- メインコンテナ -->
+  <div class="main-container">
+    <!-- サイドバー -->
+    <nav class="sidebar">
+      <div class="accordion" id="accordionSidebar">
+        <!-- スクール生管理 -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingCustomer">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseCustomer"
+            >
+              <i class="bi bi-people-fill"></i> スクール生管理
+            </button>
+          </h2>
+          <div id="collapseCustomer" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="memberlist.html"
+                  >
+                    <i class="bi bi-list"></i> スクール生一覧
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="attendancehistory.html"
+                  >
+                    <i class="bi bi-journals"></i> スクール生出欠・予約一覧
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="line.html"
+                  >
+                     LINE管理
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- スクール管理 -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingSchool">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseSchool"
+            >
+              <i class="bi bi-bus-front-fill"></i> スクール管理
+            </button>
+          </h2>
+          <div id="collapseSchool" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="schedule.html"
+                  >
+                    <i class="bi bi-calendar3"></i> スケジュール
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="lessonlist.html"
+                  >
+                    <i class="bi bi-card-list"></i> レッスン管理
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="schooldetail.html"
+                  >
+                    <i class="bi bi-house-gear-fill"></i> スクール管理
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="courseclass.html"
+                  >
+                    <i class="bi bi-pencil-square"></i> コース・クラス管理
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- 企業管理 -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingCompany">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseCompany"
+            >
+              <i class="bi bi-buildings-fill"></i> 企業管理
+            </button>
+          </h2>
+          <div id="collapseCompany" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="companyinfo.html"
+                  >
+                    <i class="bi bi-info-circle"></i> 企業情報
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- 請求管理 -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingBilling">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseBilling"
+            >
+              <i class="bi bi-receipt"></i> 請求管理
+            </button>
+          </h2>
+          <div id="collapseBilling" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="claimlist.html"
+                  >
+                    <i class="bi bi-receipt-cutoff"></i> 請求一覧
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="changehistory.html"
+                  >
+                    <i class="bi bi-clock-history"></i> 料金変更履歴
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="nav-link sidebar-link"
+                    href="#"
+                    data-url="discount.html"
+                  >
+                    <i class="bi bi-cash-coin"></i> 割引管理
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- コンテンツエリア -->
+    <div class="content">
+      <iframe
+        id="mainFrame"
+        src="defaultpage.html"
+        style="width: 100%; height: 100%; border: none"
+        title="メインコンテンツ"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // ヘッダーのタイトルをクリックしたときの動作
+    document
+      .querySelector(".navbar-brand")
+      .addEventListener("click", function (event) {
+        event.preventDefault(); // デフォルトのリンク動作を無効化
+        document.getElementById("mainFrame").src = "defaultpage.html"; // デフォルトページに戻す
+      });
+
+    document.querySelectorAll(".sidebar-link").forEach((link) => {
+      link.addEventListener("click", function (event) {
+        event.preventDefault();
+        const isUnderConstruction = this.getAttribute(
+          "data-under-construction"
+        );
+        if (isUnderConstruction === "true") {
+          const modal = new bootstrap.Modal(
+            document.getElementById("pageUnderConstructionModal")
+          );
+          modal.show();
+        } else {
+          const targetUrl = this.getAttribute("data-url");
+          if (targetUrl) {
+            document.getElementById("mainFrame").src = targetUrl;
+          }
+        }
+      });
+    });
+    // ログアウトボタンのクリックイベント
+    document.getElementById("logout").addEventListener("click", function () {
+      const modal = new bootstrap.Modal(
+        document.getElementById("logoutConfirmationModal")
+      );
+      modal.show();
+    });
+
+    // 確認モーダルのログアウトボタン処理
+    document
+      .getElementById("confirmLogout")
+      .addEventListener("click", function () {
+        // ログアウト処理 (例: ログイン画面にリダイレクト)
+        window.location.href = "login.html";
+      });
+
+    // 子画面からメイン画面を遷移させる
+    window.addEventListener("message", function (event) {
+      if (event.data && event.data.type === "navigate") {
+        const targetUrl = event.data.url;
+        document.getElementById("mainFrame").src = targetUrl;
+      }
+    });
+  </script>
+</body>
+</html>

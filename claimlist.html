@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>請求情報一覧</title>
+    <!-- Bootstrap 5 CSS -->
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- xlsxライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Select2 CSS -->
+    <link 
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css"
+      rel="stylesheet" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .container {
+        margin-top: 40px;
+      }
+
+      h2 {
+        color: #007bff;
+        font-weight: 700;
+      }
+
+      .search-bar {
+        max-width: 400px;
+      }
+
+      table {
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      th {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        position: relative;
+      }
+
+      th .sort-icon {
+        margin-left: 8px;
+      }
+
+      .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+      }
+
+      .btn-before-request {
+        background-color: #e2e3e5;
+        color: #6c757d;
+      }
+
+      .btn-paid {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .btn-failed {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+      }
+
+      .btn-danger {
+        background-color: #ff6b6b;
+        color: white;
+      }
+
+      /* モーダルのスタイルを追加 */
+      .modal-header {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .form-check-label {
+        margin-left: 8px;
+      }
+
+      /* カテゴリ列のスタイル */
+      td:nth-child(10),
+      th:nth-child(10) {
+        text-align: center;
+      }
+
+      /* 名前列のスタイル */
+      td:nth-child(2) {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+      }
+
+      td:nth-child(2):hover {
+        color: #0056b3;
+      }
+
+      /* 割引複数選択用 */
+      .discount-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f0f0f0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        margin-bottom: 5px;
+      }
+      .discount-list-item span {
+        flex-grow: 1;
+      }
+      .discount-order-buttons button {
+        margin-left: 5px;
+      }
+      .final-amount-preview {
+        margin-top: 15px;
+      }
+
+      /* 割引リストで削除ボタン追加 */
+      .discount-delete-btn {
+        margin-left:5px;
+        color: #c00;
+        background:none;
+        border:none;
+        cursor:pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2 class="mb-4">請求情報一覧</h2>
+
+      <!-- 年月選択フォーム -->
+      <div class="d-flex mb-4">
+        <label for="yearSelect" class="form-label me-2">年:</label>
+        <select
+          id="yearSelect"
+          class="form-select me-4"
+          style="max-width: 100px"
+        >
+          <!-- 年のオプションを追加 -->
+        </select>
+        <label for="monthSelect" class="form-label me-2">月:</label>
+        <select
+          id="monthSelect"
+          class="form-select me-4"
+          style="max-width: 100px"
+        >
+          <!-- 月のオプションを追加 -->
+        </select>
+      </div>
+
+      <!-- 検索バーとボタン群 -->
+      <div class="d-flex mb-4">
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control me-2"
+          placeholder="会員名で検索"
+          style="max-width: 300px"
+        />
+        <div class="d-flex">
+          <button class="btn btn-success me-2">
+            <i class="fas fa-file-excel"></i> 請求データ出力
+          </button>
+          <!-- Excelインポートボタン -->
+          <button class="btn btn-warning me-2" id="excelImportButton">
+            <i class="fas fa-file-import"></i> 支払い状況をExcelからインポート
+          </button>
+          <!-- 実際のファイル入力（非表示） -->
+          <input
+            type="file"
+            id="excelInput"
+            accept=".xlsx, .xls"
+            style="display: none"
+          />
+          <!-- 請求情報追加ボタン（モーダルをトリガー） -->
+          <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addBillingModal"
+          >
+            <i class="fas fa-plus"></i> 請求情報追加
+          </button>
+        </div>
+      </div>
+
+      <!-- フィルタリング用チェックボックス -->
+      <div class="form-check mb-4">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="failedOnly"
+        />
+        <label class="form-check-label" for="failedOnly">
+          引落失敗のみ表示
+        </label>
+      </div>
+
+      <!-- 請求情報一覧テーブル -->
+      <table class="table table-striped table-hover" id="billingTable">
+        <thead>
+          <tr>
+            <th scope="col" onclick="sortTable(0)">
+              請求ID <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(1)">
+              会員名 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(2)">
+              元金額 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(3)">
+              割引金額 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(4)">
+              割引種類 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(5)">
+              最終請求額（税込） <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(6)">
+              請求日 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(7)">
+              支払い状況 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <!-- 決済方法カラム追加 -->
+            <th scope="col" onclick="sortTable(8)">
+              決済方法 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(9)">
+              カテゴリ <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- サンプルデータ -->
+          <!-- 2024年9月の請求 -->
+          <tr>
+            <td>1001</td>
+            <td class="member-name" data-member-id="1">山田 太郎</td>
+            <td>¥12,000</td>
+            <td>¥2,000</td>
+            <td>早期割引</td>
+            <td>¥11,000</td>
+            <td>2024/09/01</td>
+            <td><button class="btn btn-paid btn-sm">支払い済み</button></td>
+            <td>現金</td>
+            <td>レッスン費</td>
+            <td>
+              <button class="btn btn-primary btn-sm edit-btn" data-id="1001">編集</button>
+              <button class="btn btn-danger btn-sm delete-btn" data-id="1001">削除</button>
+            </td>
+          </tr>
+          <tr>
+            <td>1002</td>
+            <td class="member-name" data-member-id="2">佐藤 花子</td>
+            <td>¥15,000</td>
+            <td>¥3,000</td>
+            <td>紹介割引</td>
+            <td>¥13,200</td>
+            <td>2024/09/15</td>
+            <td><button class="btn btn-failed btn-sm">引落失敗</button></td>
+            <td>口座引落</td>
+            <td>ラケット費</td>
+            <td>
+              <button class="btn btn-primary btn-sm edit-btn" data-id="1002">編集</button>
+              <button class="btn btn-danger btn-sm delete-btn" data-id="1002">削除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 請求情報追加モーダル -->
+    <div
+      class="modal fade"
+      id="addBillingModal"
+      tabindex="-1"
+      aria-labelledby="addBillingModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="addBillingForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addBillingModalLabel">
+                請求情報追加
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="閉じる"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <!-- 会員名（ドロップダウン） -->
+              <div class="mb-3">
+                <label for="memberName" class="form-label">会員名</label>
+                <select id="memberName" class="form-select" required>
+                  <option value="" selected disabled>
+                    会員を選択してください
+                  </option>
+                  <option value="山田 太郎">山田 太郎</option>
+                  <option value="佐藤 花子">佐藤 花子</option>
+                  <option value="鈴木 一郎">鈴木 一郎</option>
+                  <option value="田中 真美">田中 真美</option>
+                  <option value="高橋 健二">高橋 健二</option>
+                  <option value="井上 結衣">井上 結衣</option>
+                  <option value="渡辺 遼">渡辺 遼</option>
+                  <option value="松本 優">松本 優</option>
+                  <option value="中村 光">中村 光</option>
+                  <option value="小林 明美">小林 明美</option>
+                </select>
+              </div>
+              <!-- 元金額 -->
+              <div class="mb-3">
+                <label for="originalAmount" class="form-label">元金額</label>
+                <input
+                  type="number"
+                  id="originalAmount"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <!-- 割引金額 -->
+              <div class="mb-3">
+                <label for="discountAmount" class="form-label">割引金額</label>
+                <input
+                  type="number"
+                  id="discountAmount"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <!-- 割引種類 -->
+              <div class="mb-3">
+                <label for="discountType" class="form-label">割引種類</label>
+                <select id="discountType" class="form-select" required>
+                  <option value="" selected disabled>
+                    割引種類を選択してください
+                  </option>
+                  <option value="早期割引">早期割引</option>
+                  <option value="紹介割引">紹介割引</option>
+                  <option value="長期契約割引">長期契約割引</option>
+                </select>
+              </div>
+
+              <!-- 追加割引単一選択から追加形式 -->
+              <div class="mb-3">
+                <label class="form-label">追加割引</label>
+                <select id="addDiscountSelect" class="form-select" style="width:100%;">
+                  <option value="" selected disabled>割引を選択</option>
+                </select>
+                <div id="addSelectedDiscountList" class="mt-2"></div>
+                <div class="final-amount-preview" id="addFinalAmountPreview"></div>
+              </div>
+
+              <!-- 請求日 -->
+              <div class="mb-3">
+                <label for="billingDate" class="form-label">請求日</label>
+                <input
+                  type="date"
+                  id="billingDate"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <!-- カテゴリ -->
+              <div class="mb-3">
+                <label for="category" class="form-label">カテゴリ</label>
+                <select id="category" class="form-select" required>
+                  <option value="" selected disabled>
+                    カテゴリを選択してください
+                  </option>
+                  <option value="レッスン費">レッスン費</option>
+                  <option value="ラケット費">ラケット費</option>
+                  <option value="用品費">用品費</option>
+                </select>
+              </div>
+              <!-- 支払い状況 -->
+              <div class="mb-3">
+                <label for="paymentStatus" class="form-label">支払い状況</label>
+                <select id="paymentStatus" class="form-select" required>
+                  <option value="引落依頼前">引落依頼前</option>
+                  <option value="支払い済み">支払い済み</option>
+                  <option value="引落失敗">引落失敗</option>
+                  <option value="未払い">未払い</option>
+                </select>
+              </div>
+              <!-- 決済方法 -->
+              <div class="mb-3">
+                <label for="paymentMethod" class="form-label">決済方法</label>
+                <select id="paymentMethod" class="form-select" required>
+                  <option value="現金">現金</option>
+                  <option value="口座引落">口座引落</option>
+                </select>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">追加</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                キャンセル
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 請求情報編集モーダル -->
+    <div
+      class="modal fade"
+      id="editBillingModal"
+      tabindex="-1"
+      aria-labelledby="editBillingModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="editBillingForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editBillingModalLabel">
+                請求情報編集
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="閉じる"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="editMemberName" class="form-label">会員名</label>
+                <select id="editMemberName" class="form-select" required>
+                  <option value="" selected disabled>
+                    会員を選択してください
+                  </option>
+                  <option value="山田 太郎">山田 太郎</option>
+                  <option value="佐藤 花子">佐藤 花子</option>
+                  <option value="鈴木 一郎">鈴木 一郎</option>
+                  <option value="田中 真美">田中 真美</option>
+                  <option value="高橋 健二">高橋 健二</option>
+                  <option value="井上 結衣">井上 結衣</option>
+                  <option value="渡辺 遼">渡辺 遼</option>
+                  <option value="松本 優">松本 優</option>
+                  <option value="中村 光">中村 光</option>
+                  <option value="小林 明美">小林 明美</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editOriginalAmount" class="form-label">元金額</label>
+                <input
+                  type="number"
+                  id="editOriginalAmount"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editDiscountAmount" class="form-label">割引金額</label>
+                <input
+                  type="number"
+                  id="editDiscountAmount"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editDiscountType" class="form-label">割引種類</label>
+                <select id="editDiscountType" class="form-select" required>
+                  <option value="" selected disabled>
+                    割引種類を選択してください
+                  </option>
+                  <option value="早期割引">早期割引</option>
+                  <option value="紹介割引">紹介割引</option>
+                  <option value="長期契約割引">長期契約割引</option>
+                </select>
+              </div>
+
+              <!-- 追加割引（編集用）単一選択から追加 -->
+              <div class="mb-3">
+                <label class="form-label">追加割引</label>
+                <select id="editDiscountSelect" class="form-select" style="width:100%;">
+                  <option value="" selected disabled>割引を選択</option>
+                </select>
+                <div id="editSelectedDiscountList" class="mt-2"></div>
+                <div class="final-amount-preview" id="editFinalAmountPreview"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="editBillingDate" class="form-label">請求日</label>
+                <input
+                  type="date"
+                  id="editBillingDate"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editCategory" class="form-label">カテゴリ</label>
+                <select id="editCategory" class="form-select" required>
+                  <option value="" selected disabled>
+                    カテゴリを選択してください
+                  </option>
+                  <option value="レッスン費">レッスン費</option>
+                  <option value="ラケット費">ラケット費</option>
+                  <option value="用品費">用品費</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editPaymentStatus" class="form-label">支払い状況</label>
+                <select id="editPaymentStatus" class="form-select" required>
+                  <option value="引落依頼前">引落依頼前</option>
+                  <option value="支払い済み">支払い済み</option>
+                  <option value="引落失敗">引落失敗</option>
+                  <option value="未払い">未払い</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editPaymentMethod" class="form-label">決済方法</label>
+                <select id="editPaymentMethod" class="form-select" required>
+                  <option value="現金">現金</option>
+                  <option value="口座引落">口座引落</option>
+                </select>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">保存</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                キャンセル
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 会員詳細モーダル -->
+    <div class="modal fade" id="memberDetailModal" tabindex="-1" aria-labelledby="memberDetailModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="memberDetailModalLabel">会員詳細情報</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <h6 id="memberName"></h6>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>請求ID</th>
+                  <th>元金額</th>
+                  <th>割引金額</th>
+                  <th>割引種類</th>
+                  <th>最終請求額</th>
+                  <th>請求日</th>
+                  <th>支払い状況</th>
+                  <th>カテゴリ</th>
+                </tr>
+              </thead>
+              <tbody id="memberDetailTableBody">
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="downloadExcelBtn">
+              <i class="fas fa-file-excel"></i> Excelダウンロード
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 割引のデータ（複数割引用）
+      const multiDiscounts=[
+        {id:'md1', text:'追加割引A(10%)', type:'percent', value:0.1},
+        {id:'md2', text:'追加割引B(¥2000)', type:'amount', value:2000},
+        {id:'md3', text:'追加割引C(5%)', type:'percent', value:0.05},
+        {id:'md4', text:'追加割引D(¥1000)', type:'amount', value:1000}
+      ];
+
+      let currentAddOriginal=0;
+      let currentAddSelectedDiscounts=[];
+      let currentEditOriginal=0;
+      let currentEditSelectedDiscounts=[];
+
+      $(document).ready(function(){
+        // 単一選択にするため multipleを外している、placeholder維持
+        $('#addDiscountSelect').select2({
+          placeholder:'割引を選択',
+          data:multiDiscounts,
+          minimumResultsForSearch:0,
+          allowClear:true
+        });
+        $('#editDiscountSelect').select2({
+          placeholder:'割引を選択',
+          data:multiDiscounts,
+          minimumResultsForSearch:0,
+          allowClear:true
+        });
+
+        // 単一選択→changeで選択したらcurrentSelectedに追加、セレクトをリセット
+        $('#addDiscountSelect').on('change',function(){
+          const val=$(this).val();
+          if(val){
+            const disc=multiDiscounts.find(d=>d.id===val);
+            currentAddSelectedDiscounts.push({...disc});
+            $(this).val(null).trigger('change');
+            renderDiscountList('add',currentAddSelectedDiscounts);
+            updateFinalAmountPreview('add');
+          }
+        });
+
+        $('#editDiscountSelect').on('change',function(){
+          const val=$(this).val();
+          if(val){
+            const disc=multiDiscounts.find(d=>d.id===val);
+            currentEditSelectedDiscounts.push({...disc});
+            $(this).val(null).trigger('change');
+            renderDiscountList('edit',currentEditSelectedDiscounts);
+            updateFinalAmountPreview('edit');
+          }
+        });
+
+        $('#originalAmount').on('input',function(){
+          currentAddOriginal=parseInt($(this).val()||0);
+          updateFinalAmountPreview('add');
+        });
+        $('#editOriginalAmount').on('input',function(){
+          currentEditOriginal=parseInt($(this).val()||0);
+          updateFinalAmountPreview('edit');
+        });
+      });
+
+      function syncDiscountSelection(selectedIds, currentList){
+        // 今回は単一追加方式になり、already handled by onChange event by pushing directly.
+        // ここは前回使った関数ですが、削除は不可との指示なし→行は残す。
+        return currentList; 
+      }
+
+      function renderDiscountList(mode,list){
+        const container=(mode==='add'?$('#addSelectedDiscountList'):$('#editSelectedDiscountList'));
+        container.empty();
+        list.forEach((d,i)=>{
+          const html=`
+          <div class="discount-list-item">
+            <span>${d.text}</span>
+            <div class="discount-order-buttons">
+              ${i>0?'<button type="button" class="btn btn-sm btn-light move-up" data-index="'+i+'" data-mode="'+mode+'"><i class="fas fa-arrow-up"></i></button>':''}
+              ${i<list.length-1?'<button type="button" class="btn btn-sm btn-light move-down" data-index="'+i+'" data-mode="'+mode+'"><i class="fas fa-arrow-down"></i></button>':''}
+              <button type="button" class="discount-delete-btn" data-index="${i}" data-mode="${mode}">×</button>
+            </div>
+          </div>`;
+          container.append(html);
+        });
+      }
+
+      $(document).on('click','.move-up',function(){
+        const idx=parseInt($(this).data('index'));
+        const mode=$(this).data('mode');
+        let arr=(mode==='add'?currentAddSelectedDiscounts:currentEditSelectedDiscounts);
+        if(idx>0){
+          const temp=arr[idx];
+          arr[idx]=arr[idx-1];
+          arr[idx-1]=temp;
+          if(mode==='add')currentAddSelectedDiscounts=arr; else currentEditSelectedDiscounts=arr;
+          renderDiscountList(mode,arr);
+          updateFinalAmountPreview(mode);
+        }
+      });
+
+      $(document).on('click','.move-down',function(){
+        const idx=parseInt($(this).data('index'));
+        const mode=$(this).data('mode');
+        let arr=(mode==='add'?currentAddSelectedDiscounts:currentEditSelectedDiscounts);
+        if(idx<arr.length-1){
+          const temp=arr[idx];
+          arr[idx]=arr[idx+1];
+          arr[idx+1]=temp;
+          if(mode==='add')currentAddSelectedDiscounts=arr; else currentEditSelectedDiscounts=arr;
+          renderDiscountList(mode,arr);
+          updateFinalAmountPreview(mode);
+        }
+      });
+
+      // 割引削除ボタン
+      $(document).on('click','.discount-delete-btn',function(){
+        const idx=parseInt($(this).data('index'));
+        const mode=$(this).data('mode');
+        let arr=(mode==='add'?currentAddSelectedDiscounts:currentEditSelectedDiscounts);
+        arr.splice(idx,1);
+        if(mode==='add')currentAddSelectedDiscounts=arr; else currentEditSelectedDiscounts=arr;
+        renderDiscountList(mode,arr);
+        updateFinalAmountPreview(mode);
+      });
+
+      function updateFinalAmountPreview(mode){
+        let orig=(mode==='add'?parseInt($('#originalAmount').val()||0):parseInt($('#editOriginalAmount').val()||0));
+        let arr=(mode==='add'?currentAddSelectedDiscounts:currentEditSelectedDiscounts);
+        let previewContainer=(mode==='add'?$('#addFinalAmountPreview'):$('#editFinalAmountPreview'));
+        let currentAmount=orig;
+        let html=`<strong>計算結果:</strong><br>元金額: ¥${orig.toLocaleString()}<br>`;
+        arr.forEach((d,i)=>{
+          let discountValue=0;
+          if(d.type==='percent'){
+            discountValue=Math.floor(currentAmount*d.value);
+          }else{
+            discountValue=d.value;
+          }
+          currentAmount-=discountValue;
+          html+=`${d.text}: -¥${discountValue.toLocaleString()}<br>`;
+        });
+        html+=`最終請求額: <strong>¥${currentAmount.toLocaleString()}</strong>`;
+        previewContainer.html(html);
+      }
+
+      // 以下、元コードのフィルタやExcelインポート、編集処理をそのまま残す。
+      // ...（中略なし、全て保持）
+
+      function filterTable() {
+        const selectedYear = document.getElementById("yearSelect").value;
+        const selectedMonth = document.getElementById("monthSelect").value;
+        const showFailedOnly = document.getElementById("failedOnly").checked;
+        const tableRows = document.querySelectorAll("#billingTable tbody tr");
+
+        tableRows.forEach((row) => {
+          const billingDate = row.cells[6].innerText.trim();
+          const dateParts = billingDate.split("/");
+          const rowYear = dateParts[0];
+          const rowMonth = dateParts[1].padStart(2, "0");
+
+          const paymentStatusButton = row.cells[7].querySelector("button");
+          const paymentStatus = paymentStatusButton.textContent.trim();
+
+          let shouldShow = true;
+
+          if (selectedYear && rowYear !== selectedYear) {
+            shouldShow = false;
+          }
+          if (selectedMonth && rowMonth !== selectedMonth) {
+            shouldShow = false;
+          }
+
+          if (showFailedOnly && paymentStatus !== "引落失敗") {
+            shouldShow = false;
+          }
+
+          row.style.display = shouldShow ? "" : "none";
+        });
+      }
+
+      document.getElementById("yearSelect").addEventListener("change", filterTable);
+      document.getElementById("monthSelect").addEventListener("change", filterTable);
+      document.getElementById("failedOnly").addEventListener("change", filterTable);
+
+      window.addEventListener("load", () => {
+        filterTable();
+      });
+
+      document.getElementById("excelImportButton").addEventListener("click", function() {
+        document.getElementById("excelInput").click();
+      });
+
+      document.getElementById("excelInput").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const excelData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+          excelData.forEach((row,index)=>{
+            if(index===0)return;
+            const invoiceId=row[0];
+            const paymentStatus=row[1];
+            const tableRows=document.querySelectorAll("#billingTable tbody tr");
+            tableRows.forEach(tableRow=>{
+              const tableInvoiceId=tableRow.cells[0].innerText;
+              if(tableInvoiceId===String(invoiceId)){
+                const statusButton=tableRow.cells[7].querySelector("button");
+                statusButton.textContent=paymentStatus.trim();
+
+                if (paymentStatus.trim() === "支払い済み") {
+                  statusButton.className = "btn btn-paid btn-sm";
+                } else if (paymentStatus.trim() === "引落依頼前") {
+                  statusButton.className = "btn btn-before-request btn-sm";
+                } else if (paymentStatus.trim() === "引落失敗") {
+                  statusButton.className = "btn btn-failed btn-sm";
+                } else if (paymentStatus.trim()==="未払い"){
+                  statusButton.className="btn btn-secondary btn-sm";
+                  statusButton.textContent="未払い";
+                }
+
+                const editCell = tableRow.cells[10];
+                editCell.innerHTML = `<button class="btn btn-primary btn-sm edit-btn" data-id="${invoiceId}">編集</button>
+                                      <button class="btn btn-danger btn-sm delete-btn" data-id="${invoiceId}">削除</button>`;
+              }
+            });
+          });
+          filterTable();
+        };
+
+        reader.readAsArrayBuffer(file);
+      });
+
+      document.getElementById("addBillingForm").addEventListener("submit",function(e){
+        e.preventDefault();
+        alert("追加処理(モック)");
+        const modal=bootstrap.Modal.getInstance(document.getElementById('addBillingModal'));
+        modal.hide();
+      });
+
+      document.getElementById("editBillingForm").addEventListener("submit",function(e){
+        e.preventDefault();
+        alert("編集処理(モック)");
+        const modal=bootstrap.Modal.getInstance(document.getElementById('editBillingModal'));
+        modal.hide();
+      });
+
+      document.addEventListener('click',function(e){
+        if(e.target && e.target.classList.contains('delete-btn')){
+          if(confirm('この請求情報を削除してもよろしいですか？')){
+            e.target.closest('tr').remove();
+            filterTable();
+          }
+        }
+      });
+
+      document.addEventListener('click',function(e){
+        if(e.target && e.target.classList.contains('member-name')){
+          const memberId = e.target.getAttribute('data-member-id');
+          const memberName = e.target.innerText;
+          showMemberDetail(memberId, memberName);
+        }
+      });
+
+      function showMemberDetail(memberId, memberName){
+        const modal = new bootstrap.Modal(document.getElementById('memberDetailModal'));
+        document.getElementById('memberName').innerText=memberName;
+
+        const billingTable=document.getElementById('billingTable');
+        const rows=billingTable.querySelectorAll('tbody tr');
+        const memberBillings=Array.from(rows).filter(r=>r.cells[1].getAttribute('data-member-id')===memberId);
+
+        const modalTableBody=document.getElementById('memberDetailTableBody');
+        modalTableBody.innerHTML='';
+
+        memberBillings.forEach(row=>{
+          const newRow=modalTableBody.insertRow();
+          newRow.innerHTML=`
+            <td>${row.cells[0].innerText}</td>
+            <td>${row.cells[2].innerText}</td>
+            <td>${row.cells[3].innerText}</td>
+            <td>${row.cells[4].innerText}</td>
+            <td>${row.cells[5].innerText}</td>
+            <td>${row.cells[6].innerText}</td>
+            <td>${row.cells[7].innerHTML}</td>
+            <td>${row.cells[9].innerText}</td>
+          `;
+        });
+
+        modal.show();
+      }
+
+      document.getElementById('downloadExcelBtn').addEventListener('click',function(){
+        alert('Excelダウンロード機能はモックアップです。');
+      });
+
+      function updateSortIcons(){
+        const headers=document.querySelectorAll("th");
+        headers.forEach((header,index)=>{
+          const icon=header.querySelector(".sort-icon");
+          if(icon){
+            if(index===currentColumn){
+              icon.className=sortDirection
+                ?"fas fa-sort-up sort-icon"
+                :"fas fa-sort-down sort-icon";
+            } else {
+              icon.className="fas fa-sort sort-icon";
+            }
+          }
+        });
+      }
+
+      function sortTable(columnIndex){
+        const table=document.getElementById("billingTable");
+        const rows=Array.from(table.rows).slice(1);
+
+        if(currentColumn===columnIndex){
+          sortDirection=!sortDirection;
+        } else {
+          sortDirection=true;
+          currentColumn=columnIndex;
+        }
+
+        rows.sort((a,b)=>{
+          let aValue=a.cells[columnIndex].innerText.trim();
+          let bValue=b.cells[columnIndex].innerText.trim();
+
+          if([0,2,3,5].includes(columnIndex)){
+            aValue=aValue.replace(/[^\d]/g,"");
+            bValue=bValue.replace(/[^\d]/g,"");
+            aValue=parseInt(aValue);
+            bValue=parseInt(bValue);
+          }
+
+          if(columnIndex===6){
+            aValue=new Date(aValue);
+            bValue=new Date(bValue);
+          }
+
+          if(aValue<bValue)return sortDirection?-1:1;
+          if(aValue>bValue)return sortDirection?1:-1;
+          return 0;
+        });
+
+        const tbody=table.querySelector("tbody");
+        tbody.innerHTML="";
+        rows.forEach(r=>tbody.appendChild(r));
+        updateSortIcons();
+      }
+
+      // 年月初期化（前回同様）
+      const defaultYear=2024;
+      const defaultMonth="11";
+      const yearSelect=document.getElementById('yearSelect');
+      const monthSelect=document.getElementById('monthSelect');
+      let yOpt=document.createElement('option');
+      yOpt.value=defaultYear;yOpt.text=defaultYear;yOpt.selected=true;
+      yearSelect.add(yOpt);
+      for(let m=1;m<=12;m++){
+        let mop=document.createElement('option');
+        let mv=m<10?'0'+m:''+m;
+        mop.value=mv; mop.text=m;
+        if(mv===defaultMonth)mop.selected=true;
+        monthSelect.add(mop);
+      }
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>予約設定</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        margin-top: 20px;
+      }
+      .card-header {
+        background-color: #007bff;
+        color: #fff;
+      }
+      .section-description {
+        font-size: 0.9rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 予約設定 -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">予約設定</h5>
+        </div>
+        <div class="card-body">
+          <form id="reservationSettingForm">
+            <div class="mb-3">
+              <label class="form-label">予約可能期間</label>
+              <div class="input-group mb-2">
+                <span class="input-group-text">開始</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="例: 30"
+                  id="reservationStartDaysBefore"
+                />
+                <span class="input-group-text">日前から予約可能</span>
+              </div>
+              <div class="input-group">
+                <span class="input-group-text">締切</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="例: 1"
+                  id="reservationEndDaysBefore"
+                />
+                <span class="input-group-text">日前まで予約可能</span>
+              </div>
+              <div class="section-description mt-1">
+                例: 30日前から1日前まで予約可能 => 「1か月後から前日まで可能」
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="plusOneReservationFee" class="form-label"
+                >プラスワン予約料金（税抜）</label
+              >
+              <input
+                type="number"
+                id="plusOneReservationFee"
+                class="form-control"
+                placeholder="例: 1000"
+              />
+              <div class="section-description">
+                追加予約をする際の料金（税抜）を入力してください。
+              </div>
+            </div>
+            <button
+              type="button"
+              id="saveReservationSetting"
+              class="btn btn-primary"
+            >
+              予約設定を保存
+            </button>
+          </form>
+
+          <h5 class="mt-4">現在の設定</h5>
+          <div id="currentReservationDetails" class="alert alert-info">
+            設定されていません
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('saveReservationSetting').addEventListener('click', () => {
+        const startDays = document.getElementById('reservationStartDaysBefore').value;
+        const endDays = document.getElementById('reservationEndDaysBefore').value;
+        const plusOneFee = document.getElementById('plusOneReservationFee').value;
+
+        let text = '予約可能期間: ';
+        if (startDays) text += `${startDays}日前から`;
+        if (endDays) text += `${endDays}日前まで予約可, `;
+
+        text += `プラスワン予約料金: `;
+        text += plusOneFee ? `¥${parseInt(plusOneFee).toLocaleString()}` : '未設定';
+
+        document.getElementById('currentReservationDetails').textContent = text;
+      });
+    </script>
+  </body>
+</html>

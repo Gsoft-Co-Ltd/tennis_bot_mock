@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>横並びの企業・スクール選択</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 15px; /* 企業選択とスクール選択の間隔を調整 */
+    }
+    .form-row label {
+      white-space: nowrap; /* ラベルが折り返されないように設定 */
+    }
+    .form-select {
+      flex: 1; /* ドロップダウンの横幅を適切に広げる */
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <h3>スクールを選択</h3>
+
+    <!-- システム管理者用: 企業とスクール選択 -->
+    <div id="systemAdminSection" class="form-section" style="display: none;">
+      <div class="form-row">
+        <label for="selectCompany" class="form-label">企業を選択</label>
+        <select id="selectCompany" class="form-select">
+          <option value="">選択してください</option>
+          <!-- 動的に企業リストを挿入 -->
+        </select>
+
+        <label for="selectSchool" class="form-label">スクールを選択</label>
+        <select id="selectSchool" class="form-select">
+          <option value="">企業を選択してください</option>
+          <!-- 動的にスクールリストを挿入 -->
+        </select>
+      </div>
+    </div>
+
+    <!-- 企業管理者用: スクール選択 -->
+    <div id="companyAdminSection" class="form-section" style="display: none;">
+      <div class="form-row">
+        <label for="selectCompanySchool" class="form-label">スクールを選択</label>
+        <select id="selectCompanySchool" class="form-select">
+          <option value="">選択してください</option>
+          <!-- 動的にその企業のスクールリストを挿入 -->
+        </select>
+      </div>
+    </div>
+
+    <!-- スクール管理者用: スクール情報表示 -->
+    <div id="schoolAdminSection" class="form-section" style="display: none;">
+      <p>管理対象スクール: <strong id="schoolName">東別院テニススクール</strong></p>
+    </div>
+  </div>
+
+  <script>
+    // 仮のデータと権限情報
+    const role = "systemAdmin"; // 例: "systemAdmin", "companyAdmin", "schoolAdmin"
+    const companies = [
+      { id: 1, name: "企業A", schools: ["スクールA1", "スクールA2"] },
+      { id: 2, name: "企業B", schools: ["スクールB1"] },
+    ];
+    const currentSchool = "東別院テニススクール"; // スクール管理者の対象
+
+    // 権限に応じたセクション表示
+    function initializeUI() {
+      if (role === "systemAdmin") {
+        document.getElementById("systemAdminSection").style.display = "block";
+        setupSystemAdminUI();
+      } else if (role === "companyAdmin") {
+        document.getElementById("companyAdminSection").style.display = "block";
+        setupCompanyAdminUI();
+      } else if (role === "schoolAdmin") {
+        document.getElementById("schoolAdminSection").style.display = "block";
+        document.getElementById("schoolName").textContent = currentSchool;
+      }
+    }
+
+    // システム管理者向けのドロップダウンセットアップ
+    function setupSystemAdminUI() {
+      const companySelect = document.getElementById("selectCompany");
+      const schoolSelect = document.getElementById("selectSchool");
+
+      // 企業リストを挿入
+      companies.forEach((company) => {
+        const option = document.createElement("option");
+        option.value = company.id;
+        option.textContent = company.name;
+        companySelect.appendChild(option);
+      });
+
+      // 企業選択時にスクールリストを更新
+      companySelect.addEventListener("change", () => {
+        schoolSelect.innerHTML = '<option value="">企業を選択してください</option>';
+        const selectedCompany = companies.find(c => c.id == companySelect.value);
+        if (selectedCompany) {
+          selectedCompany.schools.forEach((school) => {
+            const option = document.createElement("option");
+            option.value = school;
+            option.textContent = school;
+            schoolSelect.appendChild(option);
+          });
+        }
+      });
+
+      // 選択結果の表示
+      schoolSelect.addEventListener("change", () => {
+        document.getElementById("resultText").textContent = 
+          `選択中: ${companySelect.options[companySelect.selectedIndex].text} > ${schoolSelect.value}`;
+      });
+    }
+
+    // 企業管理者向けのドロップダウンセットアップ
+    function setupCompanyAdminUI() {
+      const schoolSelect = document.getElementById("selectCompanySchool");
+      const assignedSchools = companies.flatMap(c => c.schools); // 仮に全スクールを表示
+
+      // スクールリストを挿入
+      assignedSchools.forEach((school) => {
+        const option = document.createElement("option");
+        option.value = school;
+        option.textContent = school;
+        schoolSelect.appendChild(option);
+      });
+
+      // 選択結果の表示
+      schoolSelect.addEventListener("change", () => {
+        document.getElementById("resultText").textContent = `選択中: ${schoolSelect.value}`;
+      });
+    }
+
+    // 初期化
+    initializeUI();
+  </script>
+</body>
+</html>
