@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>コーチ一覧</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding:20px;
+    }
+    h2 {
+      color: #007bff;
+      font-weight:700;
+    }
+    table {
+      background-color:#fff;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+    }
+    th {
+      background-color:#007bff;
+      color:#fff;
+    }
+  </style>
+</head>
+<body>
+  <h2 class="mb-4">コーチ一覧</h2>
+
+  <!-- コーチ追加ボタン -->
+  <button 
+    class="btn btn-primary mb-3" 
+    data-bs-toggle="modal"
+    data-bs-target="#addCoachModal"
+  >
+    コーチを追加
+  </button>
+
+  <!-- コーチ検索 -->
+  <div class="mb-3 d-flex" style="max-width:300px;">
+    <input type="text" id="searchCoach" class="form-control me-2" placeholder="コーチ名で検索"/>
+    <button class="btn btn-secondary" id="searchBtn">検索</button>
+  </div>
+
+  <!-- コーチ一覧テーブル -->
+  <table class="table table-striped table-hover" id="coachTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>表示名</th>
+        <th>所属校</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- サンプルデータ -->
+      <tr>
+        <td>1</td>
+        <td>田中</td>
+        <td>名古屋校</td>
+        <td>
+          <button class="btn btn-sm btn-primary">編集</button>
+          <button class="btn btn-sm btn-danger">削除</button>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>佐藤</td>
+        <td>東京校</td>
+        <td>
+          <button class="btn btn-sm btn-primary">編集</button>
+          <button class="btn btn-sm btn-danger">削除</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- コーチ追加モーダル -->
+  <div class="modal fade" id="addCoachModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">コーチ追加</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addCoachForm">
+            <div class="mb-3">
+              <label for="coachName" class="form-label">コーチ名</label>
+              <input type="text" id="coachName" class="form-control" required/>
+            </div>
+            <div class="mb-3">
+              <label for="coachSchool" class="form-label">所属校</label>
+              <select id="coachSchool" class="form-select" required>
+                <option value="" disabled selected>選択してください</option>
+                <option value="名古屋校">名古屋校</option>
+                <option value="東京校">東京校</option>
+                <option value="大阪校">大阪校</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">追加</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('addCoachForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      const name=document.getElementById('coachName').value;
+      const school=document.getElementById('coachSchool').value;
+
+      const table=document.getElementById('coachTable').querySelector('tbody');
+      const ids=Array.from(table.rows).map(r=>parseInt(r.cells[0].innerText));
+      const newId=ids.length>0 ? Math.max(...ids)+1 : 1;
+
+      const newRow=table.insertRow();
+      newRow.innerHTML=`
+        <td>${newId}</td>
+        <td>${name}</td>
+        <td>${school}</td>
+        <td>
+          <button class="btn btn-sm btn-primary">編集</button>
+          <button class="btn btn-sm btn-danger">削除</button>
+        </td>
+      `;
+      alert('コーチ追加完了(モック)');
+      const modal=bootstrap.Modal.getInstance(document.getElementById('addCoachModal'));
+      modal.hide();
+      e.target.reset();
+    });
+
+    document.getElementById('searchBtn').addEventListener('click',function(){
+      const keyword=document.getElementById('searchCoach').value.toLowerCase();
+      const rows=document.querySelectorAll('#coachTable tbody tr');
+      rows.forEach(r=>{
+        const name=r.cells[1].innerText.toLowerCase();
+        r.style.display=name.includes(keyword)?'':'none';
+      });
+    });
+  </script>
+</body>
+</html>

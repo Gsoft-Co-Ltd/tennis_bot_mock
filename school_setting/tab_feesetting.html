@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>入会金・年会費・休会費設定</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color:#f5f7fa;
+      font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding:20px;
+    }
+    h2 {
+      color:#007bff;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <h2 class="mb-4">入会金・年会費・休会費設定</h2>
+
+  <form id="feeSettingForm" class="mb-3">
+    <div class="mb-3">
+      <label for="admissionFee" class="form-label">入会金（税抜）</label>
+      <input type="number" id="admissionFee" class="form-control" placeholder="例: 3000" required/>
+    </div>
+    <div class="mb-3">
+      <label for="annualFee" class="form-label">年会費（税抜）</label>
+      <input type="number" id="annualFee" class="form-control" placeholder="例: 2000" required/>
+    </div>
+    <div class="mb-3">
+      <label for="suspendFee" class="form-label">休会費（税抜/1期あたり）</label>
+      <input type="number" id="suspendFee" class="form-control" placeholder="例: 1000" required/>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">保存</button>
+  </form>
+
+  <div id="currentFees" class="alert alert-info">
+    <strong>現在の設定:</strong><br/>
+    入会金: 未設定<br/>
+    年会費: 未設定<br/>
+    休会費: 未設定<br/>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('feeSettingForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      const admission=document.getElementById('admissionFee').value;
+      const annual=document.getElementById('annualFee').value;
+      const suspend=document.getElementById('suspendFee').value;
+
+      const current=document.getElementById('currentFees');
+      current.innerHTML=`
+        <strong>現在の設定:</strong><br/>
+        入会金: ¥${parseInt(admission).toLocaleString()}<br/>
+        年会費: ¥${parseInt(annual).toLocaleString()}<br/>
+        休会費: ¥${parseInt(suspend).toLocaleString()}<br/>
+      `;
+      alert('設定を保存しました(モック)');
+    });
+  </script>
+</body>
+</html>
