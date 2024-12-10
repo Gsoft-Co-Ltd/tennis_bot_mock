@@ -64,23 +64,41 @@
 <div class="container mt-4">
   <h1 class="mb-4">振替設定</h1>
 
+  <p class="section-description mb-4">
+    ここでは、スクールごとの振替ルールおよびカスタム手数料を設定します。<br/>
+    ・振替受講可能レッスンは、レベルが同じか、または下位レベルへ行けるが上位には行けません。<br/>
+    ・どれだけ下位レベルへ行けるかは下記で設定可能です。<br/>
+    ・時間帯制限はありません。<br/>
+    ・振替有効期限、家族間振替共有可否、期内・期外手数料、コース変更時の差額や特別手数料も設定できます。
+  </p>
+
   <!-- 基本設定カード -->
   <div class="card mb-4">
     <div class="card-body">
       <h5>基本設定</h5>
+
       <div class="mb-3">
-        <label for="levelRestriction" class="form-label">レベル制限</label>
+        <label class="form-label">レベル制限</label>
         <select id="levelRestriction" class="form-select">
           <option value="same">同じレベルのみ</option>
-          <option value="all">すべてのレベル</option>
-          <option value="one_up">1つ上までOK</option>
-          <option value="one_down">1つ下までOK</option>
-          <option value="one_up_down">1つ上・1つ下までOK</option>
+          <option value="down">下位レベルへ行ける</option>
         </select>
+        <div class="small-note mt-1">
+          「下位レベルへ行ける」を選択した場合、どれだけ下位レベルを許容するか指定できます。
+        </div>
+      </div>
+
+      <div class="mb-3" id="maxLowerLevelDiffGroup" style="display:none;">
+        <label for="maxLowerLevelDiff" class="form-label">下位レベル許容段数</label>
+        <input type="number" id="maxLowerLevelDiff" class="form-control" placeholder="例: 2" />
+        <div class="small-note mt-1">
+          下位レベルへの許容段数を指定します。<br/>
+          例:「2」なら2段階下のレベルまでOK。
+        </div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">振替可能期間</label>
+        <label class="form-label">振替可能期限</label>
         <div class="input-group mb-2">
           <input type="number" class="form-control" placeholder="例: 7" id="rescheduleDaysBefore" />
           <span class="input-group-text">日前まで振替可能</span>
@@ -89,21 +107,28 @@
           <input type="number" class="form-control" placeholder="例: 24" id="rescheduleHoursBefore" />
           <span class="input-group-text">時間前まで振替可能</span>
         </div>
+        <div class="small-note mt-1">
+          レッスン開始前何日前・何時間前まで振替受付を行うか設定します。
+        </div>
       </div>
 
       <hr />
 
       <div class="mb-3">
-        <label class="form-label">期内・期外料金（基本）</label>
+        <label class="form-label">期内・期外基本手数料</label>
         <div class="row g-3">
           <div class="col-md-6">
             <label for="inTermFee" class="form-label">期内料金（税抜）</label>
-            <input type="number" id="inTermFee" class="form-control" placeholder="例: 500" />
+            <input type="number" id="inTermFee" class="form-control" placeholder="例: 0" />
           </div>
           <div class="col-md-6">
             <label for="outTermFee" class="form-label">期外料金（税抜）</label>
-            <input type="number" id="outTermFee" class="form-control" placeholder="例: 1000" />
+            <input type="number" id="outTermFee" class="form-control" placeholder="例: 300" />
           </div>
+        </div>
+        <div class="small-note mt-1">
+          期内・期外で基本の振替手数料を設定します。<br/>
+          例:期内0円、期外300円など
         </div>
       </div>
 
@@ -125,6 +150,10 @@
             <span>年</span>
           </div>
         </div>
+        <div class="small-note mt-1">
+          振替が発生した日からどれくらいの期間有効か設定します。<br/>
+          期間を組み合わせて指定可能です。(例:1年または2ヶ月など)
+        </div>
       </div>
 
       <hr />
@@ -136,7 +165,8 @@
           <label for="familyShare" style="font-weight: normal">家族内振替共有を許可する</label>
         </div>
         <div class="small-note mt-1">
-          例外（フリークラス譲渡不可など）は下記カスタムルールで設定
+          家族間で振替の譲渡が可能となります。<br/>
+          但し、フリークラスからの譲渡不可など例外は下記カスタムルールで定義してください。
         </div>
       </div>
     </div>
@@ -147,8 +177,8 @@
     <div class="card-body">
       <h5>カスタム振替ルール設定</h5>
       <p class="section-description">
-        ここで特定のクラス・コース間での振替時に発生する追加差額や制約を定義します。  
-        組み合わせが多い場合はフィルタや検索を活用してください。
+        コース間の振替時に発生する追加差額や、家族間振替時のみ適用される特別手数料などを定義します。<br/>
+        元コース・振替先コースを指定し、期内・期外差額を設定、家族間振替適用可否も指定可能。
       </p>
 
       <!-- 検索・フィルタ & 一括追加UI -->
@@ -176,12 +206,11 @@
         </div>
       </div>
       <div class="small-note mb-3">
-        フィルタ入力後「一括追加」ボタンを押すと、フィルタに合致するコースペア全てにまとめてカスタムルールを適用します。  
-        ※この機能はあくまで補助であり、実際にはバックエンドでの処理や候補表示が必要。
+        フィルタ入力後「一括追加」ボタンで、該当するコースペア全てにまとめてカスタムルールを追加。(本モックでは1件のみ例示)
       </div>
 
       <!-- カスタムルール一覧テーブル -->
-      <div id="customFeesTable">
+      <div id="customFeesTable" class="mb-2">
         <table>
           <thead>
             <tr>
@@ -189,11 +218,11 @@
               <th>振替先コース</th>
               <th>期内差額</th>
               <th>期外差額</th>
+              <th>家族間適用</th>
               <th>削除</th>
             </tr>
           </thead>
           <tbody id="customFeesBody">
-            <!-- カスタムルールが追加される -->
           </tbody>
         </table>
       </div>
@@ -201,7 +230,7 @@
       <div class="mt-3">
         <button class="btn btn-secondary" onclick="addSingleCustomRule()">個別ルール追加</button>
         <span class="small-note ms-2">
-          個別追加を行うと、小さなモーダルやインライン編集欄で1件ずつ追加可能
+          個別追加で1件ずつ詳細設定可能
         </span>
       </div>
     </div>
@@ -242,6 +271,10 @@
           <label class="form-label">期外差額（税抜）</label>
           <input type="number" class="form-control" id="singleOutTerm" placeholder="例:1321" />
         </div>
+        <div class="mb-3 form-check">
+          <input class="form-check-input" type="checkbox" id="singleFamilyApply">
+          <label class="form-check-label" for="singleFamilyApply">家族間振替時にも適用</label>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
@@ -253,7 +286,7 @@
 
 <script>
   const customFeesList = [];
-  
+
   function addSingleCustomRule() {
     const modal = new bootstrap.Modal(document.getElementById('singleAddModal'));
     modal.show();
@@ -264,15 +297,16 @@
     const toC = document.getElementById('singleToCourse').value;
     const inDiff = document.getElementById('singleInTerm').value;
     const outDiff = document.getElementById('singleOutTerm').value;
+    const familyApply = document.getElementById('singleFamilyApply').checked;
 
-    customFeesList.push({fromCourse: fromC, toCourse: toC, inTermDifference: inDiff, outTermDifference: outDiff});
+    customFeesList.push({fromCourse: fromC, toCourse: toC, inTermDifference: inDiff, outTermDifference: outDiff, familyApply:familyApply});
     renderCustomFeesTable();
 
-    // モーダル閉じる
     document.getElementById('singleFromCourse').value = '';
     document.getElementById('singleToCourse').value = '';
     document.getElementById('singleInTerm').value = '';
     document.getElementById('singleOutTerm').value = '';
+    document.getElementById('singleFamilyApply').checked = false;
     bootstrap.Modal.getInstance(document.getElementById('singleAddModal')).hide();
   }
 
@@ -282,9 +316,8 @@
     const bulkIn = document.getElementById('bulkInTermDiff').value;
     const bulkOut = document.getElementById('bulkOutTermDiff').value;
 
-    // ここでは仮実装：実際には fromFilter, toFilter にマッチするコースペアを取得するロジックが必要
-    // 例として1件追加する
-    customFeesList.push({fromCourse: fromFilter||'任意', toCourse: toFilter||'任意', inTermDifference: bulkIn, outTermDifference: bulkOut});
+    // 仮実装: フィルタに関係なく1件追加する例
+    customFeesList.push({fromCourse: fromFilter||'任意', toCourse: toFilter||'任意', inTermDifference: bulkIn, outTermDifference: bulkOut, familyApply:false});
     renderCustomFeesTable();
 
     document.getElementById('filterFromCourse').value = '';
@@ -303,6 +336,7 @@
         <td>${rule.toCourse || 'すべて'}</td>
         <td>${rule.inTermDifference || '0'}</td>
         <td>${rule.outTermDifference || '0'}</td>
+        <td>${rule.familyApply?'適用':'-'}</td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="removeCustomFeeRule(${index})">削除</button></td>
       `;
       tbody.appendChild(tr);
@@ -324,9 +358,11 @@
     const expireMonths = document.getElementById("expireMonths").value;
     const expireYears = document.getElementById("expireYears").value;
     const familyShare = document.getElementById("familyShare").checked;
+    const maxLower = document.getElementById("maxLowerLevelDiff").value;
 
     const settings = {
       levelRestriction,
+      maxLowerLevelDiff:maxLower,
       rescheduleDaysBefore: daysBefore,
       rescheduleHoursBefore: hoursBefore,
       inTermFee,
@@ -343,15 +379,15 @@
     let text = "レベル制限: ";
     switch (levelRestriction) {
       case "same": text += "同レベルのみ"; break;
-      case "all": text += "全レベル"; break;
-      case "one_up": text += "1つ上までOK"; break;
-      case "one_down": text += "1つ下までOK"; break;
-      case "one_up_down": text += "1つ上・1つ下までOK"; break;
+      case "down":
+        text += "下位レベルへ行ける";
+        if(maxLower) text+=` (下位レベル許容: ${maxLower}段階まで)`;
+        break;
     }
 
     if (daysBefore) text += `, ${daysBefore}日前まで振替可`;
     if (hoursBefore) text += `, ${hoursBefore}時間前まで振替可`;
-    
+
     text += `\n期内料金: ¥${inTermFee || "未設定"} / 期外料金: ¥${outTermFee || "未設定"}`;
 
     let expireText = [];
@@ -359,13 +395,12 @@
     if (expireMonths) expireText.push(`${expireMonths}ヶ月`);
     if (expireYears) expireText.push(`${expireYears}年`);
     text += `\n有効期限: ${expireText.length > 0 ? expireText.join(' ') : '未設定'}`;
-
     text += familyShare ? "\n家族内振替共有: 可" : "\n家族内振替共有: 不可";
 
     if (customFeesList.length > 0) {
-      text += "\nカスタム料金(期内/期外):";
+      text += "\nカスタム料金(期内/期外,家族間適用):";
       customFeesList.forEach((fee, index) => {
-        text += `\n  ${index + 1}. ${fee.fromCourse || 'すべて'} → ${fee.toCourse || 'すべて'}: 期内¥${fee.inTermDifference || '0'} / 期外¥${fee.outTermDifference || '0'}`;
+        text += `\n  ${index + 1}. ${fee.fromCourse || 'すべて'} → ${fee.toCourse || 'すべて'}: 期内¥${fee.inTermDifference || '0'} / 期外¥${fee.outTermDifference || '0'}${fee.familyApply?'(家族間適用)':''}`;
       });
     } else {
       text += "\nカスタム料金: なし";
@@ -374,6 +409,17 @@
     document.getElementById("currentSettings").textContent = text;
     alert("設定が保存されました！");
   }
+
+  document.getElementById('levelRestriction').addEventListener('change',function(){
+    const val=this.value;
+    const group=document.getElementById('maxLowerLevelDiffGroup');
+    if(val==='down'){
+      group.style.display='';
+    } else {
+      group.style.display='none';
+      document.getElementById('maxLowerLevelDiff').value='';
+    }
+  });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
