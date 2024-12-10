@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>スクール生出欠・予約一覧</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+body {
+  background-color: #f5f7fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.container {
+  margin-top: 40px;
+}
+h2 {
+  color: #007bff;
+  font-weight: 700;
+}
+table {
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+th {
+  background-color: #007bff;
+  color: white;
+}
+td.status-upcoming {
+  font-weight: bold;
+  background-color: #e7f3ff;
+  color: #0056b3;
+}
+td.status-absent {
+  font-weight: bold;
+  background-color: #fff5e6;
+  color: #ff9900;
+}
+td.status-unreported {
+  font-weight: bold;
+  background-color: #ffe6e6;
+  color: #ff3333;
+}
+td.status-rescheduled {
+  font-weight: bold;
+  background-color: #e6f7ff;
+  color: #0099cc;
+}
+td.status-attended {
+  font-weight: bold;
+  background-color: #e6ffe6;
+  color: #33cc33;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2 class="mb-4">レッスン出欠・予約管理</h2>
+
+  <!-- スクール生選択 -->
+  <div class="mb-4">
+    <label for="studentSelect" class="form-label">スクール生を選択してください:</label>
+    <select id="studentSelect" class="form-select" style="max-width: 300px">
+      <option value="all" selected>すべてのスクール生</option>
+      <option value="山田 太郎">山田 太郎</option>
+      <option value="佐藤 花子">佐藤 花子</option>
+      <option value="鈴木 一郎">鈴木 一郎</option>
+    </select>
+  </div>
+
+  <!-- 月別選択 -->
+  <div class="mb-4">
+    <label for="monthSelect" class="form-label">月を選択してください:</label>
+    <select id="monthSelect" class="form-select" style="max-width: 200px">
+      <option value="all" selected>すべての月</option>
+      <option value="11">11月</option>
+      <option value="12">12月</option>
+    </select>
+  </div>
+
+  <!-- レッスン履歴テーブル -->
+  <table class="table table-striped table-hover" id="lessonTable">
+    <thead>
+      <tr>
+        <th scope="col">スクール生</th>
+        <th scope="col">レッスンID</th>
+        <th scope="col">日時</th>
+        <th scope="col">コーチ名</th>
+        <th scope="col">レベル</th>
+        <th scope="col">ステータス</th>
+        <th scope="col">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- サンプルデータ -->
+      <tr data-status="upcoming" data-month="12" data-student="山田 太郎">
+        <td>山田 太郎</td>
+        <td>2001</td>
+        <td>2024/12/01 10:00</td>
+        <td>佐藤 コーチ</td>
+        <td>初級</td>
+        <td class="status-upcoming">
+          <select class="form-select form-select-sm status-select">
+            <option value="予約中" selected>予約中</option>
+            <option value="欠席">欠席</option>
+            <option value="欠席（未報告）">欠席（未報告）</option>
+            <option value="出席">出席</option>
+            <option value="振替出席">振替出席</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="saveStatus(this)">保存</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteLesson(this)">削除</button>
+        </td>
+      </tr>
+      <tr data-status="past" data-month="11" data-student="山田 太郎">
+        <td>山田 太郎</td>
+        <td>2003</td>
+        <td>2024/11/05 09:00</td>
+        <td>高橋 コーチ</td>
+        <td>中級</td>
+        <td class="status-unreported">
+          <select class="form-select form-select-sm status-select">
+            <option value="予約中">予約中</option>
+            <option value="欠席">欠席</option>
+            <option value="欠席（未報告）" selected>欠席（未報告）</option>
+            <option value="出席">出席</option>
+            <option value="振替出席">振替出席</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="saveStatus(this)">保存</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteLesson(this)">削除</button>
+        </td>
+      </tr>
+      <tr data-status="past" data-month="11" data-student="山田 太郎">
+        <td>山田 太郎</td>
+        <td>2004</td>
+        <td>2024/11/07 13:00</td>
+        <td>鈴木 コーチ</td>
+        <td>上級</td>
+        <td class="status-attended">
+          <select class="form-select form-select-sm status-select">
+            <option value="予約中">予約中</option>
+            <option value="欠席">欠席</option>
+            <option value="欠席（未報告）">欠席（未報告）</option>
+            <option value="出席" selected>出席</option>
+            <option value="振替出席">振替出席</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="saveStatus(this)">保存</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteLesson(this)">削除</button>
+        </td>
+      </tr>
+      <tr data-status="past" data-month="11" data-student="山田 太郎">
+        <td>山田 太郎</td>
+        <td>2005</td>
+        <td>2024/11/09 11:00</td>
+        <td>佐藤 コーチ</td>
+        <td>中級</td>
+        <td class="status-absent">
+          <select class="form-select form-select-sm status-select">
+            <option value="予約中">予約中</option>
+            <option value="欠席" selected>欠席</option>
+            <option value="欠席（未報告）">欠席（未報告）</option>
+            <option value="出席">出席</option>
+            <option value="振替出席">振替出席</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="saveStatus(this)">保存</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteLesson(this)">削除</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const studentSelect = document.getElementById("studentSelect");
+  const monthSelect = document.getElementById("monthSelect");
+  const rows = document.querySelectorAll("#lessonTable tbody tr");
+
+  function filterTable() {
+    const selectedStudent = studentSelect.value;
+    const selectedMonth = monthSelect.value;
+
+    rows.forEach((row) => {
+      const rowStudent = row.getAttribute("data-student");
+      const rowMonth = row.getAttribute("data-month");
+      row.style.display =
+        (selectedStudent === "all" || rowStudent === selectedStudent) &&
+        (selectedMonth === "all" || rowMonth === selectedMonth)
+          ? ""
+          : "none";
+    });
+  }
+
+  studentSelect.addEventListener("change", filterTable);
+  monthSelect.addEventListener("change", filterTable);
+
+  filterTable();
+});
+
+function saveStatus(btn) {
+  const row = btn.closest('tr');
+  const select = row.querySelector('.status-select');
+  const newStatus = select.value;
+  const statusCell = select.closest('td');
+
+  const statusClassMap = {
+    "予約中": "status-upcoming",
+    "欠席": "status-absent",
+    "欠席（未報告）": "status-unreported",
+    "出席": "status-attended",
+    "振替出席": "status-rescheduled",
+  };
+
+  // クラスリセット
+  statusCell.className = '';
+  statusCell.classList.add(statusClassMap[newStatus]);
+  statusCell.classList.add('text-center');
+
+  alert(`ステータスを「${newStatus}」に変更しました。`);
+}
+
+function deleteLesson(btn) {
+  if (confirm("このレッスンを削除しますか？")) {
+    btn.closest('tr').remove();
+    alert("レッスンを削除しました。");
+  }
+}
+</script>
+</body>
+</html>

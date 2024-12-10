@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>期の設定ページ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      margin-top: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .form-control[readonly] {
+      background-color: #e9ecef;
+    }
+    .table td {
+      vertical-align: middle;
+    }
+    .btn-sm {
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+    <!-- 期の自動生成フォーム -->
+    <section>
+      <h5 class="mb-3">期の自動生成</h5>
+      <form id="generateForm" class="mb-4">
+        <div class="mb-3">
+          <label for="startDate" class="form-label">開始日</label>
+          <input type="date" id="startDate" class="form-control" value="2024-01-01">
+        </div>
+        <div class="mb-3">
+          <label for="intervalType" class="form-label">生成間隔</label>
+          <select id="intervalType" class="form-control">
+            <option value="days">日ごと</option>
+            <option value="weeks" selected>週ごと</option>
+            <option value="months">月ごと</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="intervalValue" class="form-label">間隔の値</label>
+          <input type="number" id="intervalValue" class="form-control" value="4" min="1">
+        </div>
+        <div class="mb-3">
+          <label for="termCount" class="form-label">生成する期数</label>
+          <input type="number" id="termCount" class="form-control" value="12" min="1">
+        </div>
+        <button type="button" id="generateButton" class="btn btn-primary">期を生成する</button>
+      </form>
+    </section>
+
+    <!-- コース変更締め切り日の設定 -->
+    <section>
+      <h5 class="mb-3">コース変更締め切り日設定</h5>
+      <div class="mb-3">
+        <label for="courseChangeDeadline" class="form-label">次期コース変更締切日</label>
+        <input type="date" id="courseChangeDeadline" class="form-control" value="2023-12-15">
+        <div class="form-text">
+          次期開始日の2週間前を目安に設定してください。<br>
+          この日以降はコース変更申請ができなくなります。
+        </div>
+      </div>
+      <button type="button" id="saveCourseChangeDeadlineBtn" class="btn btn-secondary">保存</button>
+    </section>
+
+    <!-- 現在の期一覧 -->
+    <section class="mt-4">
+      <h5 class="mb-3">現在の期一覧</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>期名</th>
+            <th>開始日</th>
+            <th>終了日</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="termList">
+          <!-- サンプルデータ -->
+          <tr>
+            <td>2024年1期</td>
+            <td>2024-01-01</td>
+            <td>2024-01-28</td>
+            <td>
+              <button type="button" class="btn btn-sm btn-success save-button">保存</button>
+              <button type="button" class="btn btn-sm btn-danger delete-button">削除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // サンプル期データ
+    const sampleTerms = [
+      { name: "2024年1期", startDate: "2024-01-01", endDate: "2024-01-28" },
+      { name: "2024年2期", startDate: "2024-01-29", endDate: "2024-02-25" },
+      { name: "2024年3期", startDate: "2024-02-26", endDate: "2024-03-24" },
+      { name: "2024年4期", startDate: "2024-03-25", endDate: "2024-04-21" },
+    ];
+
+    function populateTermList() {
+      const termList = document.getElementById("termList");
+      termList.innerHTML = ""; // リストをリセット
+
+      sampleTerms.forEach((term, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${term.name}</td>
+          <td><input type="date" class="form-control" value="${term.startDate}"></td>
+          <td><input type="date" class="form-control" value="${term.endDate}"></td>
+          <td>
+            <button type="button" class="btn btn-sm btn-success save-button">保存</button>
+            <button type="button" class="btn btn-sm btn-danger delete-button" data-index="${index}">削除</button>
+          </td>
+        `;
+        termList.appendChild(row);
+      });
+    }
+
+    document.getElementById("generateButton").addEventListener("click", function () {
+      const startDate = document.getElementById("startDate").value;
+      const intervalType = document.getElementById("intervalType").value;
+      const intervalValue = parseInt(document.getElementById("intervalValue").value);
+      const termCount = parseInt(document.getElementById("termCount").value);
+
+      if (!startDate || !intervalValue || !termCount) {
+        alert("すべての項目を正しく入力してください。");
+        return;
+      }
+
+      const newTerms = [];
+      let currentStartDate = new Date(startDate);
+
+      for (let i = 0; i < termCount; i++) {
+        const currentEndDate = new Date(currentStartDate);
+        if (intervalType === "days") {
+          currentEndDate.setDate(currentEndDate.getDate() + intervalValue - 1);
+        } else if (intervalType === "weeks") {
+          currentEndDate.setDate(currentEndDate.getDate() + intervalValue * 7 - 1);
+        } else if (intervalType === "months") {
+          currentEndDate.setMonth(currentEndDate.getMonth() + intervalValue);
+          currentEndDate.setDate(currentEndDate.getDate() - 1);
+        }
+
+        newTerms.push({
+          name: `2024年${i + 1}期`,
+          startDate: currentStartDate.toISOString().split("T")[0],
+          endDate: currentEndDate.toISOString().split("T")[0],
+        });
+
+        currentStartDate = new Date(currentEndDate);
+        currentStartDate.setDate(currentStartDate.getDate() + 1);
+      }
+
+      sampleTerms.splice(0, sampleTerms.length, ...newTerms);
+      populateTermList();
+    });
+
+    // 初期表示
+    populateTermList();
+
+    // コース変更締切日の保存
+    document.getElementById("saveCourseChangeDeadlineBtn").addEventListener("click", function() {
+      const courseChangeDeadline = document.getElementById("courseChangeDeadline").value;
+      if (!courseChangeDeadline) {
+        alert("コース変更締切日を入力してください。");
+        return;
+      }
+      // サンプルとしてアラートで表示
+      alert(`コース変更締切日を「${courseChangeDeadline}」で保存しました。`);
+    });
+  </script>
+</body>
+</html>
