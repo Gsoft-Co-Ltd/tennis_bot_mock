@@ -61,6 +61,7 @@
       /* iframeは初期非表示 */
       #iframeClass,
       #iframeBank,
+      #iframeFee,
       #iframeNotes,
       #iframeMemberCard,
       #iframeGroup {
@@ -101,6 +102,12 @@
             <button id="saveNextButton" class="btn btn-success button-next" onclick="saveInfo()" style="display: none">
               キャンセル
             </button>
+
+            <!-- 店舗移動ボタン -->
+            <button id="moveStoreButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#moveStoreModal">
+              店舗移動
+            </button>
+
             <button id="suspendButton" class="btn btn-info" onclick="confirmSuspend()">
               休会
             </button>
@@ -224,6 +231,11 @@
                   </select>
                 </div>
 
+                <div class="mb-3">
+                  <label for="currentStore" class="form-label">在籍店舗</label>
+                  <input type="text" id="currentStore" class="form-control" value="名古屋校" readonly>
+                </div>
+
                 <!-- 緊急連絡先追加部分 -->
                 <hr>
                 <h5 class="mb-3">緊急連絡先</h5>
@@ -277,6 +289,11 @@
           </button>
         </li>
         <li class="nav-item" role="presentation">
+          <button class="nav-link" type="button" data-target="iframeFee">
+            定期料金
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
           <button class="nav-link" type="button" data-target="iframeNotes">
             申し送り事項
           </button>
@@ -296,9 +313,36 @@
       <div class="tab-content mt-3">
         <iframe id="iframeClass" src="./student_setting/tab_class.html"></iframe>
         <iframe id="iframeBank" src="./student_setting/tab_bank.html"></iframe>
+        <iframe id="iframeFee" src="./student_setting/tab_fee.html"></iframe>
         <iframe id="iframeNotes" src="./student_setting/tab_notes.html"></iframe>
         <iframe id="iframeMemberCard" src="./student_setting/tab_memberCard.html"></iframe>
         <iframe id="iframeGroup" src="./student_setting/tab_group.html"></iframe>
+      </div>
+    </div>
+
+    <!-- 店舗移動モーダル -->
+    <div class="modal fade" id="moveStoreModal" tabindex="-1" aria-labelledby="moveStoreModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="moveStoreModalLabel">店舗移動</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="selectStore" class="form-label">移動先店舗を選択してください</label>
+              <select id="selectStore" class="form-select">
+                <option value="名古屋校">名古屋校</option>
+                <option value="大阪校">大阪校</option>
+                <option value="東京校">東京校</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="moveCompleted()" data-bs-dismiss="modal">移動</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -309,6 +353,7 @@
         const iframes = {
           iframeClass: document.getElementById('iframeClass'),
           iframeBank: document.getElementById('iframeBank'),
+          iframeFee: document.getElementById('iframeFee'),
           iframeNotes: document.getElementById('iframeNotes'),
           iframeMemberCard: document.getElementById('iframeMemberCard'),
           iframeGroup: document.getElementById('iframeGroup')
@@ -380,6 +425,9 @@
           alert("休会処理が完了しました。");
           document.getElementById('status').value = 'suspended';
         }
+      }
+      function moveCompleted(){
+        alert("店舗移動が完了しました");
       }
     </script>
   </body>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-label {
+      font-weight: bold;
+      color: #555;
+    }
+    .section-title {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h4>定期料金設定</h4>
+  <p>ロッカーレンタル費など、会員に対して定期的に請求する料金を設定します。</p>
+
+  <form id="regularFeeForm">
+    <div class="mb-3">
+      <label for="feeName" class="form-label">料金名</label>
+      <input type="text" id="feeName" class="form-control" placeholder="例：ロッカーレンタル費" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="feeAmount" class="form-label">金額（税抜）</label>
+      <input type="number" id="feeAmount" class="form-control" placeholder="例：1000" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">請求周期</label>
+      <div class="form-check">
+        <input type="radio" class="form-check-input" name="billingCycle" id="cycleMonths" checked>
+        <label for="cycleMonths" class="form-check-label">〇か月ごと</label>
+      </div>
+      <div class="d-flex align-items-center mb-2" style="margin-left:25px;">
+        <input type="number" id="monthsCount" class="form-control" style="max-width:80px;" value="1">
+        <span class="ms-2">か月ごと</span>
+      </div>
+
+      <div class="form-check">
+        <input type="radio" class="form-check-input" name="billingCycle" id="cycleTerms">
+        <label for="cycleTerms" class="form-check-label">〇期ごと</label>
+      </div>
+      <div class="d-flex align-items-center" style="margin-left:25px;">
+        <input type="number" id="termsCount" class="form-control" style="max-width:80px;" value="1" disabled>
+        <span class="ms-2">期ごと</span>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="discountSelect" class="form-label">適用割引</label>
+      <select id="discountSelect" class="form-select">
+        <option value="none" selected>割引なし</option>
+        <option value="family">家族割</option>
+        <option value="multi">複数受講割</option>
+        <option value="ageUnder30">30歳未満割</option>
+        <option value="ageOver60">60歳以上割</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">追加</button>
+  </form>
+
+  <hr class="my-4">
+
+  <h5>設定済み定期料金一覧</h5>
+  <table class="table table-bordered table-sm">
+    <thead class="table-light">
+      <tr>
+        <th>料金名</th>
+        <th>金額</th>
+        <th>請求周期</th>
+        <th>割引</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ロッカーレンタル費</td>
+        <td>¥1,000</td>
+        <td>1か月ごと</td>
+        <td>割引なし</td>
+        <td>
+          <button class='btn btn-warning btn-sm'>編集</button>
+          <button class='btn btn-danger btn-sm'>削除</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    const cycleMonths = document.getElementById('cycleMonths');
+    const cycleTerms = document.getElementById('cycleTerms');
+    const monthsCount = document.getElementById('monthsCount');
+    const termsCount = document.getElementById('termsCount');
+
+    cycleMonths.addEventListener('change', ()=> {
+      if (cycleMonths.checked) {
+        monthsCount.disabled = false;
+        termsCount.disabled = true;
+      }
+    });
+
+    cycleTerms.addEventListener('change', ()=> {
+      if (cycleTerms.checked) {
+        monthsCount.disabled = true;
+        termsCount.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
