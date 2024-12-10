@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>テニススクール生一覧</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .container {
+        margin-top: 40px;
+      }
+
+      h2 {
+        color: #007bff;
+        font-weight: 700;
+      }
+
+      .search-bar {
+        max-width: 250px; /* 検索バーの幅を調整 */
+      }
+
+      table {
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      th {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        position: relative;
+      }
+
+      th .sort-icon {
+        margin-left: 8px;
+      }
+
+      .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+      }
+
+      .btn-info {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .btn-outline-secondary {
+        background-color: #e2e3e5;
+        color: #6c757d;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+      }
+
+      .btn-danger {
+        background-color: #ff6b6b;
+        color: white;
+      }
+
+      .filter-options {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* フィルタ項目間のスペースを調整 */
+      }
+
+      .filter-options label {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+      }
+
+      .filter-options input[type="checkbox"] {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2 class="mb-4">テニススクール生一覧</h2>
+
+      <!-- 検索バーとボタン群 -->
+      <div class="d-flex justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control search-bar me-3"
+            placeholder="名前で検索"
+          />
+          <div class="filter-options">
+            <label>
+              <input
+                type="checkbox"
+                id="filterNotes"
+                onchange="filterTable()"
+              />
+              申し送り事項ありのみ
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                id="filterOverdue"
+                onchange="filterTable()"
+              />
+              未納者のみ
+            </label>
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-success me-2">
+            <i class="fas fa-file-excel"></i> Excel出力
+          </button>
+          <button class="btn btn-primary" onclick="showAddMemberModal()">
+            <i class="fas fa-user-plus"></i> 会員追加
+          </button>
+        </div>
+      </div>
+
+      <!-- スクール生一覧テーブル -->
+      <table class="table table-striped table-hover" id="studentTable">
+        <thead>
+          <tr>
+            <th scope="col" onclick="sortTable(0)">
+              会員番号 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(1)">
+              氏名 <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(2)">
+              フリガナ <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col" onclick="sortTable(3)">
+              コース <i class="fas fa-sort sort-icon"></i>
+            </th>
+            <th scope="col">申し送り事項</th>
+            <th scope="col">未納</th>
+            <th scope="col">会員詳細</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- サンプルデータ -->
+          <tr>
+            <td>001</td>
+            <td>山田 太郎</td>
+            <td>ヤマダ タロウ</td>
+            <td>初心者コース</td>
+            <td><button class="btn btn-info btn-sm">有り</button></td>
+            <td><button class="btn btn-info btn-sm">有り</button></td>
+            <td>
+              <button
+                id="detail"
+                class="btn btn-secondary btn-sm detail-btn"
+                data-url="./student_management/student_detail.html"
+              >
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>002</td>
+            <td>佐藤 花子</td>
+            <td>サトウ ハナコ</td>
+            <td>中級者コース</td>
+            <td>
+              <button class="btn btn-outline-secondary btn-sm">無し</button>
+            </td>
+            <td>
+              <button class="btn btn-outline-secondary btn-sm">無し</button>
+            </td>
+            <td>
+              <button
+                id="detail"
+                class="btn btn-secondary btn-sm detail-btn"
+                data-url="./student_management/student_detail.html"
+              >
+                詳細
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 会員追加モーダル -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">会員追加</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addMemberForm">
+              <div class="mb-3">
+                <label class="form-label">会員番号</label>
+                <input type="text" class="form-control" id="addMemberId" placeholder="例: 010"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">氏名</label>
+                <input type="text" class="form-control" id="addMemberName" placeholder="例: 山田 花子"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">フリガナ</label>
+                <input type="text" class="form-control" id="addMemberKana" placeholder="例: ヤマダ ハナコ"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">郵便番号</label>
+                <input type="text" class="form-control" id="addPostalCode" placeholder="例: 460-0000"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">住所</label>
+                <input type="text" class="form-control" id="addAddress" placeholder="例: 愛知県名古屋市中区1-2-3"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">電話番号</label>
+                <input type="text" class="form-control" id="addPhone" placeholder="例: 090-1234-5678"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">メール</label>
+                <input type="email" class="form-control" id="addEmail" placeholder="例: hanako.sato@example.com"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">性別</label>
+                <select class="form-select" id="addGender">
+                  <option>男性</option>
+                  <option>女性</option>
+                  <option>その他</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">生年月日</label>
+                <input type="date" class="form-control" id="addBirthDate"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">入会日</label>
+                <input type="date" class="form-control" id="addJoinDate"/>
+              </div>
+
+              <hr>
+              <h6>口座情報</h6>
+              <div class="mb-3">
+                <label class="form-label">銀行名</label>
+                <input type="text" class="form-control" id="addBankName" placeholder="例: 三菱UFJ銀行"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">支店名</label>
+                <input type="text" class="form-control" id="addBranchName" placeholder="例: 名古屋支店"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">口座種別</label>
+                <select class="form-select" id="addAccountType">
+                  <option>普通</option>
+                  <option>当座</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">口座番号</label>
+                <input type="text" class="form-control" id="addAccountNumber" placeholder="1234567"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">口座名義</label>
+                <input type="text" class="form-control" id="addAccountHolder" placeholder="例: ヤマダ ハナコ"/>
+              </div>
+
+              <hr>
+              <h6>コース・クラス・レベル</h6>
+              <div class="mb-3">
+                <label class="form-label">レベル</label>
+                <select class="form-select" id="addLevel">
+                  <option>初級</option>
+                  <option>中級</option>
+                  <option>上級</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">クラス</label>
+                <select class="form-select" id="addClass">
+                  <option>Aクラス</option>
+                  <option>Bクラス</option>
+                  <option>Cクラス</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">コース</label>
+                <select class="form-select" id="addCourse">
+                  <option>入門コース</option>
+                  <option>中級コース</option>
+                  <option>応用コース</option>
+                </select>
+              </div>
+
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button type="button" class="btn btn-primary" onclick="addNewMember()">登録</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let sortDirection = true;
+      let currentColumn = 0;
+
+      function sortTable(columnIndex) {
+        const table = document.getElementById("studentTable");
+        const rows = Array.from(table.tBodies[0].rows);
+        const isNumeric = !isNaN(rows[0].cells[columnIndex].innerText);
+
+        sortDirection = !sortDirection;
+        currentColumn = columnIndex;
+
+        rows.sort((a, b) => {
+          const aText = a.cells[columnIndex].innerText;
+          const bText = b.cells[columnIndex].innerText;
+          const aValue = isNumeric ? parseFloat(aText) : aText.toLowerCase();
+          const bValue = isNumeric ? parseFloat(bText) : bText.toLowerCase();
+          return sortDirection
+            ? aValue > bValue
+              ? 1
+              : -1
+            : aValue < bValue
+            ? 1
+            : -1;
+        });
+
+        rows.forEach((row) => table.tBodies[0].appendChild(row));
+        updateSortIcons();
+      }
+
+      function updateSortIcons() {
+        const headers = document.querySelectorAll("th");
+        headers.forEach((header, index) => {
+          const icon = header.querySelector(".sort-icon");
+          if (icon) {
+            if (index === currentColumn) {
+              icon.className = sortDirection
+                ? "fas fa-sort-up"
+                : "fas fa-sort-down";
+            } else {
+              icon.className = "fas fa-sort";
+            }
+          }
+        });
+      }
+
+      function filterTable() {
+        const searchValue = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const filterNotes = document.getElementById("filterNotes").checked;
+        const filterOverdue = document.getElementById("filterOverdue").checked;
+        const rows = document.querySelectorAll("#studentTable tbody tr");
+
+        rows.forEach((row) => {
+          const nameCell = row
+            .querySelector("td:nth-child(2)")
+            .innerText.toLowerCase();
+          const notesButton = row.querySelector("td:nth-child(5) button");
+          const overdueButton = row.querySelector("td:nth-child(6) button");
+
+          let displayRow = true;
+
+          // 名前でフィルタリング
+          if (!nameCell.includes(searchValue)) {
+            displayRow = false;
+          }
+
+          // 申し送り事項でフィルタリング
+          if (filterNotes) {
+            if (!notesButton.classList.contains("btn-info")) {
+              displayRow = false;
+            }
+          }
+
+          // 未納でフィルタリング
+          if (filterOverdue) {
+            if (!overdueButton.classList.contains("btn-info")) {
+              displayRow = false;
+            }
+          }
+
+          row.style.display = displayRow ? "" : "none";
+        });
+      }
+
+      // 検索バーのイベントリスナー
+      document
+        .getElementById("searchInput")
+        .addEventListener("keyup", filterTable);
+
+      document.querySelectorAll(".detail-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          const targetUrl = this.getAttribute("data-url");
+          if (targetUrl) {
+            window.parent.postMessage({ type: "navigate", url: targetUrl }, "*");
+          }
+        });
+      });
+
+      function showAddMemberModal() {
+        const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
+        modal.show();
+      }
+
+      function addNewMember() {
+        const memberId = document.getElementById('addMemberId').value.trim();
+        const memberName = document.getElementById('addMemberName').value.trim();
+        const memberKana = document.getElementById('addMemberKana').value.trim();
+        const postalCode = document.getElementById('addPostalCode').value.trim();
+        const address = document.getElementById('addAddress').value.trim();
+        const phone = document.getElementById('addPhone').value.trim();
+        const email = document.getElementById('addEmail').value.trim();
+        const gender = document.getElementById('addGender').value;
+        const birthDate = document.getElementById('addBirthDate').value;
+        const joinDate = document.getElementById('addJoinDate').value;
+
+        const bankName = document.getElementById('addBankName').value.trim();
+        const branchName = document.getElementById('addBranchName').value.trim();
+        const accountType = document.getElementById('addAccountType').value;
+        const accountNumber = document.getElementById('addAccountNumber').value.trim();
+        const accountHolder = document.getElementById('addAccountHolder').value.trim();
+
+        const level = document.getElementById('addLevel').value;
+        const className = document.getElementById('addClass').value;
+        const course = document.getElementById('addCourse').value;
+
+        if(!memberId || !memberName || !memberKana || !address || !phone || !email || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
+          alert("必要な項目をすべて入力してください。");
+          return;
+        }
+
+        // 新規行をテーブルに追加
+        const newRow = `
+          <tr>
+            <td>${memberId}</td>
+            <td>${memberName}</td>
+            <td>${memberKana}</td>
+            <td>${course}</td>
+            <td><button class="btn btn-outline-secondary btn-sm">無し</button></td>
+            <td><button class="btn btn-outline-secondary btn-sm">無し</button></td>
+            <td>
+              <button
+                class="btn btn-secondary btn-sm detail-btn"
+                data-url="./student_management/student_detail.html"
+              >
+                詳細
+              </button>
+            </td>
+          </tr>
+        `;
+
+        document.querySelector("#studentTable tbody").insertAdjacentHTML('beforeend', newRow);
+
+        // フォームリセット
+        document.getElementById('addMemberForm').reset();
+
+        // モーダルを閉じる
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+        modal.hide();
+
+        alert("新しい会員を追加しました。");
+      }
+    </script>
+  </body>
+</html>

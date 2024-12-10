@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ビジター・体験会員一覧</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin:0; padding:0;
+    }
+    .container {
+      margin-top: 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color:#007bff;
+      font-weight: bold;
+      margin-bottom:20px;
+    }
+
+    .nav-tabs .nav-link {
+      font-weight:bold;
+      color:#555;
+    }
+    .nav-tabs .nav-link.active {
+      background-color:#007bff;
+      color:#fff;
+    }
+
+    .filter-bar {
+      margin-bottom:20px;
+    }
+    .filter-bar .form-control {
+      max-width:200px;
+      margin-right:10px;
+    }
+    .table th {
+      background-color:#007bff;
+      color:white;
+    }
+    .badge-status {
+      font-size:0.8rem;
+      padding:4px 8px;
+      border-radius:4px;
+      color:#fff;
+    }
+    .badge-visitor {
+      background-color:#6c757d;
+    }
+    .badge-trial {
+      background-color:#17a2b8;
+    }
+    .badge-active {
+      background-color:#28a745;
+    }
+    .badge-expired {
+      background-color:#dc3545;
+    }
+
+    @media(max-width:480px){
+      .filter-bar {
+        display:flex;
+        flex-direction:column;
+      }
+      .filter-bar .form-control {
+        margin-bottom:10px;
+        max-width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ビジター・体験会員一覧</h2>
+    <ul class="nav nav-tabs mb-3" id="tabMenu" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visitorTab" type="button" role="tab" aria-selected="true">ビジター</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#trialTab" type="button" role="tab" aria-selected="false">体験会員</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- ビジター一覧タブ -->
+      <div class="tab-pane fade show active" id="visitorTab" role="tabpanel">
+        <div class="filter-bar d-flex align-items-center">
+          <input type="text" class="form-control" id="visitorNameSearch" placeholder="名前で検索">
+          <input type="date" class="form-control" id="visitorSinceDate" placeholder="来店日から検索">
+          <button class="btn btn-primary btn-sm" onclick="filterVisitors()">検索</button>
+        </div>
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>来店履歴</th>
+              <th>最終来店日</th>
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="visitorList">
+            <!-- サンプルデータ: ビジター -->
+            <tr>
+              <td>佐藤 花子</td>
+              <td>3回</td>
+              <td>2024/05/10</td>
+              <td><span class="badge-status badge-visitor">ビジター</span></td>
+              <td>
+                <button class="btn btn-sm btn-secondary" onclick="convertToTrial('佐藤 花子')">体験案内</button>
+              </td>
+            </tr>
+            <tr>
+              <td>山本 太郎</td>
+              <td>1回</td>
+              <td>2024/06/01</td>
+              <td><span class="badge-status badge-visitor">ビジター</span></td>
+              <td>
+                <button class="btn btn-sm btn-secondary" onclick="convertToTrial('山本 太郎')">体験案内</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 体験会員一覧タブ -->
+      <div class="tab-pane fade" id="trialTab" role="tabpanel">
+        <div class="filter-bar d-flex align-items-center">
+          <input type="text" class="form-control" id="trialNameSearch" placeholder="名前で検索">
+          <select class="form-select" id="trialStatusFilter">
+            <option value="all" selected>すべての状態</option>
+            <option value="active">有効</option>
+            <option value="expired">期限切れ</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="filterTrials()">検索</button>
+        </div>
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>体験開始日</th>
+              <th>体験終了日</th>
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="trialList">
+            <!-- サンプルデータ: 体験会員 -->
+            <tr>
+              <td>中村 光</td>
+              <td>2024/05/15</td>
+              <td>2024/06/14</td>
+              <td><span class="badge-status badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-sm btn-success" onclick="inviteToJoin('中村 光')">入会案内</button>
+              </td>
+            </tr>
+            <tr>
+              <td>小林 明美</td>
+              <td>2024/04/20</td>
+              <td>2024/05/19</td>
+              <td><span class="badge-status badge-expired">期限切れ</span></td>
+              <td>
+                <button class="btn btn-sm btn-secondary" onclick="resendTrial('小林 明美')">再体験案内</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function filterVisitors() {
+      const name = document.getElementById('visitorNameSearch').value;
+      const sinceDate = document.getElementById('visitorSinceDate').value;
+      alert(`ビジター検索\n名前: ${name}\n来店日から: ${sinceDate}`);
+      // 実際にはここでフィルタリング処理
+    }
+
+    function filterTrials() {
+      const name = document.getElementById('trialNameSearch').value;
+      const status = document.getElementById('trialStatusFilter').value;
+      alert(`体験会員検索\n名前: ${name}\n状態: ${status}`);
+      // 実際にはここでフィルタリング処理
+    }
+
+    function convertToTrial(name) {
+      alert(`${name}さんに体験案内を送ります。`);
+      // 実際にはここで体験案内処理
+    }
+
+    function inviteToJoin(name) {
+      alert(`${name}さんを正式入会に誘導する案内を表示します。`);
+      // 実際にはここで入会案内処理
+    }
+
+    function resendTrial(name) {
+      alert(`${name}さんに再度体験の案内を送ります。`);
+      // 実際にはここで再体験案内処理
+    }
+  </script>
+</body>
+</html>
