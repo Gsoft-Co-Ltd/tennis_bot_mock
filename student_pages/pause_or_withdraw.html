@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>休会・退会手続き</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin:0;
+      padding:0;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 10px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+      border: none;
+    }
+    .btn-info:hover {
+      background-color: #138496;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .form-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin-top: 10px;
+        border-radius: 0;
+        box-shadow:none;
+      }
+      h1 {
+        font-size:18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>休会・退会手続き</h1>
+    <div class="form-text">
+      ご都合により一時的に通えない方は「休会」、<br>完全に退会される方は「退会」を選択してください。<br><br>
+      休会の場合は休会費が発生する場合があります。<br>
+      退会は再入会時に再度入会金が必要となりますのでご注意ください。
+    </div>
+
+    <button class="btn btn-info" onclick="pauseProcedure()">休会手続きへ進む</button>
+    <button class="btn btn-danger" onclick="withdrawProcedure()">退会手続きへ進む</button>
+    <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+  </div>
+
+  <script>
+    function pauseProcedure() {
+        window.location.href = "pause_procedure.html";
+    }
+
+    function withdrawProcedure() {
+        window.location.href = "withdraw_procedure.html";
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+</html>

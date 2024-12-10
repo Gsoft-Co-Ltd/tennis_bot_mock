@@ -9,6 +9,8 @@
     body {
       background-color: #f5f7fa;
       font-family: Arial, sans-serif;
+      margin:0;
+      padding:0;
     }
 
     .container {
@@ -51,6 +53,23 @@
     .btn-primary:hover {
       background-color: #0056b3;
     }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin-top: 30px;
+        border-radius: 0;
+        box-shadow:none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -61,6 +80,7 @@
     <h1>会員情報変更</h1>
     <button class="btn btn-primary" onclick="updateRegistration()">登録情報更新</button>
     <button class="btn btn-primary" onclick="changeLesson()">コース・レベル・クラス更新</button>
+    <button class="btn btn-secondary" onclick="pauseOrWithdraw()">休会・退会手続き</button>
   </div>
 
   <script>
@@ -70,6 +90,10 @@
 
     function changeLesson() {
       window.location.href = "updatecourse.html";
+    }
+
+    function pauseOrWithdraw() {
+      window.location.href = "pause_or_withdraw.html";
     }
   </script>
 </body>
