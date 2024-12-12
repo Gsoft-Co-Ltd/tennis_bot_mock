@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>定期料金設定</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -24,12 +25,12 @@
 </head>
 <body>
   <h4>定期料金設定</h4>
-  <p>ロッカーレンタル費など、会員に対して定期的に請求する料金を設定します。</p>
+  <p>ロッカーレンタル費や月謝など、会員に対して定期的に請求する料金を設定します。</p>
 
   <form id="regularFeeForm">
     <div class="mb-3">
       <label for="feeName" class="form-label">料金名</label>
-      <input type="text" id="feeName" class="form-control" placeholder="例：ロッカーレンタル費" required>
+      <input type="text" id="feeName" class="form-control" placeholder="例：ロッカーレンタル費、月謝" required>
     </div>
 
     <div class="mb-3">
@@ -79,18 +80,30 @@
     <thead class="table-light">
       <tr>
         <th>料金名</th>
-        <th>金額</th>
+        <th>基本金額</th>
         <th>請求周期</th>
         <th>割引</th>
         <th>操作</th>
       </tr>
     </thead>
     <tbody>
+      <!-- サンプルデータ（ロッカーレンタル費） -->
       <tr>
         <td>ロッカーレンタル費</td>
         <td>¥1,000</td>
         <td>1か月ごと</td>
         <td>割引なし</td>
+        <td>
+          <button class='btn btn-warning btn-sm'>編集</button>
+          <button class='btn btn-danger btn-sm'>削除</button>
+        </td>
+      </tr>
+      <!-- サンプルデータ（月謝） -->
+      <tr>
+        <td>中級 週2回コース</td>
+        <td>¥16,000</td>
+        <td>1か月ごと</td>
+        <td>家族割</td>
         <td>
           <button class='btn btn-warning btn-sm'>編集</button>
           <button class='btn btn-danger btn-sm'>削除</button>

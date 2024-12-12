@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>予約管理</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h5 {
+      font-size: 1.5rem;
+      color: #333;
+      font-weight: bold;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    .table {
+      background-color: #fff;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .table td, .table th {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .table-bordered {
+      border: 1px solid #ddd;
+    }
+
+    .table-bordered th, .table-bordered td {
+      border: 1px solid #ddd;
+    }
+
+    .status-reserved {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .status-reschedule {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .status-absent {
+      color: #dc3545;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h5>予約管理</h5>
+  <p>現在の予約状況および保有する振替チケットを確認できます。</p>
+
+  <h6 class="section-title mt-4">現在の予約レッスン一覧</h6>
+  <table class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>時間</th>
+        <th>クラス/レッスン名</th>
+        <th>コーチ</th>
+        <th>コート</th>
+        <th>状態</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- サンプル予約データ -->
+      <tr>
+        <td>2024-12-10</td>
+        <td>10:00-11:30</td>
+        <td>中級クラス</td>
+        <td>佐藤コーチ</td>
+        <td>Aコート</td>
+        <td class="status-reserved">予約</td>
+      </tr>
+      <tr>
+        <td>2024-12-15</td>
+        <td>16:00-17:30</td>
+        <td>特別レッスン（バックハンド強化）</td>
+        <td>鈴木コーチ</td>
+        <td>Bコート</td>
+        <td class="status-reschedule">振替</td>
+      </tr>
+      <tr>
+        <td>2024-12-18</td>
+        <td>14:00-15:30</td>
+        <td>初心者クラス</td>
+        <td>高橋コーチ</td>
+        <td>Cコート</td>
+        <td class="status-absent">欠席</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h6 class="section-title mt-4">振替チケット一覧</h6>
+  <table class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th>チケットID</th>
+        <th>発生元</th>
+        <th>発生日</th>
+        <th>有効期限</th>
+        <th>状態</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- サンプル振替チケット -->
+      <tr>
+        <td>TCKT-0001</td>
+        <td>2024-11-20欠席分</td>
+        <td>2024-11-20</td>
+        <td>2025-02-20</td>
+        <td>未使用</td>
+      </tr>
+      <tr>
+        <td>TCKT-0002</td>
+        <td>2024-12-05欠席分</td>
+        <td>2024-12-05</td>
+        <td>2025-03-05</td>
+        <td>未使用</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
