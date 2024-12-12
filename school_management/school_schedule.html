@@ -11,35 +11,49 @@
   --background-color: #f8fafc;
   --border-color: #e2e8f0;
   --text-color: #334155;
-  --hour-height: 60px; /* 1h=60px */
-  --total-height: 750px; /* 9:00～21:30=12.5h=750px */
+  --hour-height: 60px; 
+  --total-height: 750px; /* 9:00～21:30までの高さ */
   --time-col-width: 60px;
   --timeslot-col-width: 120px;
   --court-width: 100px;
-  --day-count:7; /* 月～日 */
-  --court-count:3; /* コートA～C */
+  --day-count:7; 
+  --court-count:3; 
 }
 
 /* 全要素リセット */
-* {margin:0; padding:0; box-sizing:border-box;}
+* {
+  margin:0; 
+  padding:0; 
+  box-sizing:border-box;
+}
 
 body {
   font-family:"Noto Sans JP",sans-serif;
   background: var(--background-color);
   color: var(--text-color);
-  overflow-x:auto;
+  overflow-x:hidden; /* 横スクロールバー非表示 */
 }
 
 .controls {
-  display:flex; gap:12px; margin:20px; align-items:center;
+  display:flex; 
+  gap:12px; 
+  margin:20px; 
+  align-items:center;
 }
 
 button {
   background-color: var(--primary-blue);
-  color:white; border:none; padding:8px 16px; border-radius:6px;
-  font-size:14px; cursor:pointer; transition:opacity 0.2s;
+  color:white; 
+  border:none; 
+  padding:8px 16px; 
+  border-radius:6px;
+  font-size:14px; 
+  cursor:pointer; 
+  transition:opacity 0.2s;
 }
-button:hover {opacity:0.9;}
+button:hover {
+  opacity:0.9;
+}
 
 select {
   padding:8px 12px;
@@ -49,49 +63,51 @@ select {
   background:white;
 }
 
-/* 計算： 3コート*100=300px/日。7日で2100px。
-   左に60+120=180px必要なので total=180+2100=2280px */
+/* 週表示用コンテナ（従来の週表示） */
 .main-container {
   position: relative;
-  width: 2280px;
+  width: 2280px; 
   height: calc(var(--total-height) + 82px);
-  margin:20px;
+  margin:20px auto;
   border:1px solid var(--border-color);
   overflow:hidden;
 }
-
-/* 時間・時間割・レッスン配置等共通スタイル */
 .hour-line {
-  position:absolute; left:0; right:0; height:1px; background:#ccc;
+  position:absolute; 
+  left:0; right:0; 
+  height:1px; 
+  background:#ccc;
+  z-index:1;
 }
-
 .time-label {
-  position:absolute; width:100%; text-align:center; font-size:11px;
+  position:absolute; 
+  width:100%; 
+  text-align:center; 
+  font-size:11px;
   color:#64748b;
+  z-index:2;
 }
-
 .timeslot-block {
-  position:absolute;
+  position:absolute; 
   left:8px; right:8px;
   border:1px solid var(--border-color);
   border-radius:4px;
   background:#ecf5ff;
-  font-size:11px;
+  font-size:11px; 
   text-align:center;
-  padding:2px;
+  padding:2px; 
   box-sizing:border-box;
+  z-index:1;
 }
-
 .day-header {
-  position:absolute;
-  top:0;
-  height:40px;
-  color:white; 
-  font-size:14px; display:flex;align-items:center;justify-content:center;font-weight:500;
+  position:absolute; 
+  top:0; 
+  height:40px; 
+  font-size:14px; 
+  display:flex;align-items:center;justify-content:center;font-weight:500;
+  color:white;
+  z-index:3;
 }
-
-/* 平日は交互：月(薄青)・火(白)・水(薄青)・木(白)・金(薄青) 
-   土:青(#3498db) 日:赤(#e74c3c) */
 .day-header[data-day="月曜日"] {background:#f0f8ff; color:#333;}
 .day-header[data-day="火曜日"] {background:#ffffff; color:#333; border-top:2px solid #ccc;}
 .day-header[data-day="水曜日"] {background:#f0f8ff; color:#333;}
@@ -101,32 +117,41 @@ select {
 .day-header[data-day="日曜日"] {background:#e74c3c; color:#fff;}
 
 .court-header {
-  position:absolute;
-  height:40px; background:var(--primary-green);color:white;
-  font-size:13px; display:flex;align-items:center;justify-content:center;font-weight:500;
+  position:absolute; 
+  height:40px; 
+  background:var(--primary-green);color:white;
+  font-size:13px; 
+  display:flex;align-items:center;justify-content:center;font-weight:500;
+  z-index:3;
 }
-
 .court-column {
-  position:absolute;
-  top:80px; /* 40px day-header + 40px court-header */
+  position:absolute; 
+  top:80px; 
   border:1px solid var(--border-color);
-  background:#fff;
-  width:var(--court-width);
+  background:#fff; 
+  width:var(--court-width); 
   height:var(--total-height);
   overflow:hidden;
+  z-index:1;
 }
 
-/* レッスン */
 .lesson {
-  position:absolute; left:4px; right:4px; border-radius:6px; padding:8px;
-  font-size:12px; color:white; overflow:hidden; cursor:pointer;
+  position:absolute; 
+  left:4px; right:4px; 
+  border-radius:6px; padding:8px;
+  font-size:12px; 
+  color:white; 
+  overflow:hidden; 
+  cursor:pointer;
+  z-index:10;
 }
-.lesson:hover {transform:scale(1.02);transition:transform 0.2s;}
-
+.lesson:hover {
+  transform:scale(1.02);
+  transition:transform 0.2s;
+}
 .lesson.beginner { background:#3498db; }
 .lesson.intermediate {background:#2ecc71;}
 .lesson.advanced {background:#9b59b6;}
-
 .lesson-title {font-weight:500; margin-bottom:2px;}
 .lesson-info {font-size:11px; opacity:0.9;}
 
@@ -134,33 +159,161 @@ select {
 .overlay {
   display:none;
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.5); 
   z-index:999;
 }
-
 .popup {
   display:none;
-  position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  background:#fff;
-  padding:24px;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#fff; 
+  padding:24px; 
   border-radius:8px;
   box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);
-  z-index:1000;
+  z-index:1000; 
   width:90%;max-width:400px;
 }
-.popup h2 {font-size:18px;margin-bottom:16px;}
-.participant-list {list-style:none;margin-bottom:20px;}
+.popup h2 {
+  font-size:18px;
+  margin-bottom:16px;
+}
+.participant-list {
+  list-style:none; 
+  margin-bottom:20px; 
+  padding:0;
+}
 .participant-list li {
-  display:flex;justify-content:space-between;align-items:center;
-  padding:8px 0;border-bottom:1px solid var(--border-color);
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  gap:8px;
+  padding:8px 0; 
+  border-bottom:1px solid var(--border-color);
 }
 .status {
-  padding:4px 8px; border-radius:12px; font-size:12px; color:white;
+  padding:4px 8px; 
+  border-radius:12px; 
+  font-size:12px; 
+  color:white;
 }
-.status-レギュラー{background:#2ecc71;}
-.status-欠席{background:#e74c3c;}
-.status-振替{background:#f39c12;}
+.status-出席 {background:#2ecc71;} 
+.status-レギュラー {background:#27ae60;}
+.status-欠席{background:#f1c40f;}
+.status-振替{background:#3498db;}
+.status-体験{background:#9b59b6;}
+.unpaid-button, .memo-button {
+  background:#e74c3c; 
+  color:#fff; 
+  padding:4px 8px; 
+  font-size:12px; 
+  border:none; 
+  border-radius:6px; 
+  cursor:pointer;
+}
+.unpaid-button:hover, .memo-button:hover {
+  opacity:0.9;
+}
+
+/* 日表示コンテナ */
+#day-schedule-container {
+  display:none;
+  margin:20px auto;
+  padding:20px; 
+  border:1px solid var(--border-color);
+  border-radius:8px; 
+  background:#fff;
+  position:relative;
+  width:1000px; /* 広めにとる */
+  height:300px; 
+  overflow:hidden; /* 横スクロールさせない */
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
+  position:relative;
+}
+
+.day-schedule-title {
+  font-size:16px; 
+  font-weight:bold; 
+  margin-bottom:10px; 
+  text-align:center;
+}
+
+.day-schedule-table {
+  display:none;
+}
+
+.day-time-axis, .court-list, .day-schedule-content {
+  position:absolute;
+}
+
+.day-time-axis {
+  top:40px; 
+  left:100px; 
+  right:20px; 
+  height:20px; 
+  border-bottom:1px solid var(--border-color);
+  z-index:2;
+}
+
+.day-time-axis-label {
+  position:absolute; 
+  top:0; 
+  font-size:11px; 
+  color:#64748b;
+  text-align:center; 
+  width:40px;
+  transform:translateX(-50%);
+  z-index:2;
+}
+
+.court-list {
+  top:70px; 
+  bottom:20px; 
+  left:0; 
+  width:100px;
+  border-right:1px solid var(--border-color);
+  overflow:hidden;
+  z-index:2;
+}
+
+.court-item {
+  height:60px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  font-size:12px; 
+  font-weight:bold;
+  border-bottom:1px solid var(--border-color);
+  background:#f0f8ff;
+  width:100%;
+}
+
+.day-schedule-content {
+  top:70px; 
+  bottom:20px; 
+  left:100px; 
+  right:20px;
+  background:#fff; 
+  overflow:hidden; 
+  position:relative;
+  z-index:1;
+}
+
+/* レッスン */
+.day-lesson {
+  position:absolute;
+  border-radius:4px; 
+  padding:4px 6px; 
+  font-size:11px; 
+  color:#fff; 
+  font-weight:bold;
+  cursor:pointer; 
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
+  z-index:10;
+}
+.day-lesson.beginner {background:#3498db;}
+.day-lesson.intermediate {background:#2ecc71;}
+.day-lesson.advanced {background:#9b59b6;}
+.day-lesson:hover {opacity:0.9;}
+
 </style>
 </head>
 <body>
@@ -181,6 +334,14 @@ select {
 
 <div class="main-container" id="main-container"></div>
 
+<div id="day-schedule-container">
+  <div class="day-schedule-title" id="day-schedule-title"></div>
+  <table class="day-schedule-table" id="day-schedule-table"></table>
+  <div class="day-time-axis" id="day-time-axis"></div>
+  <div class="court-list" id="court-list"></div>
+  <div class="day-schedule-content" id="day-schedule-content"></div>
+</div>
+
 <div class="overlay" id="overlay"></div>
 <div class="popup" id="popup">
   <h2>受講者一覧 <span id="participant-count"></span></h2>
@@ -194,6 +355,7 @@ function getTodayName() {
   return weekday[new Date().getDay()];
 }
 
+const statuses=["出席","レギュラー","欠席","振替","体験"];
 const timeslots = [
   { code: "A", start: "09:00", end: "10:30" },
   { code: "B", start: "10:45", end: "12:15" },
@@ -208,7 +370,6 @@ const days = ["月曜日","火曜日","水曜日","木曜日","金曜日","土�
 const courts = ["コートA","コートB","コートC"];
 const levels=["beginner","intermediate","advanced"];
 const coaches=["田中","佐藤","鈴木","山田","加藤","渡辺","高橋","松本","伊藤","中村","橋本","清水","林","斎藤","森田","原田","川島","石井","木村","山本"];
-const statuses=["レギュラー","欠席","振替"];
 
 function randomParticipants(count,cap){
   const names=["田中","佐藤","鈴木","高橋","伊藤","渡辺","中村","小林","加藤","山本","松本","清水","木村","林","斎藤","山崎","原田","森田","桜井","相川","橋本","内田","石井","川島","藤田","島田","中村優子","加藤太一","山口美紀","松本麗子"];
@@ -216,12 +377,13 @@ function randomParticipants(count,cap){
   for(let i=0;i<count;i++){
     const name=names[Math.floor(Math.random()*names.length)];
     const st=statuses[Math.floor(Math.random()*statuses.length)];
-    parts.push({name, status:st});
+    const unpaid=Math.random()<0.1; 
+    const memo=Math.random()<0.1;
+    parts.push({name, status:st, unpaid:unpaid, memo:memo});
   }
   return parts;
 }
 
-// ランダムレッスン作成
 const lessons=[];
 days.forEach(day=>{
   timeslots.forEach(ts=>{
@@ -245,35 +407,112 @@ days.forEach(day=>{
   });
 });
 
-const dayWidth=courts.length*100; //3*100=300px/日
-const baseX=60+120; //180px offset
+function levelToText(l){
+  const map={beginner:"初級",intermediate:"中級",advanced:"上級"};
+  return map[l]||l;
+}
+function levelColor(lv){
+  switch(lv){
+    case 'beginner':return '#3498db';
+    case 'intermediate':return '#2ecc71';
+    case 'advanced':return '#9b59b6';
+    default:return '#333';
+  }
+}
+function timeToX(time){
+  const [H,M]=time.split(":").map(Number);
+  return (H-9)*60+M; 
+}
 
-function generateSchedule(filterDay="all"){
+function showPopup(lesson){
+  const popup=document.getElementById("popup");
+  const overlay=document.getElementById("overlay");
+  const participantList=document.getElementById("participant-list");
+  const participantCount=document.getElementById("participant-count");
+
+  if(!participantList || !participantCount)return;
+  participantList.innerHTML="";
+  lesson.participants.forEach(p=>{
+    const li=document.createElement('li');
+
+    const nameSpan=document.createElement('span');
+    nameSpan.textContent=p.name;
+
+    const rightSide=document.createElement('div');
+    rightSide.style.display='flex';
+    rightSide.style.gap='8px';
+    rightSide.style.alignItems='center';
+
+    if(p.unpaid){
+      const unpaidBtn=document.createElement('button');
+      unpaidBtn.className='unpaid-button';
+      unpaidBtn.textContent='未納';
+      unpaidBtn.onclick=()=>goToUserDetail();
+      rightSide.appendChild(unpaidBtn);
+    }
+    if(p.memo){
+      const memoBtn=document.createElement('button');
+      memoBtn.className='memo-button';
+      memoBtn.textContent='申し送り';
+      memoBtn.onclick=()=>goToUserDetail();
+      rightSide.appendChild(memoBtn);
+    }
+
+    const statusSpan=document.createElement('span');
+    statusSpan.className='status status-'+p.status;
+    statusSpan.textContent=p.status;
+    rightSide.appendChild(statusSpan);
+
+    li.appendChild(nameSpan);
+    li.appendChild(rightSide);
+
+    participantList.appendChild(li);
+  });
+  const activeCount=lesson.participants.filter(p=>p.status!=="欠席").length;
+  participantCount.textContent=`(${activeCount}/${lesson.capacity})`;
+
+  if(popup) popup.style.display='block';
+  if(overlay) overlay.style.display='block';
+}
+
+function goToUserDetail(){
+  window.location.href = '../student_management/student_detail.html';
+}
+
+function closePopup(){
+  const popup=document.getElementById("popup");
+  const overlay=document.getElementById("overlay");
+  if(popup) popup.style.display='none';
+  if(overlay) overlay.style.display='none';
+}
+
+function generateWeekSchedule(){
   const container=document.getElementById('main-container');
+  const dayContainer=document.getElementById('day-schedule-container');
+  if(!container || !dayContainer)return;
+  container.style.display='block';
+  dayContainer.style.display='none';
   container.innerHTML='';
-
   generateHourLines(container);
   generateTimeLabels(container);
   generateTimeslotBlocks(container);
   generateDayBoundaries(container);
 
   days.forEach(day=>{
-    if(filterDay!=="all" && day!==filterDay) return;
     const dIndex=days.indexOf(day);
-    const dayX=baseX+(dIndex*dayWidth);
+    const dayX=60+120+(dIndex*300);
     const dayHdr=document.createElement('div');
     dayHdr.className='day-header';
     dayHdr.textContent=day;
-    dayHdr.dataset.day=day; //曜日判定用
+    dayHdr.dataset.day=day;
     dayHdr.style.left=dayX+'px';
     dayHdr.style.top='0px';
-    dayHdr.style.width=dayWidth+'px';
+    dayHdr.style.width='300px';
     dayHdr.style.position='absolute';
-    dayHdr.style.zIndex='10';
+    dayHdr.style.zIndex='3';
     container.appendChild(dayHdr);
 
-    courts.forEach(court=>{
-      const cIndex=courts.indexOf(court);
+    courts.forEach((court,cIndex)=>{
       const courtX=dayX+(cIndex*100);
       const cHdr=document.createElement('div');
       cHdr.className='court-header';
@@ -282,7 +521,7 @@ function generateSchedule(filterDay="all"){
       cHdr.style.top='40px';
       cHdr.style.left=courtX+'px';
       cHdr.style.width='100px';
-      cHdr.style.zIndex='10';
+      cHdr.style.zIndex='3';
       container.appendChild(cHdr);
 
       const cCol=document.createElement('div');
@@ -315,8 +554,127 @@ function generateSchedule(filterDay="all"){
   });
 }
 
+function generateDaySchedule(day){
+  const container=document.getElementById('main-container');
+  const dayContainer=document.getElementById('day-schedule-container');
+  const dayTitle=document.getElementById('day-schedule-title');
+  const dayTable=document.getElementById('day-schedule-table');
+  const timeAxis=document.getElementById('day-time-axis');
+  const courtList=document.getElementById('court-list');
+  const content=document.getElementById('day-schedule-content');
+
+  if(!container || !dayContainer || !dayTitle || !dayTable || !timeAxis || !courtList || !content)return;
+
+  container.style.display='none';
+  dayContainer.style.display='block';
+  dayTitle.textContent=`${day}のスケジュール（自由表示）`;
+
+  dayTable.innerHTML='';
+  timeAxis.innerHTML='';
+  courtList.innerHTML='';
+  content.innerHTML='';
+
+  // Court and time axis adjustments
+  const courtHeight=60;
+  const startTime=9; 
+  const endTime=21.5; //21:30
+  const totalMin = (21*60+30)-(9*60); // 9:00 to 21:30 => 12.5h=750min
+  const contentWidth=totalMin; //1min=1px
+  const contentHeight=courts.length*courtHeight;
+  content.style.width=contentWidth+'px';
+  content.style.height=contentHeight+'px';
+
+  // Populate courts
+  courts.forEach((c)=>{
+    const cItem=document.createElement('div');
+    cItem.className='court-item';
+    cItem.textContent=c;
+    courtList.appendChild(cItem);
+  });
+
+  // Create hour lines (vertical lines) and time labels
+  for(let h=9; h<=21; h++){
+    const x=timeToX(`${h}:00`);
+    const label=document.createElement('div');
+    label.className='day-time-axis-label';
+    label.style.position='absolute';
+    label.style.left=(x+100)+'px';
+    label.style.top='40px';
+    label.style.transform='translateX(-50%)';
+    label.style.fontSize='11px';
+    label.style.color='#64748b';
+    label.textContent=`${h}:00`;
+    dayContainer.appendChild(label);
+
+    const vline=document.createElement('div');
+    vline.style.position='absolute';
+    vline.style.top='70px';
+    vline.style.left=(x+100)+'px';
+    vline.style.width='1px';
+    vline.style.bottom='20px';
+    vline.style.background='#ccc';
+    vline.style.zIndex='1';
+    dayContainer.appendChild(vline);
+  }
+
+  // Add vertical line for 21:30 if needed
+  {
+    const x=timeToX("21:30");
+    const vline=document.createElement('div');
+    vline.style.position='absolute';
+    vline.style.top='70px';
+    vline.style.left=(x+100)+'px';
+    vline.style.width='1px';
+    vline.style.bottom='20px';
+    vline.style.background='#ccc';
+    vline.style.zIndex='1';
+    dayContainer.appendChild(vline);
+
+    const label21_30=document.createElement('div');
+    label21_30.className='day-time-axis-label';
+    label21_30.style.position='absolute';
+    label21_30.style.left=(x+100)+'px';
+    label21_30.style.top='40px';
+    label21_30.style.transform='translateX(-50%)';
+    label21_30.style.fontSize='11px';
+    label21_30.style.color='#64748b';
+    label21_30.textContent='21:30';
+    dayContainer.appendChild(label21_30);
+  }
+
+  const dayLessons=lessons.filter(l=>l.day===day);
+  dayLessons.forEach(les=>{
+    const courtIndex=courts.indexOf(les.court);
+    if(courtIndex<0)return;
+
+    const startX=timeToX(les.startTime);
+    const endX=timeToX(les.endTime);
+    const width=(endX - startX);
+    const topY=courtIndex*courtHeight;
+
+    const lessonDiv=document.createElement('div');
+    lessonDiv.className='day-lesson '+les.level;
+    lessonDiv.style.left=(startX+100)+'px'; 
+    lessonDiv.style.top=(70+topY)+'px'; 
+    lessonDiv.style.width=(width-4)+'px';
+    lessonDiv.style.height=(courtHeight-4)+'px';
+    lessonDiv.style.position='absolute';
+    lessonDiv.style.background=levelColor(les.level);
+    lessonDiv.style.zIndex='10';
+
+    // コーチ名と時間も表示
+    lessonDiv.innerHTML=`
+      ${levelToText(les.level)}<br>
+      ${les.coach}コーチ<br>
+      ${les.startTime}-${les.endTime}
+    `;
+
+    lessonDiv.onclick=()=>showPopup(les);
+    dayContainer.appendChild(lessonDiv);
+  });
+}
+
 function generateHourLines(container){
-  //9:00〜21:00まで+21:30ライン
   for(let h=9;h<=21;h++){
     const top=(h-9)*60; 
     const line=document.createElement('div');
@@ -327,7 +685,6 @@ function generateHourLines(container){
     line.style.width='100%';
     container.appendChild(line);
   }
-  //21:30ライン
   const line21_30=document.createElement('div');
   line21_30.className='hour-line';
   line21_30.style.position='absolute';
@@ -352,7 +709,6 @@ function generateTimeLabels(container){
 }
 
 function generateTimeslotBlocks(container){
-  const timeslotX=60; 
   timeslots.forEach(ts=>{
     const block=document.createElement('div');
     block.className='timeslot-block';
@@ -360,7 +716,7 @@ function generateTimeslotBlocks(container){
     const height=calculateHeight(ts.start,ts.end);
     block.style.position='absolute';
     block.style.top=(82+top)+'px';
-    block.style.left=timeslotX+'px';
+    block.style.left='60px';
     block.style.width=(120-16)+'px';
     block.style.height=height+'px';
     block.innerHTML=`<strong>${ts.code}</strong><br>${ts.start}-${ts.end}`;
@@ -369,8 +725,8 @@ function generateTimeslotBlocks(container){
 }
 
 function generateDayBoundaries(container){
-  const dayWidth=3*100; //3コート=300px/day
-  const baseX=180; //60+120
+  const dayWidth=300; 
+  const baseX=180;
   for(let d=1; d<days.length; d++){
     const lineX=baseX+(d*dayWidth);
     const vline=document.createElement('div');
@@ -389,56 +745,25 @@ function calculateTop(time){
   const [h,m]=time.split(":").map(Number);
   return (h-9)*60+m;
 }
-function calculateHeight(start,end){
-  const [sh,sm]=start.split(":").map(Number);
-  const [eh,em]=end.split(":").map(Number);
-  return (eh*60+em)-(sh*60+sm);
-}
-function levelToText(l){
-  const map={beginner:"初級",intermediate:"中級",advanced:"上級"};
-  return map[l]||l;
-}
-
-function showPopup(lesson){
-  const popup=document.getElementById("popup");
-  const overlay=document.getElementById("overlay");
-  const participantList=document.getElementById("participant-list");
-  const participantCount=document.getElementById("participant-count");
-
-  participantList.innerHTML="";
-  lesson.participants.forEach(p=>{
-    const li=document.createElement('li');
-    li.innerHTML=`<span>${p.name}</span><span class="status status-${p.status}">${p.status}</span>`;
-    participantList.appendChild(li);
-  });
-  const activeCount=lesson.participants.filter(p=>p.status!=="欠席").length;
-  participantCount.textContent=`(${activeCount}/${lesson.capacity})`;
-
-  popup.style.display='block';
-  overlay.style.display='block';
-}
-function closePopup(){
-  document.getElementById("popup").style.display='none';
-  document.getElementById("overlay").style.display='none';
-}
-function getTodayName(){
-  const weekday=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
-  return weekday[new Date().getDay()];
-}
 
 document.getElementById("today-button").addEventListener("click",()=>{
   const today=getTodayName();
   document.getElementById("filter-day").value=today;
-  generateSchedule(today);
+  generateDaySchedule(today);
 });
 
 document.getElementById("week-button").addEventListener("click",()=>{
   document.getElementById("filter-day").value="all";
-  generateSchedule("all");
+  generateWeekSchedule();
 });
 
 document.getElementById("filter-day").addEventListener("change",function(){
-  generateSchedule(this.value);
+  const value=this.value;
+  if(value==="all"){
+    generateWeekSchedule();
+  } else {
+    generateDaySchedule(value);
+  }
 });
 
 document.getElementById("overlay").addEventListener("click",closePopup);
@@ -446,7 +771,7 @@ document.getElementById("overlay").addEventListener("click",closePopup);
 document.addEventListener("DOMContentLoaded",()=>{
   const today=getTodayName();
   document.getElementById("filter-day").value=today;
-  generateSchedule(today);
+  generateDaySchedule(today);
 });
 </script>
 </body>
