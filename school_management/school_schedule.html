@@ -553,21 +553,41 @@ function generateWeekSchedule(){
     });
   });
 }
+function getDateForDay(day) {
+  const today = new Date();
+  const weekday = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+  const todayIndex = today.getDay();
+  const targetIndex = weekday.indexOf(day);
 
-function generateDaySchedule(day){
-  const container=document.getElementById('main-container');
-  const dayContainer=document.getElementById('day-schedule-container');
-  const dayTitle=document.getElementById('day-schedule-title');
-  const dayTable=document.getElementById('day-schedule-table');
-  const timeAxis=document.getElementById('day-time-axis');
-  const courtList=document.getElementById('court-list');
-  const content=document.getElementById('day-schedule-content');
+  // 日付のズレを計算
+  const diff = targetIndex - todayIndex;
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + diff); // ズレを日付に反映
 
-  if(!container || !dayContainer || !dayTitle || !dayTable || !timeAxis || !courtList || !content)return;
+  return targetDate; // 調整後の日付オブジェクトを返す
+}
 
-  container.style.display='none';
-  dayContainer.style.display='block';
-  dayTitle.textContent=`${day}のスケジュール（自由表示）`;
+
+function generateDaySchedule(day) {
+  const container = document.getElementById('main-container');
+  const dayContainer = document.getElementById('day-schedule-container');
+  const dayTitle = document.getElementById('day-schedule-title');
+  const dayTable = document.getElementById('day-schedule-table');
+  const timeAxis = document.getElementById('day-time-axis');
+  const courtList = document.getElementById('court-list');
+  const content = document.getElementById('day-schedule-content');
+
+  if (!container || !dayContainer || !dayTitle || !dayTable || !timeAxis || !courtList || !content) return;
+
+  container.style.display = 'none';
+  dayContainer.style.display = 'block';
+
+  // 選択された曜日の日付を取得
+  const targetDate = getDateForDay(day);
+  const formattedDate = `${targetDate.getMonth() + 1}月${targetDate.getDate()}日(${day})`;
+
+  // タイトルを更新
+  dayTitle.textContent = `${formattedDate}のスケジュール`;
 
   dayTable.innerHTML='';
   timeAxis.innerHTML='';
@@ -740,6 +760,14 @@ function generateDayBoundaries(container){
     container.appendChild(vline);
   }
 }
+function calculateHeight(startTime, endTime) {
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+  const startTotalMinutes = startHour * 60 + startMinute;
+  const endTotalMinutes = endHour * 60 + endMinute;
+  return endTotalMinutes - startTotalMinutes; // 高さを分単位で計算
+}
+
 
 function calculateTop(time){
   const [h,m]=time.split(":").map(Number);
