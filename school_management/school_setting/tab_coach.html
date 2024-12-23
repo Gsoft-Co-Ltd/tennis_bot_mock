@@ -12,48 +12,50 @@
     body {
       background-color: #f5f7fa;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      padding:20px;
+      padding: 20px;
     }
     h2 {
       color: #007bff;
-      font-weight:700;
+      font-weight: 700;
     }
     table {
-      background-color:#fff;
-      border-radius:8px;
-      overflow:hidden;
-      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     th {
-      background-color:#007bff;
-      color:#fff;
+      background-color: #007bff;
+      color: #fff;
+    }
+    .form-inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .form-inline .form-control {
+      max-width: 300px; /* 入力フィールドの幅を制限 */
     }
   </style>
 </head>
 <body>
-  <!-- コーチ追加ボタン -->
-  <button 
-    class="btn btn-primary mb-3" 
-    data-bs-toggle="modal"
-    data-bs-target="#addCoachModal"
-  >
-    コーチを追加
-  </button>
-
-  <!-- コーチ検索 -->
-  <div class="mb-3 d-flex" style="max-width:300px;">
-    <input type="text" id="searchCoach" class="form-control me-2" placeholder="コーチ名で検索"/>
-    <button class="btn btn-secondary" id="searchBtn">検索</button>
+  <!-- コーチ追加フォーム (所属校はデフォルト「名古屋校」のみ) -->
+  <div class="form-inline">
+    <label for="coachNameInput" class="form-label">コーチ名</label>
+    <input type="text" id="coachNameInput" class="form-control" placeholder="例：田中" required />
+    <button class="btn btn-primary" id="addCoachBtn">追加</button>
   </div>
 
   <!-- コーチ一覧テーブル -->
   <table class="table table-striped table-hover" id="coachTable">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>表示名</th>
-        <th>所属校</th>
-        <th>操作</th>
+        <th style="width:10%">ID</th>
+        <th style="width:30%">表示名</th>
+        <th style="width:30%">所属校</th>
+        <th style="width:30%">操作</th>
       </tr>
     </thead>
     <tbody>
@@ -63,87 +65,110 @@
         <td>田中</td>
         <td>名古屋校</td>
         <td>
-          <button class="btn btn-sm btn-primary">編集</button>
-          <button class="btn btn-sm btn-danger">削除</button>
+          <button class="btn btn-sm btn-primary editBtn">編集</button>
+          <button class="btn btn-sm btn-danger deleteBtn">削除</button>
         </td>
       </tr>
       <tr>
         <td>2</td>
         <td>佐藤</td>
-        <td>東京校</td>
+        <td>名古屋校</td>
         <td>
-          <button class="btn btn-sm btn-primary">編集</button>
-          <button class="btn btn-sm btn-danger">削除</button>
+          <button class="btn btn-sm btn-primary editBtn">編集</button>
+          <button class="btn btn-sm btn-danger deleteBtn">削除</button>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <!-- コーチ追加モーダル -->
-  <div class="modal fade" id="addCoachModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">コーチ追加</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="addCoachForm">
-            <div class="mb-3">
-              <label for="coachName" class="form-label">コーチ名</label>
-              <input type="text" id="coachName" class="form-control" required/>
-            </div>
-            <div class="mb-3">
-              <label for="coachSchool" class="form-label">所属校</label>
-              <select id="coachSchool" class="form-select" required>
-                <option value="" disabled selected>選択してください</option>
-                <option value="名古屋校">名古屋校</option>
-                <option value="東京校">東京校</option>
-                <option value="大阪校">大阪校</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">追加</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    document.getElementById('addCoachForm').addEventListener('submit',function(e){
-      e.preventDefault();
-      const name=document.getElementById('coachName').value;
-      const school=document.getElementById('coachSchool').value;
+    // 追加ボタン
+    document.getElementById('addCoachBtn').addEventListener('click', function () {
+      const coachName = document.getElementById('coachNameInput').value.trim();
+      if (!coachName) {
+        alert('コーチ名を入力してください。');
+        return;
+      }
 
-      const table=document.getElementById('coachTable').querySelector('tbody');
-      const ids=Array.from(table.rows).map(r=>parseInt(r.cells[0].innerText));
-      const newId=ids.length>0 ? Math.max(...ids)+1 : 1;
+      // テーブル tbody 参照
+      const table = document.getElementById('coachTable').querySelector('tbody');
 
-      const newRow=table.insertRow();
-      newRow.innerHTML=`
+      // 新しいIDを採番
+      const ids = Array.from(table.rows).map(r => parseInt(r.cells[0].innerText));
+      const newId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+
+      // 新しい行を追加 (所属校は強制的に「名古屋校」)
+      const newRow = table.insertRow();
+      newRow.innerHTML = `
         <td>${newId}</td>
-        <td>${name}</td>
-        <td>${school}</td>
+        <td>${coachName}</td>
+        <td>名古屋校</td>
         <td>
-          <button class="btn btn-sm btn-primary">編集</button>
-          <button class="btn btn-sm btn-danger">削除</button>
+          <button class="btn btn-sm btn-primary editBtn">編集</button>
+          <button class="btn btn-sm btn-danger deleteBtn">削除</button>
         </td>
       `;
-      alert('コーチ追加完了(モック)');
-      const modal=bootstrap.Modal.getInstance(document.getElementById('addCoachModal'));
-      modal.hide();
-      e.target.reset();
+
+      // 追加完了のアラート(モック)
+      alert('コーチを追加しました（モック）');
+
+      // 入力クリア
+      document.getElementById('coachNameInput').value = '';
+
+      // 行内の編集・削除ボタンにイベントを再度付与
+      attachRowEvents(newRow);
     });
 
-    document.getElementById('searchBtn').addEventListener('click',function(){
-      const keyword=document.getElementById('searchCoach').value.toLowerCase();
-      const rows=document.querySelectorAll('#coachTable tbody tr');
-      rows.forEach(r=>{
-        const name=r.cells[1].innerText.toLowerCase();
-        r.style.display=name.includes(keyword)?'':'none';
+    // 既存行の編集・削除ボタンにイベント設定
+    function attachRowEvents(row) {
+      const editBtn = row.querySelector('.editBtn');
+      const deleteBtn = row.querySelector('.deleteBtn');
+
+      // 削除ボタン
+      deleteBtn.addEventListener('click', function () {
+        if (confirm('このコーチを削除しますか？')) {
+          row.remove();
+        }
       });
-    });
+
+      // 編集ボタン
+      editBtn.addEventListener('click', function () {
+        const isEditing = editBtn.dataset.editing === 'true';
+
+        if (!isEditing) {
+          // 編集モードにする
+          editBtn.dataset.editing = 'true';
+          editBtn.textContent = '保存';
+
+          // IDセル以外を input/select 化（名古屋校以外も編集可とする）
+          const nameCell = row.cells[1];
+
+          const currentName = nameCell.innerText;
+
+          nameCell.innerHTML = `<input type="text" class="form-control" value="${currentName}" />`;
+        } else {
+          // 編集モード -> 保存
+          editBtn.dataset.editing = 'false';
+          editBtn.textContent = '編集';
+
+          const nameInput = row.cells[1].querySelector('input');
+
+          const newName = nameInput.value.trim();
+
+          if (!newName) {
+            alert('コーチ名を入力してください。');
+            return;
+          }
+
+          // セルを通常表示に戻す
+          row.cells[1].innerText = newName;
+        }
+      });
+    }
+
+    // ページ読み込み時に既存行へイベント付与
+    document.querySelectorAll('#coachTable tbody tr').forEach(attachRowEvents);
   </script>
 </body>
 </html>
