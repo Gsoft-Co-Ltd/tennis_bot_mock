@@ -88,6 +88,7 @@
   }
 
   .sidebar {
+    /* 本来はwidthをトグルで変えていたが、折りたたみ機能削除により固定 */
     width:210px;
     background-color: #3a506b;
     padding-top: 20px;
@@ -162,86 +163,16 @@
     margin-right: 20px;
   }
 
-  /* 折り畳み用クラス */
-  .collapsed-header {
-    height:20px !important;
-  }
-  .collapsed-header .navbar-brand {
-    font-size:0;
-  }
-  .collapsed-header .navbar-brand .material-icons {
-    display:none;
-  }
-  .collapsed-header .user-actions {
-    display:none;
-  }
+  /* ---以下、ヘッダー＆サイドバーの折りたたみ機能関連CSSを削除しました---
+  .collapsed-header {...}
+  .collapsed-sidebar {...}
+  などを削除
+  -------------------------------------------------------- */
 
-  .collapsed-sidebar {
-    width:60px;
-  }
-  .collapsed-sidebar {
-    border-right:none; /* 枠を消す */
-  }
-  .collapsed-sidebar a {
-    border-bottom:none !important;
-  }
-
-  .collapsed-sidebar .accordion-button {
-    padding:8px;
-    font-size:0;
-    background-color:#334e68;
-  }
-  .collapsed-sidebar .accordion-button::after {
-    display:none;
-  }
-  .collapsed-sidebar .nav-link.sidebar-link {
-    padding:10px;
-    justify-content:center;
-  }
-  .collapsed-sidebar .nav-link.sidebar-link i {
-    margin-right:0;
-    font-size:16px;
-  }
-  .collapsed-sidebar .nav-link.sidebar-link {
-    font-size:0;
-  }
-  .collapsed-sidebar .accordion-body {
-    display:none;
-  }
-
-  /* ヘッダー折り畳みボタン */
-  .toggle-header-btn {
-    background:transparent;
-    border:none;
-    color:#e0e8f9;
-    font-size:20px;
-    cursor:pointer;
-    margin-left:10px;
-  }
-  .toggle-header-btn:hover {
-    color:#ffffff;
-  }
-
-  /* サイドバー折りたたみボタン: サイドバーの一番下に表示 */
-  .toggle-sidebar-btn {
-    background:transparent;
-    border:none;
-    color:#e0e8f9;
-    font-size:20px;
-    cursor:pointer;
-    position:sticky;
-    bottom:0;
-    width:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:10px 0;
-    background:#334e68;
-  }
-  .toggle-sidebar-btn:hover {
-    color:#ffffff;
-  }
-
+  /* ヘッダー折り畳みボタンも削除したため、以下も削除
+  .toggle-header-btn {...}
+  .toggle-sidebar-btn {...}
+  */
 </style>
 </head>
 <body>
@@ -268,14 +199,14 @@
           data-url="user_role_settings.html"
           style="text-decoration:none;"
         >
-          <i class="bi bi-gear-fill"></i> 管理者設定</a
-        >
+          <i class="bi bi-gear-fill"></i> 管理者設定
+        </a>
       </button>
       <button id="logout" class="btn btn-outline-light">
         <i class="bi bi-box-arrow-right"></i> ログアウト
       </button>
     </div>
-    <button class="toggle-header-btn ms-2" id="toggleHeaderBtn" title="ヘッダーを隠す"><i class="bi bi-chevron-up"></i></button>
+    <!-- 折りたたみボタン(toggleHeaderBtn)は削除済み -->
   </header>
 
   <!-- ログアウト確認モーダル -->
@@ -416,7 +347,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 企業管理 -->
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingCompany">
@@ -492,10 +423,8 @@
             </div>
           </div>
         </div>
-
       </div>
-      <!-- サイドバー下部に折りたたみボタン -->
-      <button class="toggle-sidebar-btn" id="toggleSidebarBtn" title="サイドバーを隠す"><i class="bi bi-chevron-left"></i></button>
+      <!-- サイドバー下部に折りたたみボタン(toggleSidebarBtn)は削除済み -->
     </nav>
 
     <!-- コンテンツエリア -->
@@ -578,42 +507,6 @@
       }
     });
 
-    const header = document.getElementById('pageHeader');
-    const sidebar = document.getElementById('pageSidebar');
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-    const toggleHeaderBtn = document.getElementById('toggleHeaderBtn');
-    let headerCollapsed = false;
-    let sidebarCollapsed = false;
-
-    toggleHeaderBtn.addEventListener('click', ()=>{
-      headerCollapsed = !headerCollapsed;
-      if(headerCollapsed) {
-        header.classList.add('collapsed-header');
-        toggleHeaderBtn.innerHTML='<i class="bi bi-chevron-down"></i>';
-        toggleHeaderBtn.setAttribute('title','ヘッダーを表示');
-      } else {
-        header.classList.remove('collapsed-header');
-        toggleHeaderBtn.innerHTML='<i class="bi bi-chevron-up"></i>';
-        toggleHeaderBtn.setAttribute('title','ヘッダーを隠す');
-      }
-    });
-
-    toggleSidebarBtn.addEventListener('click', ()=>{
-      sidebarCollapsed = !sidebarCollapsed;
-      if(sidebarCollapsed) {
-        sidebar.classList.add('collapsed-sidebar');
-        toggleSidebarBtn.innerHTML='<i class="bi bi-chevron-right"></i>';
-        toggleSidebarBtn.setAttribute('title','サイドバーを表示');
-      } else {
-        sidebar.classList.remove('collapsed-sidebar');
-        toggleSidebarBtn.innerHTML='<i class="bi bi-chevron-left"></i>';
-        toggleSidebarBtn.setAttribute('title','サイドバーを隠す');
-      }
-    });
-
-    // 初期タイトル設定
-    toggleHeaderBtn.setAttribute('title','ヘッダーを隠す');
-    toggleSidebarBtn.setAttribute('title','サイドバーを隠す');
   </script>
 
 </body>
