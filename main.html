@@ -24,29 +24,55 @@
     flex-direction: column;
     background-color: #f5f7fa;
     margin: 0;
+    overflow:hidden;
   }
 
   .main-container {
     display: flex;
     flex: 1;
-    /* 全体スクロールでサイドバーが下まで見れるようにするためoverflowを管理しない */
+    overflow:hidden;
   }
 
   .navbar {
     background-color: #334e68;
     color: #ffffff;
+    transition: all 0.3s ease;
+    height:56px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
   }
 
-  .navbar a.navbar-brand {
+  .navbar-brand {
     color: #ffffff;
     display: flex;
     align-items: center;
     font-weight: bold;
+    white-space:nowrap;
+    transition:all 0.3s ease;
+    margin-left:10px;
   }
 
-  .navbar .user-actions span.user-name {
+  .navbar-brand .material-icons {
+    margin-right:12px;
+    transition:all 0.3s ease;
+  }
+
+  .user-actions {
+    display:flex;
+    align-items:center;
+    margin-left:auto;
+    gap:5px;
+    transition:all 0.3s ease;
+  }
+
+  .user-actions span.user-name {
     color: #bcd4e6;
     font-weight: bold;
+    transition:all 0.3s ease;
+    white-space:nowrap;
   }
 
   .navbar button {
@@ -62,11 +88,14 @@
   }
 
   .sidebar {
-    min-width: 210px;
-    max-width: 210px;
+    width:210px;
     background-color: #3a506b;
     padding-top: 20px;
     border-right: 2px solid #2b3e50;
+    transition: all 0.3s ease;
+    overflow:auto;
+    white-space: nowrap;
+    position:relative;
   }
 
   .sidebar a {
@@ -75,6 +104,9 @@
     display: flex;
     align-items: center;
     padding: 10px;
+    transition: all 0.3s ease;
+    font-size:14px;
+    border-bottom:1px solid #2b3e50;
   }
 
   .sidebar a:hover {
@@ -88,6 +120,7 @@
     border: none;
     display: flex;
     align-items: center;
+    transition:all 0.3s ease;
   }
 
   .accordion-button:not(.collapsed) {
@@ -97,18 +130,25 @@
 
   .accordion {
     --bs-accordion-btn-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 1 1-.708.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3E%3C/svg%3E");
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 1 1-.708.708l-6-6a.5.5 0 0 1-.708 0L1.646 10.354z'/%3E%3C/svg%3E");
   }
 
   .accordion-body {
     background-color: #334e68;
     color: #ffffff;
+    padding:0;
+  }
+
+  .accordion-body ul.nav.flex-column {
+    padding-left:0;
   }
 
   .content {
     flex: 1;
     background-color: #ffffff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position:relative;
+    overflow:hidden;
   }
 
   #mainFrame {
@@ -118,19 +158,95 @@
     border: none;
   }
 
-  .navbar-brand .material-icons {
-    margin-right: 12px;
-    vertical-align: middle;
-  }
-
   .role-selector {
     margin-right: 20px;
   }
+
+  /* 折り畳み用クラス */
+  .collapsed-header {
+    height:20px !important;
+  }
+  .collapsed-header .navbar-brand {
+    font-size:0;
+  }
+  .collapsed-header .navbar-brand .material-icons {
+    display:none;
+  }
+  .collapsed-header .user-actions {
+    display:none;
+  }
+
+  .collapsed-sidebar {
+    width:60px;
+  }
+  .collapsed-sidebar {
+    border-right:none; /* 枠を消す */
+  }
+  .collapsed-sidebar a {
+    border-bottom:none !important;
+  }
+
+  .collapsed-sidebar .accordion-button {
+    padding:8px;
+    font-size:0;
+    background-color:#334e68;
+  }
+  .collapsed-sidebar .accordion-button::after {
+    display:none;
+  }
+  .collapsed-sidebar .nav-link.sidebar-link {
+    padding:10px;
+    justify-content:center;
+  }
+  .collapsed-sidebar .nav-link.sidebar-link i {
+    margin-right:0;
+    font-size:16px;
+  }
+  .collapsed-sidebar .nav-link.sidebar-link {
+    font-size:0;
+  }
+  .collapsed-sidebar .accordion-body {
+    display:none;
+  }
+
+  /* ヘッダー折り畳みボタン */
+  .toggle-header-btn {
+    background:transparent;
+    border:none;
+    color:#e0e8f9;
+    font-size:20px;
+    cursor:pointer;
+    margin-left:10px;
+  }
+  .toggle-header-btn:hover {
+    color:#ffffff;
+  }
+
+  /* サイドバー折りたたみボタン: サイドバーの一番下に表示 */
+  .toggle-sidebar-btn {
+    background:transparent;
+    border:none;
+    color:#e0e8f9;
+    font-size:20px;
+    cursor:pointer;
+    position:sticky;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:10px 0;
+    background:#334e68;
+  }
+  .toggle-sidebar-btn:hover {
+    color:#ffffff;
+  }
+
 </style>
 </head>
 <body>
   <!-- ヘッダー -->
-  <header class="navbar navbar-expand-lg px-3">
+  <header class="navbar" id="pageHeader">
     <a class="navbar-brand" href="#">
       <span class="material-icons">sports_tennis</span>
       東別院テニスクラブ事務管理画面
@@ -143,13 +259,14 @@
         <option value="schoolAdmin">スクール管理者</option>
       </select>
     </div>
-    <div class="user-actions ms-auto">
-      <span class="user-name">山田太郎</span>
+    <div class="user-actions">
+      <span class="user-name me-2">山田太郎</span>
       <button class="btn btn-outline-light me-2">
         <a
-          class="nav-link sidebar-link"
+          class="nav-link sidebar-link text-white"
           href="#"
           data-url="user_role_settings.html"
+          style="text-decoration:none;"
         >
           <i class="bi bi-gear-fill"></i> 管理者設定</a
         >
@@ -158,9 +275,10 @@
         <i class="bi bi-box-arrow-right"></i> ログアウト
       </button>
     </div>
+    <button class="toggle-header-btn ms-2" id="toggleHeaderBtn" title="ヘッダーを隠す"><i class="bi bi-chevron-up"></i></button>
   </header>
 
-  <!-- 確認モーダル -->
+  <!-- ログアウト確認モーダル -->
   <div
     class="modal fade"
     id="logoutConfirmationModal"
@@ -183,24 +301,18 @@
         </div>
         <div class="modal-body">本当にログアウトしますか？</div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             キャンセル
           </button>
-          <button type="button" class="btn btn-danger" id="confirmLogout">
-            ログアウト
-          </button>
+          <button type="button" class="btn btn-danger" id="confirmLogout">ログアウト</button>
         </div>
       </div>
     </div>
   </div>
-  <!-- メインコンテナ -->
+
   <div class="main-container">
     <!-- サイドバー -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="pageSidebar">
       <div class="accordion" id="accordionSidebar">
         <!-- スクール生管理 -->
         <div class="accordion-item">
@@ -211,7 +323,7 @@
               data-bs-toggle="collapse"
               data-bs-target="#collapseCustomer"
             >
-              <i class="bi bi-people-fill"></i> スクール生管理
+              <i class="bi bi-people-fill"></i><span class="ms-2">スクール生管理</span>
             </button>
           </h2>
           <div id="collapseCustomer" class="accordion-collapse collapse">
@@ -223,7 +335,7 @@
                     href="#"
                     data-url="./student_management/student_list.html"
                   >
-                    <i class="bi bi-list"></i> スクール生一覧
+                    <i class="bi bi-list"></i><span class="ms-2">スクール生一覧</span>
                   </a>
                 </li>
                 <li>
@@ -232,7 +344,7 @@
                     href="#"
                     data-url="./student_management/student_attendance_history.html"
                   >
-                    <i class="bi bi-journals"></i> スクール生出欠・予約一覧
+                    <i class="bi bi-journals"></i><span class="ms-2">出欠・予約一覧</span>
                   </a>
                 </li>
                 <li>
@@ -241,13 +353,14 @@
                     href="#"
                     data-url="./student_management/line_setting.html"
                   >
-                     LINE管理
+                    <i class="bi bi-chat-dots"></i><span class="ms-2">LINE管理</span>
                   </a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
+
         <!-- スクール管理 -->
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingSchool">
@@ -257,7 +370,7 @@
               data-bs-toggle="collapse"
               data-bs-target="#collapseSchool"
             >
-              <i class="bi bi-bus-front-fill"></i> スクール管理
+              <i class="bi bi-bus-front-fill"></i><span class="ms-2">スクール管理</span>
             </button>
           </h2>
           <div id="collapseSchool" class="accordion-collapse collapse">
@@ -269,7 +382,7 @@
                     href="#"
                     data-url="./school_management/school_schedule.html"
                   >
-                    <i class="bi bi-calendar3"></i> スケジュール
+                    <i class="bi bi-calendar3"></i><span class="ms-2">スケジュール</span>
                   </a>
                 </li>
                 <li>
@@ -278,7 +391,7 @@
                     href="#"
                     data-url="./school_management/school_lesson_list.html"
                   >
-                    <i class="bi bi-card-list"></i> レッスン管理
+                    <i class="bi bi-card-list"></i><span class="ms-2">レッスン管理</span>
                   </a>
                 </li>
                 <li>
@@ -287,7 +400,7 @@
                     href="#"
                     data-url="./school_management/school_setting.html"
                   >
-                    <i class="bi bi-house-gear-fill"></i> スクール管理
+                    <i class="bi bi-house-gear-fill"></i><span class="ms-2">スクール管理</span>
                   </a>
                 </li>
                 <li>
@@ -296,13 +409,14 @@
                     href="#"
                     data-url="./school_management/course_class_setting.html"
                   >
-                    <i class="bi bi-pencil-square"></i> コース・クラス管理
+                    <i class="bi bi-pencil-square"></i><span class="ms-2">コース・クラス管理</span>
                   </a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
+        
         <!-- 企業管理 -->
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingCompany">
@@ -312,7 +426,7 @@
               data-bs-toggle="collapse"
               data-bs-target="#collapseCompany"
             >
-              <i class="bi bi-buildings-fill"></i> 企業管理
+              <i class="bi bi-buildings-fill"></i><span class="ms-2">企業管理</span>
             </button>
           </h2>
           <div id="collapseCompany" class="accordion-collapse collapse">
@@ -324,13 +438,14 @@
                     href="#"
                     data-url="./company_management/company_info.html"
                   >
-                    <i class="bi bi-info-circle"></i> 企業情報
+                    <i class="bi bi-info-circle"></i><span class="ms-2">企業情報</span>
                   </a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
+
         <!-- 請求管理 -->
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingBilling">
@@ -340,7 +455,7 @@
               data-bs-toggle="collapse"
               data-bs-target="#collapseBilling"
             >
-              <i class="bi bi-receipt"></i> 支払管理
+              <i class="bi bi-receipt"></i><span class="ms-2">支払管理</span>
             </button>
           </h2>
           <div id="collapseBilling" class="accordion-collapse collapse">
@@ -352,7 +467,7 @@
                     href="#"
                     data-url="./payment_management/claim_list.html"
                   >
-                    <i class="bi bi-receipt-cutoff"></i> 請求一覧
+                    <i class="bi bi-receipt-cutoff"></i><span class="ms-2">請求一覧</span>
                   </a>
                 </li>
                 <li>
@@ -361,7 +476,7 @@
                     href="#"
                     data-url="./payment_management/claim_change_history.html"
                   >
-                    <i class="bi bi-clock-history"></i> 料金変更履歴
+                    <i class="bi bi-clock-history"></i><span class="ms-2">料金変更履歴</span>
                   </a>
                 </li>
                 <li>
@@ -370,14 +485,17 @@
                     href="#"
                     data-url="./payment_management/discount_setting.html"
                   >
-                    <i class="bi bi-cash-coin"></i> 割引管理
+                    <i class="bi bi-cash-coin"></i><span class="ms-2">割引管理</span>
                   </a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
+
       </div>
+      <!-- サイドバー下部に折りたたみボタン -->
+      <button class="toggle-sidebar-btn" id="toggleSidebarBtn" title="サイドバーを隠す"><i class="bi bi-chevron-left"></i></button>
     </nav>
 
     <!-- コンテンツエリア -->
@@ -391,36 +509,55 @@
     </div>
   </div>
 
-  <!-- JavaScript -->
+  <div
+    class="modal fade"
+    id="logoutConfirmationModal"
+    tabindex="-1"
+    aria-labelledby="logoutConfirmationLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger" id="logoutConfirmationLabel">
+            <i class="bi bi-box-arrow-right"></i> ログアウト確認
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="閉じる"
+          ></button>
+        </div>
+        <div class="modal-body">本当にログアウトしますか？</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            キャンセル
+          </button>
+          <button type="button" class="btn btn-danger" id="confirmLogout">ログアウト</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ヘッダーのタイトルをクリックしたときの動作
     document
       .querySelector(".navbar-brand")
       .addEventListener("click", function (event) {
-        event.preventDefault(); // デフォルトのリンク動作を無効化
-        document.getElementById("mainFrame").src = "./school_management/school_schedule.html"; // デフォルトページに戻す
+        event.preventDefault();
+        document.getElementById("mainFrame").src = "./school_management/school_schedule.html";
       });
 
     document.querySelectorAll(".sidebar-link").forEach((link) => {
       link.addEventListener("click", function (event) {
         event.preventDefault();
-        const isUnderConstruction = this.getAttribute(
-          "data-under-construction"
-        );
-        if (isUnderConstruction === "true") {
-          const modal = new bootstrap.Modal(
-            document.getElementById("pageUnderConstructionModal")
-          );
-          modal.show();
-        } else {
-          const targetUrl = this.getAttribute("data-url");
-          if (targetUrl) {
-            document.getElementById("mainFrame").src = targetUrl;
-          }
+        const targetUrl = this.getAttribute("data-url");
+        if (targetUrl) {
+          document.getElementById("mainFrame").src = targetUrl;
         }
       });
     });
-    // ログアウトボタンのクリックイベント
+
     document.getElementById("logout").addEventListener("click", function () {
       const modal = new bootstrap.Modal(
         document.getElementById("logoutConfirmationModal")
@@ -428,21 +565,56 @@
       modal.show();
     });
 
-    // 確認モーダルのログアウトボタン処理
     document
       .getElementById("confirmLogout")
       .addEventListener("click", function () {
-        // ログアウト処理 (例: ログイン画面にリダイレクト)
         window.location.href = "login.html";
       });
 
-    // 子画面からメイン画面を遷移させる
     window.addEventListener("message", function (event) {
       if (event.data && event.data.type === "navigate") {
         const targetUrl = event.data.url;
         document.getElementById("mainFrame").src = targetUrl;
       }
     });
+
+    const header = document.getElementById('pageHeader');
+    const sidebar = document.getElementById('pageSidebar');
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const toggleHeaderBtn = document.getElementById('toggleHeaderBtn');
+    let headerCollapsed = false;
+    let sidebarCollapsed = false;
+
+    toggleHeaderBtn.addEventListener('click', ()=>{
+      headerCollapsed = !headerCollapsed;
+      if(headerCollapsed) {
+        header.classList.add('collapsed-header');
+        toggleHeaderBtn.innerHTML='<i class="bi bi-chevron-down"></i>';
+        toggleHeaderBtn.setAttribute('title','ヘッダーを表示');
+      } else {
+        header.classList.remove('collapsed-header');
+        toggleHeaderBtn.innerHTML='<i class="bi bi-chevron-up"></i>';
+        toggleHeaderBtn.setAttribute('title','ヘッダーを隠す');
+      }
+    });
+
+    toggleSidebarBtn.addEventListener('click', ()=>{
+      sidebarCollapsed = !sidebarCollapsed;
+      if(sidebarCollapsed) {
+        sidebar.classList.add('collapsed-sidebar');
+        toggleSidebarBtn.innerHTML='<i class="bi bi-chevron-right"></i>';
+        toggleSidebarBtn.setAttribute('title','サイドバーを表示');
+      } else {
+        sidebar.classList.remove('collapsed-sidebar');
+        toggleSidebarBtn.innerHTML='<i class="bi bi-chevron-left"></i>';
+        toggleSidebarBtn.setAttribute('title','サイドバーを隠す');
+      }
+    });
+
+    // 初期タイトル設定
+    toggleHeaderBtn.setAttribute('title','ヘッダーを隠す');
+    toggleSidebarBtn.setAttribute('title','サイドバーを隠す');
   </script>
+
 </body>
 </html>

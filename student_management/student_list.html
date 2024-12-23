@@ -1,204 +1,247 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>テニススクール生一覧</title>
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome for icons -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background-color: #f5f7fa;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>テニススクール生一覧</title>
+  <!-- Bootstrap 5 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome for icons -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin:0;
+      padding:20px;
+    }
+    .container {
+      margin-top: 20px;
+    }
+    h2 {
+      color: #007bff;
+      font-weight: 700;
+    }
+    .card {
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background:#fff;
+    }
+    .card-header {
+      background-color:#007bff;
+      color:#fff;
+      font-size:1rem;
+      font-weight:bold;
+      border-radius:8px 8px 0 0;
+      padding:5px 7px;
+    }
+    .card-body {
+      padding:15px;
+    }
+    .search-bar {
+      max-width: 250px; 
+    }
+    table {
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      position: relative;
+    }
+    th .sort-icon {
+      margin-left: 8px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+    .btn-info {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .btn-outline-secondary {
+      background-color: #e2e3e5;
+      color: #6c757d;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-danger {
+      background-color: #ff6b6b;
+      color: white;
+    }
+    .filter-options {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .filter-options label {
+      margin:0;
+      display:flex;
+      align-items:center;
+      font-weight:normal;
+    }
+    .filter-options input[type="checkbox"] {
+      margin-right:5px;
+    }
+    .pagination-container {
+      margin-top: 20px;
+    }
+    .pagination .page-link {
+      color: #007bff;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+    .card-title {
+      font-size:1rem;
+      font-weight:bold;
+      margin-bottom:7px;
+    }
+    .box-title {
+      margin-bottom:8px;
+      font-weight:bold;
+      color:#333;
+    }
+  </style>
+</head>
 
-      .container {
-        margin-top: 40px;
-      }
+<body>
+  <div class="container">
+    <h2 class="mb-4">テニススクール生一覧</h2>
 
-      h2 {
-        color: #007bff;
-        font-weight: 700;
-      }
-
-      .search-bar {
-        max-width: 250px; /* 検索バーの幅を調整 */
-      }
-
-      table {
-        background-color: #ffffff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      th {
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-        position: relative;
-      }
-
-      th .sort-icon {
-        margin-left: 8px;
-      }
-
-      .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
-      }
-
-      .btn-info {
-        background-color: #f8d7da;
-        color: #721c24;
-      }
-
-      .btn-outline-secondary {
-        background-color: #e2e3e5;
-        color: #6c757d;
-      }
-
-      .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-      }
-
-      .btn-danger {
-        background-color: #ff6b6b;
-        color: white;
-      }
-
-      .filter-options {
-        display: flex;
-        align-items: center;
-        gap: 15px; /* フィルタ項目間のスペースを調整 */
-      }
-
-      .filter-options label {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        font-weight: normal;
-      }
-
-      .filter-options input[type="checkbox"] {
-        margin-right: 5px;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <h2 class="mb-4">テニススクール生一覧</h2>
-
-      <!-- 検索バーとボタン群 -->
-      <div class="d-flex justify-content-between mb-4">
-        <div class="d-flex align-items-center">
-          <input
-            type="text"
-            id="searchInput"
-            class="form-control search-bar me-3"
-            placeholder="名前で検索"
-          />
-          <div class="filter-options">
-            <label>
-              <input
-                type="checkbox"
-                id="filterNotes"
-                onchange="filterTable()"
-              />
-              申し送り事項ありのみ
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                id="filterOverdue"
-                onchange="filterTable()"
-              />
-              未納者のみ
-            </label>
+    <!-- 企業・スクール選択ボックス: カテゴリBOX化 -->
+    <div class="card">
+      <div class="card-header" style="background-color: #6c757d;">企業 / スクール選択</div>
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <label for="companySelect" class="col-form-label fw-bold">企業選択：</label>
+          </div>
+          <div class="col-auto">
+            <select id="companySelect" class="form-select" onchange="updateTable()">
+              <option value="">全て</option>
+              <option>企業A</option>
+              <option>企業B</option>
+              <option>企業C</option>
+            </select>
+          </div>
+          <div class="col-auto">
+            <label for="schoolSelect" class="col-form-label fw-bold">スクール選択：</label>
+          </div>
+          <div class="col-auto">
+            <select id="schoolSelect" class="form-select" onchange="updateTable()">
+              <option value="">全て</option>
+              <option>スクールA</option>
+              <option>スクールB</option>
+              <option>スクールC</option>
+            </select>
           </div>
         </div>
-        <div>
-          <button class="btn btn-success me-2">
-            <i class="fas fa-file-excel"></i> Excel出力
-          </button>
-          <button class="btn btn-primary" onclick="showAddMemberModal()">
-            <i class="fas fa-user-plus"></i> 会員追加
-          </button>
+      </div>
+    </div>
+
+    <!-- 検索・フィルタ BOX -->
+    <div class="card">
+      <div class="card-header">検索・フィルタ</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control search-bar me-3"
+              placeholder="名前で検索"
+            />
+            <div class="filter-options">
+              <label>
+                <input
+                  type="checkbox"
+                  id="filterNotes"
+                />
+                申し送り事項ありのみ
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  id="filterOverdue"
+                />
+                未納者のみ
+              </label>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-success me-2">
+              <i class="fas fa-file-excel"></i> Excel出力
+            </button>
+            <button class="btn btn-primary" onclick="showAddMemberModal()">
+              <i class="fas fa-user-plus"></i> 会員追加
+            </button>
+          </div>
+        </div>
+
+        <!-- 同時表示件数 -->
+        <div class="d-flex align-items-center">
+          <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
+          <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
+            <option value="20" selected>20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <!-- スクール生一覧テーブル -->
-      <table class="table table-striped table-hover" id="studentTable">
-        <thead>
-          <tr>
-            <th scope="col" onclick="sortTable(0)">
-              会員番号 <i class="fas fa-sort sort-icon"></i>
-            </th>
-            <th scope="col" onclick="sortTable(1)">
-              氏名 <i class="fas fa-sort sort-icon"></i>
-            </th>
-            <th scope="col" onclick="sortTable(2)">
-              フリガナ <i class="fas fa-sort sort-icon"></i>
-            </th>
-            <th scope="col" onclick="sortTable(3)">
-              コース <i class="fas fa-sort sort-icon"></i>
-            </th>
-            <th scope="col">申し送り事項</th>
-            <th scope="col">未納</th>
-            <th scope="col">会員詳細</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- サンプルデータ -->
-          <tr>
-            <td>001</td>
-            <td>山田 太郎</td>
-            <td>ヤマダ タロウ</td>
-            <td>初心者コース</td>
-            <td><button class="btn btn-info btn-sm">有り</button></td>
-            <td><button class="btn btn-info btn-sm">有り</button></td>
-            <td>
-              <button
-                id="detail"
-                class="btn btn-secondary btn-sm detail-btn"
-                data-url="./student_management/student_detail.html"
-              >
-                詳細
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>002</td>
-            <td>佐藤 花子</td>
-            <td>サトウ ハナコ</td>
-            <td>中級者コース</td>
-            <td>
-              <button class="btn btn-outline-secondary btn-sm">無し</button>
-            </td>
-            <td>
-              <button class="btn btn-outline-secondary btn-sm">無し</button>
-            </td>
-            <td>
-              <button
-                id="detail"
-                class="btn btn-secondary btn-sm detail-btn"
-                data-url="./student_management/student_detail.html"
-              >
-                詳細
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- スクール生一覧テーブル -->
+    <div class="card">
+      <div class="card-header">スクール生一覧</div>
+      <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0" id="studentTable">
+          <thead>
+            <tr>
+              <th scope="col" onclick="handleSort(0)">
+                会員番号 <i class="fas fa-sort sort-icon"></i>
+              </th>
+              <th scope="col" onclick="handleSort(1)">
+                氏名 <i class="fas fa-sort sort-icon"></i>
+              </th>
+              <th scope="col" onclick="handleSort(2)">
+                フリガナ <i class="fas fa-sort sort-icon"></i>
+              </th>
+              <th scope="col" onclick="handleSort(3)">
+                コース <i class="fas fa-sort sort-icon"></i>
+              </th>
+              <th scope="col">申し送り事項</th>
+              <th scope="col">未納</th>
+              <th scope="col">会員詳細</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JSで生成 -->
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <nav>
+          <ul id="pagination" class="pagination mb-0">
+            <!-- ページ番号 -->
+          </ul>
+        </nav>
+      </div>
     </div>
 
     <!-- 会員追加モーダル -->
@@ -212,35 +255,35 @@
           <div class="modal-body">
             <form id="addMemberForm">
               <div class="mb-3">
-                <label class="form-label">会員番号</label>
+                <label class="form-label fw-bold">会員番号</label>
                 <input type="text" class="form-control" id="addMemberId" placeholder="例: 010"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">氏名</label>
+                <label class="form-label fw-bold">氏名</label>
                 <input type="text" class="form-control" id="addMemberName" placeholder="例: 山田 花子"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">フリガナ</label>
+                <label class="form-label fw-bold">フリガナ</label>
                 <input type="text" class="form-control" id="addMemberKana" placeholder="例: ヤマダ ハナコ"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">郵便番号</label>
+                <label class="form-label fw-bold">郵便番号</label>
                 <input type="text" class="form-control" id="addPostalCode" placeholder="例: 460-0000"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">住所</label>
+                <label class="form-label fw-bold">住所</label>
                 <input type="text" class="form-control" id="addAddress" placeholder="例: 愛知県名古屋市中区1-2-3"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">電話番号</label>
+                <label class="form-label fw-bold">電話番号</label>
                 <input type="text" class="form-control" id="addPhone" placeholder="例: 090-1234-5678"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">メール</label>
+                <label class="form-label fw-bold">メール</label>
                 <input type="email" class="form-control" id="addEmail" placeholder="例: hanako.sato@example.com"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">性別</label>
+                <label class="form-label fw-bold">性別</label>
                 <select class="form-select" id="addGender">
                   <option>男性</option>
                   <option>女性</option>
@@ -248,16 +291,16 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">生年月日</label>
+                <label class="form-label fw-bold">生年月日</label>
                 <input type="date" class="form-control" id="addBirthDate"/>
               </div>
               <div class="mb-3">
-                <label class="form-label">入会日</label>
+                <label class="form-label fw-bold">入会日</label>
                 <input type="date" class="form-control" id="addJoinDate"/>
               </div>
 
               <hr>
-              <h6>口座情報</h6>
+              <h6 class="fw-bold">口座情報</h6>
               <div class="mb-3">
                 <label class="form-label">銀行名</label>
                 <input type="text" class="form-control" id="addBankName" placeholder="例: 三菱UFJ銀行"/>
@@ -283,7 +326,7 @@
               </div>
 
               <hr>
-              <h6>コース・クラス・レベル</h6>
+              <h6 class="fw-bold">コース・クラス・レベル</h6>
               <div class="mb-3">
                 <label class="form-label">レベル</label>
                 <select class="form-select" id="addLevel">
@@ -309,6 +352,25 @@
                 </select>
               </div>
 
+              <hr>
+              <h6 class="fw-bold">企業・スクール</h6>
+              <div class="mb-3">
+                <label class="form-label">企業</label>
+                <select class="form-select" id="addCompany">
+                  <option>企業A</option>
+                  <option>企業B</option>
+                  <option>企業C</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">スクール</label>
+                <select class="form-select" id="addSchool">
+                  <option>スクールA</option>
+                  <option>スクールB</option>
+                  <option>スクールC</option>
+                </select>
+              </div>
+
             </form>
           </div>
           <div class="modal-footer">
@@ -319,149 +381,91 @@
       </div>
     </div>
 
-
+    <!-- Bootstrap JS (含：Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      let sortDirection = true;
-      let currentColumn = 0;
+      // ▼▼▼ 以下、サンプルデータ & ロジック ▼▼▼
 
-      function sortTable(columnIndex) {
-        const table = document.getElementById("studentTable");
-        const rows = Array.from(table.tBodies[0].rows);
-        const isNumeric = !isNaN(rows[0].cells[columnIndex].innerText);
+      let members = [
+        {id: "001", name: "山田 太郎", kana: "ヤマダ タロウ", course: "初心者コース", notes: "有り", overdue: "有り", company: "企業A", school: "スクールA"},
+        // ...中略: データは適宜増やす...
+        {id: "030", name: "西山 亮", kana: "ニシヤマ リョウ", course: "応用コース", notes: "無し", overdue: "無し", company: "企業C", school: "スクールC"}
+      ];
 
-        sortDirection = !sortDirection;
-        currentColumn = columnIndex;
+      let sortDirection = true;    // true: 昇順, false: 降順
+      let currentSortColumn = null;
+      let currentPage = 1;
+      let rowsPerPage = 20;
 
-        rows.sort((a, b) => {
-          const aText = a.cells[columnIndex].innerText;
-          const bText = b.cells[columnIndex].innerText;
-          const aValue = isNumeric ? parseFloat(aText) : aText.toLowerCase();
-          const bValue = isNumeric ? parseFloat(bText) : bText.toLowerCase();
-          return sortDirection
-            ? aValue > bValue
-              ? 1
-              : -1
-            : aValue < bValue
-            ? 1
-            : -1;
-        });
-
-        rows.forEach((row) => table.tBodies[0].appendChild(row));
-        updateSortIcons();
+      function updateTable() {
+        let filteredData = filterMembers(members);
+        if (currentSortColumn !== null) {
+          filteredData = sortData(filteredData, currentSortColumn);
+        }
+        renderTable(filteredData);
+        renderPagination(filteredData.length);
       }
 
-      function updateSortIcons() {
-        const headers = document.querySelectorAll("th");
-        headers.forEach((header, index) => {
-          const icon = header.querySelector(".sort-icon");
-          if (icon) {
-            if (index === currentColumn) {
-              icon.className = sortDirection
-                ? "fas fa-sort-up"
-                : "fas fa-sort-down";
-            } else {
-              icon.className = "fas fa-sort";
-            }
-          }
-        });
-      }
-
-      function filterTable() {
-        const searchValue = document
-          .getElementById("searchInput")
-          .value.toLowerCase();
+      function filterMembers(dataArray) {
+        const searchValue = document.getElementById("searchInput").value.toLowerCase();
         const filterNotes = document.getElementById("filterNotes").checked;
         const filterOverdue = document.getElementById("filterOverdue").checked;
-        const rows = document.querySelectorAll("#studentTable tbody tr");
+        const selectedCompany = document.getElementById("companySelect").value;
+        const selectedSchool = document.getElementById("schoolSelect").value;
 
-        rows.forEach((row) => {
-          const nameCell = row
-            .querySelector("td:nth-child(2)")
-            .innerText.toLowerCase();
-          const notesButton = row.querySelector("td:nth-child(5) button");
-          const overdueButton = row.querySelector("td:nth-child(6) button");
-
-          let displayRow = true;
-
-          // 名前でフィルタリング
-          if (!nameCell.includes(searchValue)) {
-            displayRow = false;
-          }
-
-          // 申し送り事項でフィルタリング
-          if (filterNotes) {
-            if (!notesButton.classList.contains("btn-info")) {
-              displayRow = false;
-            }
-          }
-
-          // 未納でフィルタリング
-          if (filterOverdue) {
-            if (!overdueButton.classList.contains("btn-info")) {
-              displayRow = false;
-            }
-          }
-
-          row.style.display = displayRow ? "" : "none";
+        return dataArray.filter(item => {
+          if (!item.name.toLowerCase().includes(searchValue)) return false;
+          if (filterNotes && item.notes !== "有り") return false;
+          if (filterOverdue && item.overdue !== "有り") return false;
+          if (selectedCompany && item.company !== selectedCompany) return false;
+          if (selectedSchool && item.school !== selectedSchool) return false;
+          return true;
         });
       }
 
-      // 検索バーのイベントリスナー
-      document
-        .getElementById("searchInput")
-        .addEventListener("keyup", filterTable);
-
-      document.querySelectorAll(".detail-btn").forEach((button) => {
-        button.addEventListener("click", function () {
-          const targetUrl = this.getAttribute("data-url");
-          if (targetUrl) {
-            window.parent.postMessage({ type: "navigate", url: targetUrl }, "*");
+      function sortData(dataArray, columnIndex) {
+        dataArray.sort((a, b) => {
+          let aValue, bValue;
+          switch(columnIndex) {
+            case 0: aValue = parseInt(a.id, 10); bValue = parseInt(b.id, 10); break;
+            case 1: aValue = a.name.toLowerCase(); bValue = b.name.toLowerCase(); break;
+            case 2: aValue = a.kana.toLowerCase(); bValue = b.kana.toLowerCase(); break;
+            case 3: aValue = a.course.toLowerCase(); bValue = b.course.toLowerCase(); break;
+            default: aValue = ""; bValue = ""; break;
+          }
+          if (aValue > bValue) {
+            return sortDirection ? 1 : -1;
+          } else if(aValue < bValue) {
+            return sortDirection ? -1 : 1;
+          } else {
+            return 0;
           }
         });
-      });
-
-      function showAddMemberModal() {
-        const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
-        modal.show();
+        return dataArray;
       }
 
-      function addNewMember() {
-        const memberId = document.getElementById('addMemberId').value.trim();
-        const memberName = document.getElementById('addMemberName').value.trim();
-        const memberKana = document.getElementById('addMemberKana').value.trim();
-        const postalCode = document.getElementById('addPostalCode').value.trim();
-        const address = document.getElementById('addAddress').value.trim();
-        const phone = document.getElementById('addPhone').value.trim();
-        const email = document.getElementById('addEmail').value.trim();
-        const gender = document.getElementById('addGender').value;
-        const birthDate = document.getElementById('addBirthDate').value;
-        const joinDate = document.getElementById('addJoinDate').value;
+      function renderTable(dataArray) {
+        const tableBody = document.querySelector("#studentTable tbody");
+        tableBody.innerHTML = "";
 
-        const bankName = document.getElementById('addBankName').value.trim();
-        const branchName = document.getElementById('addBranchName').value.trim();
-        const accountType = document.getElementById('addAccountType').value;
-        const accountNumber = document.getElementById('addAccountNumber').value.trim();
-        const accountHolder = document.getElementById('addAccountHolder').value.trim();
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const pageData = dataArray.slice(startIndex, endIndex);
 
-        const level = document.getElementById('addLevel').value;
-        const className = document.getElementById('addClass').value;
-        const course = document.getElementById('addCourse').value;
-
-        if(!memberId || !memberName || !memberKana || !address || !phone || !email || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
-          alert("必要な項目をすべて入力してください。");
-          return;
-        }
-
-        // 新規行をテーブルに追加
-        const newRow = `
-          <tr>
-            <td>${memberId}</td>
-            <td>${memberName}</td>
-            <td>${memberKana}</td>
-            <td>${course}</td>
-            <td><button class="btn btn-outline-secondary btn-sm">無し</button></td>
-            <td><button class="btn btn-outline-secondary btn-sm">無し</button></td>
+        pageData.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.kana}</td>
+            <td>${item.course}</td>
+            <td>${item.notes === "有り" 
+                ? '<button class="btn btn-info btn-sm">有り</button>' 
+                : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
+            <td>${item.overdue === "有り" 
+                ? '<button class="btn btn-info btn-sm">有り</button>' 
+                : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
             <td>
               <button
                 class="btn btn-secondary btn-sm detail-btn"
@@ -470,20 +474,175 @@
                 詳細
               </button>
             </td>
-          </tr>
-        `;
+          `;
+          tableBody.appendChild(tr);
 
-        document.querySelector("#studentTable tbody").insertAdjacentHTML('beforeend', newRow);
+          const detailBtn = tr.querySelector(".detail-btn");
+          detailBtn.addEventListener("click", function () {
+            const targetUrl = detailBtn.getAttribute("data-url");
+            if (targetUrl) {
+              window.parent.postMessage({ type: "navigate", url: targetUrl }, "*");
+            }
+          });
+        });
+      }
 
-        // フォームリセット
+      function renderPagination(totalItems) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+        const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+        // Prevボタン
+        const prevLi = document.createElement("li");
+        prevLi.className = "page-item" + (currentPage === 1 ? " disabled" : "");
+        const prevLink = document.createElement("a");
+        prevLink.className = "page-link";
+        prevLink.href = "#";
+        prevLink.innerText = "Previous";
+        prevLink.onclick = (e) => {
+          e.preventDefault();
+          if (currentPage > 1) {
+            currentPage--;
+            updateTable();
+          }
+        };
+        prevLi.appendChild(prevLink);
+        pagination.appendChild(prevLi);
+
+        // ページ番号
+        for(let i=1; i<=totalPages; i++){
+          const li = document.createElement("li");
+          li.className = "page-item" + (currentPage === i ? " active" : "");
+          const a = document.createElement("a");
+          a.className = "page-link";
+          a.href = "#";
+          a.innerText = i;
+          a.onclick = (e) => {
+            e.preventDefault();
+            currentPage = i;
+            updateTable();
+          };
+          li.appendChild(a);
+          pagination.appendChild(li);
+        }
+
+        // Nextボタン
+        const nextLi = document.createElement("li");
+        nextLi.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+        const nextLink = document.createElement("a");
+        nextLink.className = "page-link";
+        nextLink.href = "#";
+        nextLink.innerText = "Next";
+        nextLink.onclick = (e) => {
+          e.preventDefault();
+          if (currentPage < totalPages) {
+            currentPage++;
+            updateTable();
+          }
+        };
+        nextLi.appendChild(nextLink);
+        pagination.appendChild(nextLi);
+      }
+
+      // ソートイベント
+      function handleSort(columnIndex) {
+        sortDirection = !sortDirection;
+        currentSortColumn = columnIndex;
+        updateTable();
+        updateSortIcons();
+      }
+
+      function updateSortIcons() {
+        const headers = document.querySelectorAll("th");
+        headers.forEach((header, index) => {
+          const icon = header.querySelector(".sort-icon");
+          if (icon) {
+            if (index === currentSortColumn) {
+              icon.className = sortDirection
+                ? "fas fa-sort-up sort-icon"
+                : "fas fa-sort-down sort-icon";
+            } else {
+              icon.className = "fas fa-sort sort-icon";
+            }
+          }
+        });
+      }
+
+      // 同時表示件数変更
+      function changeRowsPerPage() {
+        const select = document.getElementById("rowsPerPageSelect");
+        rowsPerPage = parseInt(select.value, 10);
+        currentPage = 1;
+        updateTable();
+      }
+
+      // フィルタ要素変更
+      document.getElementById("searchInput").addEventListener("keyup", () => {
+        currentPage=1;
+        updateTable();
+      });
+      document.getElementById("filterNotes").addEventListener("change", () => {
+        currentPage=1;
+        updateTable();
+      });
+      document.getElementById("filterOverdue").addEventListener("change", () => {
+        currentPage=1;
+        updateTable();
+      });
+
+      // モーダル表示
+      function showAddMemberModal() {
+        const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
+        modal.show();
+      }
+
+      // 新規会員追加
+      function addNewMember() {
+        const memberId = document.getElementById('addMemberId').value.trim();
+        const memberName = document.getElementById('addMemberName').value.trim();
+        const memberKana = document.getElementById('addMemberKana').value.trim();
+        const address = document.getElementById('addAddress').value.trim();
+        const phone = document.getElementById('addPhone').value.trim();
+        const email = document.getElementById('addEmail').value.trim();
+        const birthDate = document.getElementById('addBirthDate').value;
+        const joinDate = document.getElementById('addJoinDate').value;
+        const bankName = document.getElementById('addBankName').value.trim();
+        const branchName = document.getElementById('addBranchName').value.trim();
+        const accountNumber = document.getElementById('addAccountNumber').value.trim();
+        const accountHolder = document.getElementById('addAccountHolder').value.trim();
+        
+        // 簡単な必須チェック
+        if(!memberId || !memberName || !memberKana || !address || !phone || !email
+           || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
+          alert("必要な項目をすべて入力してください。");
+          return;
+        }
+
+        const course = document.getElementById('addCourse').value;
+        const company = document.getElementById('addCompany').value;
+        const school = document.getElementById('addSchool').value;
+
+        members.push({
+          id: memberId,
+          name: memberName,
+          kana: memberKana,
+          course: course,
+          notes: "無し",
+          overdue: "無し",
+          company: company,
+          school: school
+        });
+
         document.getElementById('addMemberForm').reset();
-
-        // モーダルを閉じる
         const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
         modal.hide();
-
         alert("新しい会員を追加しました。");
+        updateTable();
       }
+
+      window.onload = () => {
+        updateTable();
+      };
     </script>
-  </body>
+</body>
 </html>

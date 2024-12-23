@@ -1,200 +1,92 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>基本情報</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background-color: #f5f7fa;
-        font-family: Arial, sans-serif;
-      }
-      .container {
-        margin-top: 20px;
-      }
-      .form-label {
-        font-weight: bold;
-        color: #333;
-      }
-      .form-control[readonly],
-      .form-check-input:disabled {
-        background-color: #e9ecef;
-        color: #6c757d;
-      }
-      .form-check-input:disabled ~ .form-check-label {
-        color: #6c757d;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <form>
-        <div class="row">
-          <div class="col-md-8">
-            <!-- スクール名 -->
-            <div class="form-group">
-              <label for="schoolName" class="form-label">スクール名</label>
-              <input
-                type="text"
-                id="schoolName"
-                class="form-control"
-                value="東別院テニススクール"
-                readonly
-              />
-            </div>
-
-            <!-- 住所 -->
-            <div class="form-group">
-              <label for="schoolAddress" class="form-label">住所</label>
-              <input
-                type="text"
-                id="schoolAddress"
-                class="form-control"
-                value="名古屋市中区"
-                readonly
-              />
-            </div>
-
-            <!-- 営業時間 -->
-            <div class="form-group">
-              <label class="form-label">営業時間</label>
-              <div class="d-flex">
-                <input
-                  type="time"
-                  id="businessStart"
-                  class="form-control"
-                  value="09:00"
-                  readonly
-                />
-                <span class="mx-2">～</span>
-                <input
-                  type="time"
-                  id="businessEnd"
-                  class="form-control"
-                  value="21:00"
-                  readonly
-                />
-              </div>
-            </div>
-
-            <!-- 定休日 -->
-            <div class="form-group">
-              <label class="form-label">定休日</label>
-              <div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="sunday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="sunday" class="form-check-label">日曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="monday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="monday" class="form-check-label">月曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="tuesday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="tuesday" class="form-check-label">火曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="wednesday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="wednesday" class="form-check-label">水曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="thursday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="thursday" class="form-check-label">木曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="friday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="friday" class="form-check-label">金曜日</label>
-                </div>
-                <div class="form-check">
-                  <input
-                    type="checkbox"
-                    id="saturday"
-                    class="form-check-input"
-                    disabled
-                  />
-                  <label for="saturday" class="form-check-label">土曜日</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- スクール情報 -->
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="studentCount" class="form-label">スクール生数</label>
-              <input
-                type="number"
-                id="studentCount"
-                class="form-control"
-                value="120"
-                readonly
-              />
-            </div>
-            <div class="form-group">
-              <label for="coachCount" class="form-label">コーチ数</label>
-              <input
-                type="number"
-                id="coachCount"
-                class="form-control"
-                value="10"
-                readonly
-              />
-            </div>
-            <div class="form-group">
-              <label for="courtCount" class="form-label">コート数</label>
-              <input
-                type="number"
-                id="courtCount"
-                class="form-control"
-                value="4"
-                readonly
-              />
-            </div>
-          </div>
-        </div>
-        <!-- 編集・保存ボタン -->
-        <div class="d-flex justify-content-end mt-3">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>スクール基本情報・コート設定</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: "Noto Sans JP", sans-serif;
+      margin:0;
+      padding:20px;
+    }
+    .container {
+      margin-top: 20px;
+    }
+    .card {
+      margin-bottom: 20px;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      background:#fff;
+    }
+    .card-header {
+      background-color: #007bff;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 6px 6px 0 0;
+      padding:10px 15px;
+    }
+    .card-body {
+      padding:15px;
+    }
+    .form-label {
+      font-weight: bold;
+      color: #333;
+      margin-bottom:4px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .day-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .day-row label {
+      width: 70px;
+      margin-right:10px;
+      margin-bottom:0;
+    }
+    .time-input {
+      width:120px;
+    }
+    .mx-2 {
+      margin:0 5px;
+    }
+    .table td {
+      vertical-align: middle;
+    }
+    .btn-sm {
+      font-size: 0.875rem;
+    }
+    /* read-only fields styling */
+    .form-control[readonly], 
+    .form-check-input:disabled {
+      background-color: #e9ecef;
+      color: #6c757d;
+    }
+    .form-check-input:disabled ~ .form-check-label {
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- スクール基本情報カード -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>スクール基本情報</span>
+        <div>
           <button
             type="button"
             id="editButton"
-            class="btn btn-warning me-2"
+            class="btn btn-warning btn-sm me-2"
             onclick="toggleEdit()"
           >
             編集
@@ -202,73 +94,350 @@
           <button
             type="button"
             id="saveButton"
-            class="btn btn-success"
+            class="btn btn-success btn-sm"
             style="display: none"
             onclick="saveInfo()"
           >
             保存
           </button>
         </div>
-      </form>
+      </div>
+      <div class="card-body">
+        <form id="schoolForm">
+          <div class="form-group">
+            <label for="schoolName" class="form-label">スクール名</label>
+            <input
+              type="text"
+              id="schoolName"
+              class="form-control"
+              value="東別院テニススクール"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="schoolPostalCode" class="form-label">郵便番号</label>
+            <input
+              type="text"
+              id="schoolPostalCode"
+              class="form-control"
+              value="460-0001"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="schoolAddress" class="form-label">住所</label>
+            <input
+              type="text"
+              id="schoolAddress"
+              class="form-control"
+              value="名古屋市中区千代田1-1-1"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">曜日別 営業時間</label>
+            <p class="text-muted" style="font-size:0.9rem;">
+              定休日にチェックを入れると当日の営業時間入力は無効になります。
+            </p>
+
+            <!-- 曜日別行のコンテナ -->
+            <div id="weeklySchedule">
+              <div class="day-row">
+                <label for="sunClosed">日曜日</label>
+                <input type="checkbox" id="sunClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="sunStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="sunEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="monClosed">月曜日</label>
+                <input type="checkbox" id="monClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="monStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="monEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="tueClosed">火曜日</label>
+                <input type="checkbox" id="tueClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="tueStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="tueEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="wedClosed">水曜日</label>
+                <input type="checkbox" id="wedClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="wedStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="wedEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="thuClosed">木曜日</label>
+                <input type="checkbox" id="thuClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="thuStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="thuEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="friClosed">金曜日</label>
+                <input type="checkbox" id="friClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="friStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="friEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+              <div class="day-row">
+                <label for="satClosed">土曜日</label>
+                <input type="checkbox" id="satClosed" class="form-check-input me-2" disabled>
+                <input type="time" id="satStart" class="form-control time-input" value="09:00" readonly>
+                <span class="mx-2">～</span>
+                <input type="time" id="satEnd" class="form-control time-input" value="21:00" readonly>
+              </div>
+            </div><!-- #weeklySchedule -->
+          </div>
+        </form>
+      </div>
     </div>
 
-    <script>
-      function toggleEdit() {
-        const editableFields = document.querySelectorAll(
-          "#schoolName, #schoolAddress, #businessStart, #businessEnd"
-        );
-        const checkboxes = document.querySelectorAll(".form-check-input");
-        const isReadOnly = editableFields[0].hasAttribute("readonly");
+    <!-- コート設定カード -->
+    <div class="card">
+      <div class="card-header">コート設定</div>
+      <div class="card-body">
+        <form id="courtForm">
+          <div class="mb-3">
+            <label for="newCourtName" class="form-label">新しいコート名を追加</label>
+            <div class="input-group">
+              <input
+                type="text"
+                id="newCourtName"
+                class="form-control"
+                placeholder="例: Cコート"
+                readonly
+              />
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="addCourtButton"
+                disabled
+              >
+                追加
+              </button>
+            </div>
+          </div>
+        </form>
+        <h6 class="mt-4">現在のコート一覧</h6>
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr>
+              <th style="width:50%;">コート名</th>
+              <th style="width:50%;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="courtList">
+            <tr>
+              <td>
+                <input type="text" class="form-control" value="A" readonly>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success save-button"
+                  disabled
+                >
+                  保存
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger delete-button"
+                  disabled
+                >
+                  削除
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="text" class="form-control" value="B" readonly>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success save-button"
+                  disabled
+                >
+                  保存
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger delete-button"
+                  disabled
+                >
+                  削除
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- card -->
 
-        // フィールドの編集可能状態を切り替え
-        editableFields.forEach((field) => {
-          if (isReadOnly) {
-            field.removeAttribute("readonly");
+    <script>
+      // 曜日ごとのチェックボックスとtime入力の紐付け
+      const dayConfigs = [
+        { closedId: "sunClosed", startId: "sunStart", endId: "sunEnd" },
+        { closedId: "monClosed", startId: "monStart", endId: "monEnd" },
+        { closedId: "tueClosed", startId: "tueStart", endId: "tueEnd" },
+        { closedId: "wedClosed", startId: "wedStart", endId: "wedEnd" },
+        { closedId: "thuClosed", startId: "thuStart", endId: "thuEnd" },
+        { closedId: "friClosed", startId: "friStart", endId: "friEnd" },
+        { closedId: "satClosed", startId: "satStart", endId: "satEnd" }
+      ];
+
+      dayConfigs.forEach(cfg => {
+        const closedCb = document.getElementById(cfg.closedId);
+        const startInput = document.getElementById(cfg.startId);
+        const endInput = document.getElementById(cfg.endId);
+
+        closedCb.addEventListener('change', ()=>{
+          const disabled = closedCb.checked;
+          startInput.disabled = disabled;
+          endInput.disabled = disabled;
+        });
+
+        // 初期化: checkedの場合は無効化
+        if(closedCb.checked){
+          startInput.disabled = true;
+          endInput.disabled = true;
+        }
+      });
+
+      function toggleEdit() {
+        // メイン情報フィールド
+        const nameField = document.getElementById("schoolName");
+        const postalField = document.getElementById("schoolPostalCode");
+        const addressField = document.getElementById("schoolAddress");
+
+        // 曜日ごとの営業時間
+        dayConfigs.forEach(cfg => {
+          document.getElementById(cfg.closedId).disabled = !document.getElementById(cfg.closedId).disabled;
+          const start = document.getElementById(cfg.startId);
+          const end = document.getElementById(cfg.endId);
+          if (start.hasAttribute("readonly")) {
+            start.removeAttribute("readonly");
+            end.removeAttribute("readonly");
           } else {
-            field.setAttribute("readonly", "readonly");
+            start.setAttribute("readonly","readonly");
+            end.setAttribute("readonly","readonly");
           }
         });
 
-        // チェックボックスの編集可能状態を切り替え
-        checkboxes.forEach((checkbox) => {
-          checkbox.disabled = !checkbox.disabled;
-        });
+        // コート欄
+        const newCourtName = document.getElementById("newCourtName");
+        const addCourtButton = document.getElementById("addCourtButton");
+        const courtNameFields = document.querySelectorAll("#courtList input");
+        const courtButtons = document.querySelectorAll("#courtList .save-button, #courtList .delete-button");
 
-        // ボタンの表示切り替え
-        document.getElementById("editButton").style.display = isReadOnly
-          ? "none"
-          : "inline-block";
-        document.getElementById("saveButton").style.display = isReadOnly
-          ? "inline-block"
-          : "none";
+        // フィールドがreadOnly -> editable
+        const isReadOnly = nameField.hasAttribute("readonly");
+        if (isReadOnly) {
+          // 編集モードへ
+          nameField.removeAttribute("readonly");
+          postalField.removeAttribute("readonly");
+          addressField.removeAttribute("readonly");
+          newCourtName.removeAttribute("readonly");
+          addCourtButton.disabled = false;
+          courtNameFields.forEach(f=>f.removeAttribute("readonly"));
+          courtButtons.forEach(b=>b.disabled=false);
+
+          document.getElementById("editButton").style.display = "none";
+          document.getElementById("saveButton").style.display = "inline-block";
+        } else {
+          // readOnlyモードへ
+          nameField.setAttribute("readonly","readonly");
+          postalField.setAttribute("readonly","readonly");
+          addressField.setAttribute("readonly","readonly");
+          newCourtName.setAttribute("readonly","readonly");
+          addCourtButton.disabled = true;
+          courtNameFields.forEach(f=>f.setAttribute("readonly","readonly"));
+          courtButtons.forEach(b=>b.disabled=true);
+
+          document.getElementById("editButton").style.display = "inline-block";
+          document.getElementById("saveButton").style.display = "none";
+        }
       }
 
       function saveInfo() {
-        const editableFields = document.querySelectorAll(
-          "#schoolName, #schoolAddress, #businessStart, #businessEnd"
-        );
-        const checkboxes = document.querySelectorAll(".form-check-input");
+        // ここでは保存処理をコンソールに表示
+        // スクール名
+        const schoolName = document.getElementById("schoolName").value.trim();
+        const postalCode = document.getElementById("schoolPostalCode").value.trim();
+        const schoolAddress = document.getElementById("schoolAddress").value.trim();
 
-        // 入力値の取得
-        const updatedData = {};
-        editableFields.forEach((field) => {
-          updatedData[field.id] = field.value;
-          field.setAttribute("readonly", "readonly");
+        // 曜日ごとの設定
+        const scheduleData = dayConfigs.map(cfg => {
+          return {
+            dayId: cfg.closedId, 
+            isClosed: document.getElementById(cfg.closedId).checked,
+            startTime: document.getElementById(cfg.startId).value,
+            endTime: document.getElementById(cfg.endId).value
+          };
         });
 
-        const selectedHolidays = Array.from(checkboxes)
-          .filter((checkbox) => checkbox.checked)
-          .map((checkbox) => checkbox.nextElementSibling.textContent);
-        updatedData.holidays = selectedHolidays;
+        // コート一覧
+        const courtRows = document.querySelectorAll("#courtList tr");
+        const courts = [];
+        courtRows.forEach(row=>{
+          const inputEl = row.querySelector("input");
+          if(inputEl){
+            courts.push(inputEl.value.trim());
+          }
+        });
 
-        console.log("保存されたデータ:", updatedData);
-
-        // ボタンの表示切り替え
-        document.getElementById("editButton").style.display = "inline-block";
-        document.getElementById("saveButton").style.display = "none";
+        const finalData = {
+          schoolName,
+          postalCode,
+          schoolAddress,
+          schedule: scheduleData,
+          courts
+        };
+        console.log("保存データ:", finalData);
 
         alert("変更を保存しました！");
+        toggleEdit();
       }
+
+      // コート追加機能（デモ）
+      document.getElementById("addCourtButton").addEventListener("click", ()=>{
+        const name = document.getElementById("newCourtName").value.trim();
+        if(!name) {
+          alert("コート名を入力してください。");
+          return;
+        }
+        const courtListBody = document.getElementById("courtList");
+        const newTr = document.createElement("tr");
+        newTr.innerHTML = `
+          <td><input type="text" class="form-control" value="${name}" readonly></td>
+          <td>
+            <button type="button" class="btn btn-sm btn-success save-button" disabled>保存</button>
+            <button type="button" class="btn btn-sm btn-danger delete-button" disabled>削除</button>
+          </td>
+        `;
+        courtListBody.appendChild(newTr);
+        document.getElementById("newCourtName").value = "";
+      });
+
+      // コート削除・保存ボタン(デモ)
+      document.getElementById("courtList").addEventListener("click", (e)=>{
+        if(e.target.classList.contains("delete-button")){
+          const tr = e.target.closest("tr");
+          if(tr) tr.remove();
+        } 
+        else if(e.target.classList.contains("save-button")){
+          // デモで特になにもしない
+          alert("コート名を保存しました。");
+        }
+      });
     </script>
-  </body>
+</body>
 </html>

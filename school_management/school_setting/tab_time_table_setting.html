@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>時間割設定</title>
+    <title>平日・土日対応の曜日別時間割設定</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -20,23 +20,43 @@
         font-weight: bold;
         color: #333;
       }
-      .form-group {
-        margin-bottom: 15px;
-      }
       .table td {
         vertical-align: middle;
       }
       .btn-sm {
         font-size: 0.875rem;
       }
+      .error-message {
+        color: red;
+        font-size: 0.8rem;
+      }
     </style>
   </head>
   <body>
     <div class="container">
+      <h4 class="mb-3">平日・土日対応の曜日別時間割設定</h4>
+
       <!-- 時間割追加フォーム -->
       <form id="timeSlotForm" class="mb-4">
-        <div class="row">
-          <div class="col-md-4">
+        <div class="row g-3 align-items-end">
+          <!-- 曜日選択 -->
+          <div class="col-md-3">
+            <label for="dayOfWeek" class="form-label">曜日</label>
+            <select id="dayOfWeek" class="form-select">
+              <option value="">選択してください</option>
+              <option value="平日">平日(月-金)</option>
+              <option value="土日">土日</option>
+              <option value="月">月</option>
+              <option value="火">火</option>
+              <option value="水">水</option>
+              <option value="木">木</option>
+              <option value="金">金</option>
+              <option value="土">土</option>
+              <option value="日">日</option>
+            </select>
+          </div>
+          <!-- 時間割名 -->
+          <div class="col-md-3">
             <label for="timeSlotName" class="form-label">時間割名</label>
             <input
               type="text"
@@ -45,23 +65,20 @@
               placeholder="例: A"
             />
           </div>
+          <!-- 開始時間 -->
           <div class="col-md-3">
             <label for="startTime" class="form-label">開始時間</label>
-            <input
-              type="time"
-              id="startTime"
-              class="form-control"
-            />
+            <input type="time" id="startTime" class="form-control" />
           </div>
+          <!-- 終了時間 -->
           <div class="col-md-3">
             <label for="endTime" class="form-label">終了時間</label>
-            <input
-              type="time"
-              id="endTime"
-              class="form-control"
-            />
+            <input type="time" id="endTime" class="form-control" />
           </div>
-          <div class="col-md-2 d-flex align-items-end">
+        </div>
+        <!-- 追加ボタン -->
+        <div class="row g-3 mt-2">
+          <div class="col-md-2">
             <button
               type="button"
               class="btn btn-primary w-100"
@@ -71,6 +88,8 @@
             </button>
           </div>
         </div>
+        <!-- エラー表示領域（簡易） -->
+        <div id="errorContainer" class="mt-2"></div>
       </form>
 
       <!-- 現在の時間割一覧 -->
@@ -78,47 +97,39 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>時間割名</th>
-            <th>開始時間</th>
-            <th>終了時間</th>
-            <th>操作</th>
+            <th style="width: 10%">曜日</th>
+            <th style="width: 25%">時間割名</th>
+            <th style="width: 20%">開始時間</th>
+            <th style="width: 20%">終了時間</th>
+            <th style="width: 25%">操作</th>
           </tr>
         </thead>
         <tbody id="timeSlotList">
+          <!-- 初期例：月曜日A, B -->
           <tr>
+            <td><input type="text" class="form-control" value="月" /></td>
             <td><input type="text" class="form-control" value="A" /></td>
             <td><input type="time" class="form-control" value="09:00" /></td>
             <td><input type="time" class="form-control" value="10:30" /></td>
             <td>
-              <button
-                type="button"
-                class="btn btn-sm btn-success save-button"
-              >
+              <button type="button" class="btn btn-sm btn-success save-button">
                 保存
               </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-danger delete-button"
-              >
+              <button type="button" class="btn btn-sm btn-danger delete-button">
                 削除
               </button>
             </td>
           </tr>
           <tr>
+            <td><input type="text" class="form-control" value="月" /></td>
             <td><input type="text" class="form-control" value="B" /></td>
             <td><input type="time" class="form-control" value="10:30" /></td>
             <td><input type="time" class="form-control" value="12:00" /></td>
             <td>
-              <button
-                type="button"
-                class="btn btn-sm btn-success save-button"
-              >
+              <button type="button" class="btn btn-sm btn-success save-button">
                 保存
               </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-danger delete-button"
-              >
+              <button type="button" class="btn btn-sm btn-danger delete-button">
                 削除
               </button>
             </td>
@@ -128,71 +139,106 @@
     </div>
 
     <script>
-      // 時間割追加処理
+      // ---------- バリデーションに使用する定数 ----------
+      const businessStart = "07:00"; // 例: 7:00
+      const businessEnd = "22:00";   // 例: 22:00
+
+      // エラーメッセージの表示ヘルパー
+      function showError(message) {
+        const errorContainer = document.getElementById("errorContainer");
+        errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+      }
+
+      // ---------- 曜日選択肢に対応する実際の曜日一覧を定義 ----------
+      const dayGroupMap = {
+        "平日": ["月", "火", "水", "木", "金"],
+        "土日": ["土", "日"],
+      };
+
+      // ---------- フォームの「追加」ボタンクリック ----------
       document
         .getElementById("addTimeSlotButton")
         .addEventListener("click", function () {
+          const dayOfWeek = document.getElementById("dayOfWeek").value.trim();
           const timeSlotName = document
             .getElementById("timeSlotName")
             .value.trim();
           const startTime = document.getElementById("startTime").value;
           const endTime = document.getElementById("endTime").value;
 
-          if (!timeSlotName || !startTime || !endTime) {
-            alert("すべての項目を入力してください。");
+          // 前回のエラーをクリア
+          showError("");
+
+          // 必須チェック
+          if (!dayOfWeek || !timeSlotName || !startTime || !endTime) {
+            showError("すべての項目（曜日／時間割名／開始・終了時間）を入力してください。");
             return;
           }
 
-          // 営業時間の設定 (例: 09:00 - 21:00)
-          const businessStart = "09:00";
-          const businessEnd = "21:00";
-
+          // 営業時間チェック & 開始＞終了のチェック
           if (
             startTime < businessStart ||
             endTime > businessEnd ||
             startTime >= endTime
           ) {
-            alert("営業時間内で正しい時間を指定してください。");
+            showError(
+              `営業時間内（${businessStart}～${businessEnd}）で正しい時間を指定してください。`
+            );
             return;
           }
 
+          // 平日 or 土日が選ばれた場合は、そこに紐づく複数曜日をリストアップ
+          let daysToAdd = [];
+          if (dayGroupMap[dayOfWeek]) {
+            daysToAdd = dayGroupMap[dayOfWeek];
+          } else {
+            // 通常の単一曜日
+            daysToAdd = [dayOfWeek];
+          }
+
+          // テーブルに行を追加する
           const tableBody = document.getElementById("timeSlotList");
-          const newRow = document.createElement("tr");
-          newRow.innerHTML = `
-                <td><input type="text" class="form-control" value="${timeSlotName}"></td>
-                <td><input type="time" class="form-control" value="${startTime}"></td>
-                <td><input type="time" class="form-control" value="${endTime}"></td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-success save-button">保存</button>
-                    <button type="button" class="btn btn-sm btn-danger delete-button">削除</button>
-                </td>`;
-          tableBody.appendChild(newRow);
+          daysToAdd.forEach((day) => {
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+              <td><input type="text" class="form-control" value="${day}"></td>
+              <td><input type="text" class="form-control" value="${timeSlotName}"></td>
+              <td><input type="time" class="form-control" value="${startTime}"></td>
+              <td><input type="time" class="form-control" value="${endTime}"></td>
+              <td>
+                <button type="button" class="btn btn-sm btn-success save-button">保存</button>
+                <button type="button" class="btn btn-sm btn-danger delete-button">削除</button>
+              </td>
+            `;
+            tableBody.appendChild(newRow);
+            addEventListenersToRow(newRow);
+          });
 
           // フォームをリセット
           document.getElementById("timeSlotForm").reset();
-
-          // イベントリスナーを新しいボタンに追加
-          addEventListenersToRow(newRow);
         });
 
-      // 新しい行にイベントリスナーを追加
+      // ---------- 行の保存／削除ボタンにイベントリスナーを追加 ----------
       function addEventListenersToRow(row) {
         const saveButton = row.querySelector(".save-button");
         const deleteButton = row.querySelector(".delete-button");
 
+        // 保存ボタン
         saveButton.addEventListener("click", function () {
+          // 必要に応じて編集内容のバリデーションを行う
           alert("変更が保存されました。");
         });
 
+        // 削除ボタン
         deleteButton.addEventListener("click", function () {
           row.remove();
         });
       }
 
-      // 初期行にもイベントリスナーを追加
+      // ---------- 初期表示行にもイベントリスナーを追加 ----------
       document
         .querySelectorAll("#timeSlotList tr")
-        .forEach(addEventListenersToRow);
+        .forEach((row) => addEventListenersToRow(row));
     </script>
   </body>
 </html>
