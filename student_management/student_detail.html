@@ -211,7 +211,18 @@
                     readonly
                   />
                 </div>
+
+                <!-- ▼ コースをドロップダウンに変更 -->
+                <div class="mb-3">
+                  <label for="course" class="form-label">コース</label>
+                  <select class="form-control" id="course" disabled>
+                    <option value="beginner">初級週一回コース</option>
+                    <option value="intermediate" selected>中級週一回コース</option>
+                    <option value="advanced">上級週二回コース</option>
+                  </select>
+                </div>
               </div>
+
               <div class="col-md-6">
                 <!-- 右カラム -->
                 <div class="mb-3">
@@ -328,7 +339,7 @@
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" type="button" data-target="iframeClass">
-            コース・クラス
+            レベル・クラス
           </button>
         </li>
         <li class="nav-item" role="presentation">

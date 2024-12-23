@@ -25,36 +25,72 @@
 </head>
 <body>
   <h4>定期料金設定</h4>
-  <p>ロッカーレンタル費や月謝など、会員に対して定期的に請求する料金を設定します。</p>
+  <p>ロッカーレンタル費、月謝など、定期的に請求する料金を登録・編集できます。</p>
 
   <form id="regularFeeForm">
     <div class="mb-3">
       <label for="feeName" class="form-label">料金名</label>
-      <input type="text" id="feeName" class="form-control" placeholder="例：ロッカーレンタル費、月謝" required>
+      <input 
+        type="text" 
+        id="feeName" 
+        class="form-control" 
+        placeholder="例：中級 週2回コース、ロッカーレンタル費、月謝 など" 
+        required
+      >
     </div>
 
     <div class="mb-3">
       <label for="feeAmount" class="form-label">金額（税抜）</label>
-      <input type="number" id="feeAmount" class="form-control" placeholder="例：1000" required>
+      <input 
+        type="number" 
+        id="feeAmount" 
+        class="form-control" 
+        placeholder="例：1000" 
+        required
+      >
     </div>
 
     <div class="mb-3">
       <label class="form-label">請求周期</label>
       <div class="form-check">
-        <input type="radio" class="form-check-input" name="billingCycle" id="cycleMonths" checked>
+        <input 
+          type="radio" 
+          class="form-check-input" 
+          name="billingCycle" 
+          id="cycleMonths" 
+          checked
+        >
         <label for="cycleMonths" class="form-check-label">〇か月ごと</label>
       </div>
       <div class="d-flex align-items-center mb-2" style="margin-left:25px;">
-        <input type="number" id="monthsCount" class="form-control" style="max-width:80px;" value="1">
+        <input 
+          type="number" 
+          id="monthsCount" 
+          class="form-control" 
+          style="max-width:80px;" 
+          value="1"
+        >
         <span class="ms-2">か月ごと</span>
       </div>
 
       <div class="form-check">
-        <input type="radio" class="form-check-input" name="billingCycle" id="cycleTerms">
+        <input 
+          type="radio" 
+          class="form-check-input" 
+          name="billingCycle" 
+          id="cycleTerms"
+        >
         <label for="cycleTerms" class="form-check-label">〇期ごと</label>
       </div>
       <div class="d-flex align-items-center" style="margin-left:25px;">
-        <input type="number" id="termsCount" class="form-control" style="max-width:80px;" value="1" disabled>
+        <input 
+          type="number" 
+          id="termsCount" 
+          class="form-control" 
+          style="max-width:80px;" 
+          value="1" 
+          disabled
+        >
         <span class="ms-2">期ごと</span>
       </div>
     </div>
@@ -118,14 +154,14 @@
     const monthsCount = document.getElementById('monthsCount');
     const termsCount = document.getElementById('termsCount');
 
-    cycleMonths.addEventListener('change', ()=> {
+    // ラジオボタン切り替え時に入力欄の有効・無効を切り替える
+    cycleMonths.addEventListener('change', () => {
       if (cycleMonths.checked) {
         monthsCount.disabled = false;
         termsCount.disabled = true;
       }
     });
-
-    cycleTerms.addEventListener('change', ()=> {
+    cycleTerms.addEventListener('change', () => {
       if (cycleTerms.checked) {
         monthsCount.disabled = true;
         termsCount.disabled = false;

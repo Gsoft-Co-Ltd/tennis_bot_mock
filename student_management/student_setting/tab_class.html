@@ -1,97 +1,266 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>コース・クラス</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<style>
-body {
-  background-color: #fff;
-  font-family: Arial, sans-serif;
-  padding:20px;
-}
-.section {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-.section h5 {
-  font-size: 1.2rem;
-  color: #007bff;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 5px;
-  margin-bottom: 15px;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>クラス設定（現在＆来期）</title>
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: "Noto Sans JP", sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .section h5 {
+      font-size: 1.2rem;
+      color: #007bff;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 6px;
+      margin-bottom: 15px;
+    }
+    .form-label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .class-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .class-list li {
+      display: flex;
+      align-items: center;
+      background: #e9ecef;
+      border-radius: 4px;
+      padding: 6px 10px;
+      margin-bottom: 6px;
+    }
+    .class-list li .remove-btn {
+      margin-left: auto;
+    }
+  </style>
 </head>
 <body>
-<div class="section">
-  <h5>現在の設定</h5>
-  <div class="mb-3">
-    <label class="form-label">現在のレベル</label>
-    <select class="form-select">
-      <option>初級</option>
-      <option selected>中級</option>
-      <option>上級</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">現在のクラス</label>
-    <select class="form-select">
-      <option>Aクラス</option>
-      <option selected>Bクラス</option>
-      <option>Cクラス</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">現在のコース</label>
-    <select class="form-select">
-      <option>入門コース</option>
-      <option selected>中級コース</option>
-      <option>応用コース</option>
-    </select>
-  </div>
-</div>
+<div class="container">
+  <!-- 現在すぐ変更するクラス -->
+  <div class="section">
+    <h5>現在のクラス設定</h5>
+    <p class="text-muted" style="font-size:0.9rem;">
+      すぐに変更したいレベル・クラスがあれば、こちらで追加・削除できます。
+    </p>
 
-<div class="section">
-  <h5>来期の設定</h5>
-  <div class="mb-3">
-    <label class="form-label">来期のレベル</label>
-    <select class="form-select">
-      <option>初級</option>
-      <option selected>中級</option>
-      <option>上級</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">来期のクラス</label>
-    <select class="form-select">
-      <option>Aクラス</option>
-      <option selected>Bクラス</option>
-      <option>Cクラス</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">来期のコース</label>
-    <select class="form-select">
-      <option>入門コース</option>
-      <option selected>中級コース</option>
-      <option>応用コース</option>
-    </select>
-  </div>
-</div>
+    <!-- 現在のレベル -->
+    <div class="mb-3">
+      <label for="currentLevel" class="form-label">現在のレベル</label>
+      <select class="form-select" id="currentLevel">
+        <option value="初級">初級</option>
+        <option value="中級" selected>中級</option>
+        <option value="上級">上級</option>
+      </select>
+    </div>
 
-<div class="text-end mt-3">
-  <button class="btn btn-primary" onclick="saveSettings()">保存</button>
-</div>
+    <!-- クラス追加UI -->
+    <div class="row g-2 align-items-center mb-3">
+      <div class="col-auto">
+        <label for="currentClassDropdown" class="form-label mb-0">クラス追加:</label>
+      </div>
+      <div class="col-auto">
+        <select class="form-select" id="currentClassDropdown">
+          <option value="Aクラス">Aクラス</option>
+          <option value="Bクラス">Bクラス</option>
+          <option value="Cクラス">Cクラス</option>
+          <option value="Dクラス">Dクラス</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" id="addCurrentClassBtn">追加</button>
+      </div>
+    </div>
+
+    <!-- 現在のクラス一覧 -->
+    <div class="mb-3">
+      <label class="form-label">現在のクラス一覧</label>
+      <ul class="class-list" id="currentClassList">
+        <!-- デモ用初期状態をいくつか入れておく -->
+        <li>Aクラス
+          <button class="btn btn-sm btn-danger remove-btn">削除</button>
+        </li>
+        <li>Bクラス
+          <button class="btn btn-sm btn-danger remove-btn">削除</button>
+        </li>
+      </ul>
+    </div>
+  </div><!-- /現在のクラス設定 -->
+
+  <!-- 来期に変更するクラス -->
+  <div class="section">
+    <h5>来期のクラス設定</h5>
+    <p class="text-muted" style="font-size:0.9rem;">
+      次の期から適用したいレベル・クラスがあれば、こちらで追加・削除できます。
+    </p>
+
+    <!-- 来期のレベル -->
+    <div class="mb-3">
+      <label for="nextLevel" class="form-label">来期のレベル</label>
+      <select class="form-select" id="nextLevel">
+        <option value="初級">初級</option>
+        <option value="中級" selected>中級</option>
+        <option value="上級">上級</option>
+      </select>
+    </div>
+
+    <!-- クラス追加UI -->
+    <div class="row g-2 align-items-center mb-3">
+      <div class="col-auto">
+        <label for="nextClassDropdown" class="form-label mb-0">クラス追加:</label>
+      </div>
+      <div class="col-auto">
+        <select class="form-select" id="nextClassDropdown">
+          <option value="Aクラス">Aクラス</option>
+          <option value="Bクラス">Bクラス</option>
+          <option value="Cクラス">Cクラス</option>
+          <option value="Dクラス">Dクラス</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" id="addNextClassBtn">追加</button>
+      </div>
+    </div>
+
+    <!-- 来期のクラス一覧 -->
+    <div class="mb-3">
+      <label class="form-label">来期のクラス一覧</label>
+      <ul class="class-list" id="nextClassList">
+        <!-- デモ用初期状態をいくつか入れておく -->
+        <li>Cクラス
+          <button class="btn btn-sm btn-danger remove-btn">削除</button>
+        </li>
+      </ul>
+    </div>
+  </div><!-- /来期のクラス設定 -->
+
+  <!-- 保存ボタン -->
+  <div class="text-end mt-3">
+    <button class="btn btn-success" onclick="saveSettings()">保存</button>
+  </div>
+</div><!-- /container -->
 
 <script>
-function saveSettings() {
-  alert("コース・クラス設定を保存しました。");
-}
+  // 「現在のクラス」一覧データ（デモ）
+  let currentClasses = ["Aクラス","Bクラス"];
+  // 「来期のクラス」一覧データ（デモ）
+  let nextClasses = ["Cクラス"];
+
+  // DOM取得
+  const currentClassListEl = document.getElementById("currentClassList");
+  const nextClassListEl    = document.getElementById("nextClassList");
+
+  // --- 現在のクラス: 追加 ---
+  document.getElementById('addCurrentClassBtn').addEventListener('click', () => {
+    const dropdown = document.getElementById('currentClassDropdown');
+    const selectedClass = dropdown.value;
+    
+    // 重複チェック
+    if (currentClasses.includes(selectedClass)) {
+      alert("「" + selectedClass + "」はすでに追加されています。");
+      return;
+    }
+    // 追加して再描画
+    currentClasses.push(selectedClass);
+    renderCurrentList();
+  });
+
+  // --- 来期のクラス: 追加 ---
+  document.getElementById('addNextClassBtn').addEventListener('click', () => {
+    const dropdown = document.getElementById('nextClassDropdown');
+    const selectedClass = dropdown.value;
+    
+    // 重複チェック
+    if (nextClasses.includes(selectedClass)) {
+      alert("「" + selectedClass + "」はすでに追加されています。");
+      return;
+    }
+    // 追加して再描画
+    nextClasses.push(selectedClass);
+    renderNextList();
+  });
+
+  // 現在のクラス一覧を再描画
+  function renderCurrentList() {
+    currentClassListEl.innerHTML = "";
+    currentClasses.forEach((className, idx) => {
+      const li = document.createElement("li");
+      li.textContent = className;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "btn btn-sm btn-danger remove-btn";
+      removeBtn.textContent = "削除";
+      removeBtn.addEventListener("click", () => {
+        currentClasses.splice(idx, 1);
+        renderCurrentList();
+      });
+
+      li.appendChild(removeBtn);
+      currentClassListEl.appendChild(li);
+    });
+  }
+
+  // 来期のクラス一覧を再描画
+  function renderNextList() {
+    nextClassListEl.innerHTML = "";
+    nextClasses.forEach((className, idx) => {
+      const li = document.createElement("li");
+      li.textContent = className;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "btn btn-sm btn-danger remove-btn";
+      removeBtn.textContent = "削除";
+      removeBtn.addEventListener("click", () => {
+        nextClasses.splice(idx, 1);
+        renderNextList();
+      });
+
+      li.appendChild(removeBtn);
+      nextClassListEl.appendChild(li);
+    });
+  }
+
+  // 保存ボタン
+  function saveSettings() {
+    // 現在のレベルと来期のレベルを取得
+    const currentLevelVal = document.getElementById("currentLevel").value;
+    const nextLevelVal    = document.getElementById("nextLevel").value;
+
+    console.log("[現在のレベル]", currentLevelVal);
+    console.log("[現在のクラス]", currentClasses);
+    console.log("[来期のレベル]", nextLevelVal);
+    console.log("[来期のクラス]", nextClasses);
+
+    alert("設定を保存しました。\n\n" +
+          "【現在】\n" +
+          "レベル: " + currentLevelVal + "\n" +
+          "クラス: " + (currentClasses.length ? currentClasses.join(", ") : "（なし）") + "\n\n" +
+          "【来期】\n" +
+          "レベル: " + nextLevelVal + "\n" +
+          "クラス: " + (nextClasses.length ? nextClasses.join(", ") : "（なし）"));
+  }
+
+  // ページ読み込み時にリストを描画
+  renderCurrentList();
+  renderNextList();
 </script>
 </body>
 </html>

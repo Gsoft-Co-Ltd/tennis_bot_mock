@@ -124,37 +124,6 @@
   <div class="container">
     <h2 class="mb-4">テニススクール生一覧</h2>
 
-    <!-- 企業・スクール選択ボックス: カテゴリBOX化 -->
-    <div class="card">
-      <div class="card-header" style="background-color: #6c757d;">企業 / スクール選択</div>
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
-          <div class="col-auto">
-            <label for="companySelect" class="col-form-label fw-bold">企業選択：</label>
-          </div>
-          <div class="col-auto">
-            <select id="companySelect" class="form-select" onchange="updateTable()">
-              <option value="">全て</option>
-              <option>企業A</option>
-              <option>企業B</option>
-              <option>企業C</option>
-            </select>
-          </div>
-          <div class="col-auto">
-            <label for="schoolSelect" class="col-form-label fw-bold">スクール選択：</label>
-          </div>
-          <div class="col-auto">
-            <select id="schoolSelect" class="form-select" onchange="updateTable()">
-              <option value="">全て</option>
-              <option>スクールA</option>
-              <option>スクールB</option>
-              <option>スクールC</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- 検索・フィルタ BOX -->
     <div class="card">
       <div class="card-header">検索・フィルタ</div>
@@ -193,7 +162,8 @@
             </button>
           </div>
         </div>
-
+      </div>
+    </div>
         <!-- 同時表示件数 -->
         <div class="d-flex align-items-center">
           <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
@@ -203,9 +173,6 @@
             <option value="50">50</option>
           </select>
         </div>
-      </div>
-    </div>
-
     <!-- スクール生一覧テーブル -->
     <div class="card">
       <div class="card-header">スクール生一覧</div>
@@ -352,25 +319,6 @@
                 </select>
               </div>
 
-              <hr>
-              <h6 class="fw-bold">企業・スクール</h6>
-              <div class="mb-3">
-                <label class="form-label">企業</label>
-                <select class="form-select" id="addCompany">
-                  <option>企業A</option>
-                  <option>企業B</option>
-                  <option>企業C</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">スクール</label>
-                <select class="form-select" id="addSchool">
-                  <option>スクールA</option>
-                  <option>スクールB</option>
-                  <option>スクールC</option>
-                </select>
-              </div>
-
             </form>
           </div>
           <div class="modal-footer">
@@ -381,268 +329,280 @@
       </div>
     </div>
 
-    <!-- Bootstrap JS (含：Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </div> <!-- /container -->
 
-    <script>
-      // ▼▼▼ 以下、サンプルデータ & ロジック ▼▼▼
+  <!-- Bootstrap JS (含：Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ▼▼▼ サンプルデータ & ロジック ▼▼▼
 
-      let members = [
-        {id: "001", name: "山田 太郎", kana: "ヤマダ タロウ", course: "初心者コース", notes: "有り", overdue: "有り", company: "企業A", school: "スクールA"},
-        // ...中略: データは適宜増やす...
-        {id: "030", name: "西山 亮", kana: "ニシヤマ リョウ", course: "応用コース", notes: "無し", overdue: "無し", company: "企業C", school: "スクールC"}
-      ];
+    let members = [
+      { id: "001", name: "山田 太郎", kana: "ヤマダ タロウ", course: "初心者コース", notes: "有り", overdue: "有り" },
+      { id: "002", name: "佐藤 花子", kana: "サトウ ハナコ", course: "中級コース", notes: "無し", overdue: "無し" },
+      { id: "003", name: "鈴木 一郎", kana: "スズキ イチロウ", course: "応用コース", notes: "有り", overdue: "無し" },
+      { id: "004", name: "高橋 次郎", kana: "タカハシ ジロウ", course: "初心者コース", notes: "無し", overdue: "無し" },
+      // ...必要に応じて30件程度まで増やす...
+      { id: "030", name: "西山 亮", kana: "ニシヤマ リョウ", course: "応用コース", notes: "無し", overdue: "無し" }
+    ];
 
-      let sortDirection = true;    // true: 昇順, false: 降順
-      let currentSortColumn = null;
-      let currentPage = 1;
-      let rowsPerPage = 20;
+    let sortDirection = true;    // true: 昇順, false: 降順
+    let currentSortColumn = null;
+    let currentPage = 1;
+    let rowsPerPage = 20;
 
-      function updateTable() {
-        let filteredData = filterMembers(members);
-        if (currentSortColumn !== null) {
-          filteredData = sortData(filteredData, currentSortColumn);
-        }
-        renderTable(filteredData);
-        renderPagination(filteredData.length);
+    function updateTable() {
+      let filteredData = filterMembers(members);
+      if (currentSortColumn !== null) {
+        filteredData = sortData(filteredData, currentSortColumn);
       }
+      renderTable(filteredData);
+      renderPagination(filteredData.length);
+    }
 
-      function filterMembers(dataArray) {
-        const searchValue = document.getElementById("searchInput").value.toLowerCase();
-        const filterNotes = document.getElementById("filterNotes").checked;
-        const filterOverdue = document.getElementById("filterOverdue").checked;
-        const selectedCompany = document.getElementById("companySelect").value;
-        const selectedSchool = document.getElementById("schoolSelect").value;
+    function filterMembers(dataArray) {
+      const searchValue = document.getElementById("searchInput").value.toLowerCase();
+      const filterNotes = document.getElementById("filterNotes").checked;
+      const filterOverdue = document.getElementById("filterOverdue").checked;
 
-        return dataArray.filter(item => {
-          if (!item.name.toLowerCase().includes(searchValue)) return false;
-          if (filterNotes && item.notes !== "有り") return false;
-          if (filterOverdue && item.overdue !== "有り") return false;
-          if (selectedCompany && item.company !== selectedCompany) return false;
-          if (selectedSchool && item.school !== selectedSchool) return false;
-          return true;
-        });
-      }
-
-      function sortData(dataArray, columnIndex) {
-        dataArray.sort((a, b) => {
-          let aValue, bValue;
-          switch(columnIndex) {
-            case 0: aValue = parseInt(a.id, 10); bValue = parseInt(b.id, 10); break;
-            case 1: aValue = a.name.toLowerCase(); bValue = b.name.toLowerCase(); break;
-            case 2: aValue = a.kana.toLowerCase(); bValue = b.kana.toLowerCase(); break;
-            case 3: aValue = a.course.toLowerCase(); bValue = b.course.toLowerCase(); break;
-            default: aValue = ""; bValue = ""; break;
-          }
-          if (aValue > bValue) {
-            return sortDirection ? 1 : -1;
-          } else if(aValue < bValue) {
-            return sortDirection ? -1 : 1;
-          } else {
-            return 0;
-          }
-        });
-        return dataArray;
-      }
-
-      function renderTable(dataArray) {
-        const tableBody = document.querySelector("#studentTable tbody");
-        tableBody.innerHTML = "";
-
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        const pageData = dataArray.slice(startIndex, endIndex);
-
-        pageData.forEach(item => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${item.id}</td>
-            <td>${item.name}</td>
-            <td>${item.kana}</td>
-            <td>${item.course}</td>
-            <td>${item.notes === "有り" 
-                ? '<button class="btn btn-info btn-sm">有り</button>' 
-                : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
-            <td>${item.overdue === "有り" 
-                ? '<button class="btn btn-info btn-sm">有り</button>' 
-                : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
-            <td>
-              <button
-                class="btn btn-secondary btn-sm detail-btn"
-                data-url="./student_management/student_detail.html"
-              >
-                詳細
-              </button>
-            </td>
-          `;
-          tableBody.appendChild(tr);
-
-          const detailBtn = tr.querySelector(".detail-btn");
-          detailBtn.addEventListener("click", function () {
-            const targetUrl = detailBtn.getAttribute("data-url");
-            if (targetUrl) {
-              window.parent.postMessage({ type: "navigate", url: targetUrl }, "*");
-            }
-          });
-        });
-      }
-
-      function renderPagination(totalItems) {
-        const pagination = document.getElementById("pagination");
-        pagination.innerHTML = "";
-        const totalPages = Math.ceil(totalItems / rowsPerPage);
-
-        // Prevボタン
-        const prevLi = document.createElement("li");
-        prevLi.className = "page-item" + (currentPage === 1 ? " disabled" : "");
-        const prevLink = document.createElement("a");
-        prevLink.className = "page-link";
-        prevLink.href = "#";
-        prevLink.innerText = "Previous";
-        prevLink.onclick = (e) => {
-          e.preventDefault();
-          if (currentPage > 1) {
-            currentPage--;
-            updateTable();
-          }
-        };
-        prevLi.appendChild(prevLink);
-        pagination.appendChild(prevLi);
-
-        // ページ番号
-        for(let i=1; i<=totalPages; i++){
-          const li = document.createElement("li");
-          li.className = "page-item" + (currentPage === i ? " active" : "");
-          const a = document.createElement("a");
-          a.className = "page-link";
-          a.href = "#";
-          a.innerText = i;
-          a.onclick = (e) => {
-            e.preventDefault();
-            currentPage = i;
-            updateTable();
-          };
-          li.appendChild(a);
-          pagination.appendChild(li);
-        }
-
-        // Nextボタン
-        const nextLi = document.createElement("li");
-        nextLi.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
-        const nextLink = document.createElement("a");
-        nextLink.className = "page-link";
-        nextLink.href = "#";
-        nextLink.innerText = "Next";
-        nextLink.onclick = (e) => {
-          e.preventDefault();
-          if (currentPage < totalPages) {
-            currentPage++;
-            updateTable();
-          }
-        };
-        nextLi.appendChild(nextLink);
-        pagination.appendChild(nextLi);
-      }
-
-      // ソートイベント
-      function handleSort(columnIndex) {
-        sortDirection = !sortDirection;
-        currentSortColumn = columnIndex;
-        updateTable();
-        updateSortIcons();
-      }
-
-      function updateSortIcons() {
-        const headers = document.querySelectorAll("th");
-        headers.forEach((header, index) => {
-          const icon = header.querySelector(".sort-icon");
-          if (icon) {
-            if (index === currentSortColumn) {
-              icon.className = sortDirection
-                ? "fas fa-sort-up sort-icon"
-                : "fas fa-sort-down sort-icon";
-            } else {
-              icon.className = "fas fa-sort sort-icon";
-            }
-          }
-        });
-      }
-
-      // 同時表示件数変更
-      function changeRowsPerPage() {
-        const select = document.getElementById("rowsPerPageSelect");
-        rowsPerPage = parseInt(select.value, 10);
-        currentPage = 1;
-        updateTable();
-      }
-
-      // フィルタ要素変更
-      document.getElementById("searchInput").addEventListener("keyup", () => {
-        currentPage=1;
-        updateTable();
+      return dataArray.filter(item => {
+        if (!item.name.toLowerCase().includes(searchValue)) return false;
+        if (filterNotes && item.notes !== "有り") return false;
+        if (filterOverdue && item.overdue !== "有り") return false;
+        return true;
       });
-      document.getElementById("filterNotes").addEventListener("change", () => {
-        currentPage=1;
-        updateTable();
-      });
-      document.getElementById("filterOverdue").addEventListener("change", () => {
-        currentPage=1;
-        updateTable();
-      });
+    }
 
-      // モーダル表示
-      function showAddMemberModal() {
-        const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
-        modal.show();
-      }
-
-      // 新規会員追加
-      function addNewMember() {
-        const memberId = document.getElementById('addMemberId').value.trim();
-        const memberName = document.getElementById('addMemberName').value.trim();
-        const memberKana = document.getElementById('addMemberKana').value.trim();
-        const address = document.getElementById('addAddress').value.trim();
-        const phone = document.getElementById('addPhone').value.trim();
-        const email = document.getElementById('addEmail').value.trim();
-        const birthDate = document.getElementById('addBirthDate').value;
-        const joinDate = document.getElementById('addJoinDate').value;
-        const bankName = document.getElementById('addBankName').value.trim();
-        const branchName = document.getElementById('addBranchName').value.trim();
-        const accountNumber = document.getElementById('addAccountNumber').value.trim();
-        const accountHolder = document.getElementById('addAccountHolder').value.trim();
-        
-        // 簡単な必須チェック
-        if(!memberId || !memberName || !memberKana || !address || !phone || !email
-           || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
-          alert("必要な項目をすべて入力してください。");
-          return;
+    function sortData(dataArray, columnIndex) {
+      dataArray.sort((a, b) => {
+        let aValue, bValue;
+        switch(columnIndex) {
+          case 0: // 会員番号
+            aValue = parseInt(a.id, 10);
+            bValue = parseInt(b.id, 10);
+            break;
+          case 1: // 氏名
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case 2: // フリガナ
+            aValue = a.kana.toLowerCase();
+            bValue = b.kana.toLowerCase();
+            break;
+          case 3: // コース
+            aValue = a.course.toLowerCase();
+            bValue = b.course.toLowerCase();
+            break;
+          default:
+            aValue = "";
+            bValue = "";
+            break;
         }
+        if (aValue > bValue) {
+          return sortDirection ? 1 : -1;
+        } else if (aValue < bValue) {
+          return sortDirection ? -1 : 1;
+        } else {
+          return 0;
+        }
+      });
+      return dataArray;
+    }
 
-        const course = document.getElementById('addCourse').value;
-        const company = document.getElementById('addCompany').value;
-        const school = document.getElementById('addSchool').value;
+    function renderTable(dataArray) {
+      const tableBody = document.querySelector("#studentTable tbody");
+      tableBody.innerHTML = "";
 
-        members.push({
-          id: memberId,
-          name: memberName,
-          kana: memberKana,
-          course: course,
-          notes: "無し",
-          overdue: "無し",
-          company: company,
-          school: school
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const endIndex = startIndex + rowsPerPage;
+      const pageData = dataArray.slice(startIndex, endIndex);
+
+      pageData.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${item.name}</td>
+          <td>${item.kana}</td>
+          <td>${item.course}</td>
+          <td>${item.notes === "有り" 
+              ? '<button class="btn btn-info btn-sm">有り</button>' 
+              : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
+          <td>${item.overdue === "有り" 
+              ? '<button class="btn btn-info btn-sm">有り</button>' 
+              : '<button class="btn btn-outline-secondary btn-sm">無し</button>'}</td>
+          <td>
+            <button
+              class="btn btn-secondary btn-sm detail-btn"
+              data-url="./student_management/student_detail.html"
+            >
+              詳細
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+
+        // 詳細ボタン: iframe操作用 (デモ)
+        const detailBtn = tr.querySelector(".detail-btn");
+        detailBtn.addEventListener("click", function () {
+          const targetUrl = detailBtn.getAttribute("data-url");
+          if (targetUrl) {
+            window.parent.postMessage({ type: "navigate", url: targetUrl }, "*");
+          }
         });
+      });
+    }
 
-        document.getElementById('addMemberForm').reset();
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
-        modal.hide();
-        alert("新しい会員を追加しました。");
-        updateTable();
-      }
+    function renderPagination(totalItems) {
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+      const totalPages = Math.ceil(totalItems / rowsPerPage);
 
-      window.onload = () => {
-        updateTable();
+      // Prevボタン
+      const prevLi = document.createElement("li");
+      prevLi.className = "page-item" + (currentPage === 1 ? " disabled" : "");
+      const prevLink = document.createElement("a");
+      prevLink.className = "page-link";
+      prevLink.href = "#";
+      prevLink.innerText = "Previous";
+      prevLink.onclick = (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+          currentPage--;
+          updateTable();
+        }
       };
-    </script>
+      prevLi.appendChild(prevLink);
+      pagination.appendChild(prevLi);
+
+      // ページ番号
+      for(let i=1; i<=totalPages; i++){
+        const li = document.createElement("li");
+        li.className = "page-item" + (currentPage === i ? " active" : "");
+        const a = document.createElement("a");
+        a.className = "page-link";
+        a.href = "#";
+        a.innerText = i;
+        a.onclick = (e) => {
+          e.preventDefault();
+          currentPage = i;
+          updateTable();
+        };
+        li.appendChild(a);
+        pagination.appendChild(li);
+      }
+
+      // Nextボタン
+      const nextLi = document.createElement("li");
+      nextLi.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+      const nextLink = document.createElement("a");
+      nextLink.className = "page-link";
+      nextLink.href = "#";
+      nextLink.innerText = "Next";
+      nextLink.onclick = (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+          currentPage++;
+          updateTable();
+        }
+      };
+      nextLi.appendChild(nextLink);
+      pagination.appendChild(nextLi);
+    }
+
+    // ソートイベント
+    function handleSort(columnIndex) {
+      sortDirection = !sortDirection;
+      currentSortColumn = columnIndex;
+      updateTable();
+      updateSortIcons();
+    }
+
+    function updateSortIcons() {
+      const headers = document.querySelectorAll("th");
+      headers.forEach((header, index) => {
+        const icon = header.querySelector(".sort-icon");
+        if (icon) {
+          if (index === currentSortColumn) {
+            icon.className = sortDirection
+              ? "fas fa-sort-up sort-icon"
+              : "fas fa-sort-down sort-icon";
+          } else {
+            icon.className = "fas fa-sort sort-icon";
+          }
+        }
+      });
+    }
+
+    // 同時表示件数変更
+    function changeRowsPerPage() {
+      const select = document.getElementById("rowsPerPageSelect");
+      rowsPerPage = parseInt(select.value, 10);
+      currentPage = 1;
+      updateTable();
+    }
+
+    // フィルタ要素変更
+    document.getElementById("searchInput").addEventListener("keyup", () => {
+      currentPage=1;
+      updateTable();
+    });
+    document.getElementById("filterNotes").addEventListener("change", () => {
+      currentPage=1;
+      updateTable();
+    });
+    document.getElementById("filterOverdue").addEventListener("change", () => {
+      currentPage=1;
+      updateTable();
+    });
+
+    // モーダル表示
+    function showAddMemberModal() {
+      const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
+      modal.show();
+    }
+
+    // 新規会員追加
+    function addNewMember() {
+      const memberId    = document.getElementById('addMemberId').value.trim();
+      const memberName  = document.getElementById('addMemberName').value.trim();
+      const memberKana  = document.getElementById('addMemberKana').value.trim();
+      const address     = document.getElementById('addAddress').value.trim();
+      const phone       = document.getElementById('addPhone').value.trim();
+      const email       = document.getElementById('addEmail').value.trim();
+      const birthDate   = document.getElementById('addBirthDate').value;
+      const joinDate    = document.getElementById('addJoinDate').value;
+      const bankName    = document.getElementById('addBankName').value.trim();
+      const branchName  = document.getElementById('addBranchName').value.trim();
+      const accountNumber  = document.getElementById('addAccountNumber').value.trim();
+      const accountHolder  = document.getElementById('addAccountHolder').value.trim();
+
+      // 簡単な必須チェック
+      if(!memberId || !memberName || !memberKana || !address || !phone || !email
+         || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
+        alert("必要な項目をすべて入力してください。");
+        return;
+      }
+
+      const course = document.getElementById('addCourse').value;
+
+      members.push({
+        id: memberId,
+        name: memberName,
+        kana: memberKana,
+        course: course,
+        notes: "無し",
+        overdue: "無し"
+      });
+
+      document.getElementById('addMemberForm').reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+      modal.hide();
+      alert("新しい会員を追加しました。");
+      updateTable();
+    }
+
+    window.onload = () => {
+      updateTable();
+    };
+  </script>
 </body>
 </html>
