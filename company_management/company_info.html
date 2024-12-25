@@ -39,10 +39,55 @@
     .modal-footer button {
       min-width: 100px;
     }
+    .form-inline-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-inline-container .form-label {
+      margin: 0;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .form-inline-container .form-select {
+      max-width: 150px;
+      font-size: 0.9rem;
+    }
+    .form-inline-container .btn {
+      font-size: 0.9rem;
+      padding: 6px 12px; /* ボタンの高さを調整 */
+    }
+    .select-card {
+      max-width: 500px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    
+    <!-- ▼▼▼ 企業・スクール選択（ヘッダーなし） ▼▼▼ -->
+    <div class="card mb-3 select-card">
+      <div class="card-body">
+        <div class="row align-items-center gx-2">
+          <!-- 企業選択 -->
+          <div class="col-auto">
+            <div class="form-inline-container">
+              <label for="companySelect" class="form-label">企業</label>
+              <select id="companySelect" class="form-select form-select-sm">
+                <option value="companyA" selected>株式会社A</option>
+                <option value="companyB">株式会社B</option>
+                <option value="companyC">株式会社C</option>
+              </select>
+            </div>
+          </div>
+          <!-- 選択ボタン -->
+          <div class="col-auto">
+            <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ここまで企業・スクール選択 -->
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>企業情報</span>

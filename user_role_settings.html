@@ -3,28 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ユーザー管理画面</title>
+  <title>管理者一覧・追加編集画面</title>
+  <!-- Bootstrap 5 -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+/>
   <style>
     body {
       background-color: #f5f7fa;
-      font-family: Arial, sans-serif;
+      font-family: "Noto Sans JP", sans-serif;
       padding: 20px;
     }
-
     h1 {
       margin-bottom: 20px;
     }
-
     .table th {
       background-color: #334e68;
       color: white;
       white-space: nowrap;
     }
-
     .btn-edit {
       background-color: #4a90e2;
       color: white;
@@ -32,7 +34,6 @@
     .btn-edit:hover {
       background-color: #2a6fb3;
     }
-
     .btn-delete {
       background-color: #e57373;
       color: white;
@@ -40,329 +41,435 @@
     .btn-delete:hover {
       background-color: #d32f2f;
     }
-
     .filter-bar {
       margin-bottom: 20px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
-
     .filter-bar .form-control {
       width: 200px;
     }
-
     #editPasswordFields {
       display: none;
     }
-
     #editPasswordError, #addPasswordError {
-      display: none;
+      display: none; /* エラー非表示をデフォルトに */
     }
-
-    #addUserContainer {
+    #addAdminContainer {
       margin-left: auto;
     }
-
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="mb-4">ユーザー管理（システム管理者）</h1>
+<div class="container">
+  <h3 class="mb-4">管理者一覧</h3>
 
-    <!-- フィルタバー -->
-    <div class="filter-bar">
-      <input type="text" id="searchName" class="form-control" placeholder="名前で検索">
-      <input type="text" id="searchEmail" class="form-control" placeholder="メールで検索">
-      <button class="btn btn-primary" id="searchBtn">検索</button>
-      <button class="btn btn-secondary" id="clearBtn">クリア</button>
-      <div id="addUserContainer">
-        <button class="btn btn-primary" id="addUserBtn" data-bs-toggle="modal" data-bs-target="#addUserModal">新しいユーザーを追加</button>
-      </div>
-    </div>
-
-    <!-- ユーザーテーブル -->
-    <table class="table table-bordered" id="userTable">
-      <thead>
-        <tr>
-          <th>名前</th>
-          <th>メールアドレス</th>
-          <th>所属企業</th>
-          <th>所属スクール</th>
-          <th>ロール</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="userTbody"></tbody>
-    </table>
-  </div>
-
-  <!-- 編集モーダル -->
-  <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">ユーザー編集</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-        </div>
-        <div class="modal-body">
-          <form id="editUserForm">
-            <div class="mb-3">
-              <label class="form-label">名前</label>
-              <input type="text" class="form-control" id="editUserName" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">メールアドレス</label>
-              <input type="email" class="form-control" id="editUserEmail" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">所属企業</label>
-              <select class="form-select" id="editUserCompany" required></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">所属スクール</label>
-              <select class="form-select" id="editUserSchool" required></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">ロール</label>
-              <select class="form-select" id="editUserRole" required>
-                <option value="システム管理者">システム管理者</option>
-                <option value="企業管理者">企業管理者</option>
-                <option value="スクール管理者">スクール管理者</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <input type="checkbox" id="enablePasswordEdit">
-              <label for="enablePasswordEdit">パスワードを変更する</label>
-            </div>
-            <div id="editPasswordFields">
-              <div class="mb-3">
-                <label class="form-label">新しいパスワード</label>
-                <input type="password" class="form-control" id="editNewPassword" placeholder="8文字以上" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">パスワード(確認)</label>
-                <input type="password" class="form-control" id="editConfirmPassword" placeholder="再入力" required>
-                <div class="form-text text-danger" id="editPasswordError">パスワードが一致しません</div>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary" id="editSaveBtn">保存</button>
-          </form>
-        </div>
-      </div>
+  <!-- フィルタバー -->
+  <div class="filter-bar">
+    <input type="text" id="searchName" class="form-control" placeholder="名前で検索">
+    <input type="text" id="searchEmail" class="form-control" placeholder="メールで検索">
+    <button class="btn btn-primary" id="searchBtn">検索</button>
+    <button class="btn btn-secondary" id="clearBtn">クリア</button>
+    <div id="addAdminContainer">
+      <button class="btn btn-success" id="addAdminBtn" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+        <i class="fas fa-plus"></i> 新しい管理者を追加
+      </button>
     </div>
   </div>
 
-  <!-- 新しいユーザー追加モーダル -->
-  <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">新しいユーザーを追加</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-        </div>
-        <div class="modal-body">
-          <form id="addUserForm">
+  <!-- 管理者テーブル -->
+  <table class="table table-bordered" id="adminTable">
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>メールアドレス</th>
+        <th>所属企業</th>
+        <th>所属スクール</th>
+        <th>ロール</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="adminTbody"></tbody>
+  </table>
+</div>
+
+<!-- 編集モーダル -->
+<div class="modal fade" id="editAdminModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">管理者編集</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editAdminForm">
+          <div class="mb-3">
+            <label class="form-label">名前</label>
+            <input type="text" class="form-control" id="editAdminName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">メールアドレス</label>
+            <input type="email" class="form-control" id="editAdminEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">企業</label>
+            <select class="form-select" id="editAdminCompany"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">スクール</label>
+            <select class="form-select" id="editAdminSchool"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ロール</label>
+            <select class="form-select" id="editAdminRole" required>
+              <!-- 後でJSで日本語ラベルにするためのvalueだけを設定 -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <input type="checkbox" id="enablePasswordEdit">
+            <label for="enablePasswordEdit">パスワードを変更する</label>
+          </div>
+          <div id="editPasswordFields">
             <div class="mb-3">
-              <label class="form-label">名前</label>
-              <input type="text" class="form-control" id="newUserName" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">メールアドレス</label>
-              <input type="email" class="form-control" id="newUserEmail" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">所属企業</label>
-              <select class="form-select" id="newUserCompany" required></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">所属スクール</label>
-              <select class="form-select" id="newUserSchool" required></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">ロール</label>
-              <select class="form-select" id="newUserRole" required>
-                <option value="システム管理者">システム管理者</option>
-                <option value="企業管理者">企業管理者</option>
-                <option value="スクール管理者">スクール管理者</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">パスワード</label>
-              <input type="password" class="form-control" id="newUserPassword" placeholder="8文字以上" required>
+              <label class="form-label">新しいパスワード</label>
+              <input type="password" class="form-control" id="editNewPassword" placeholder="8文字以上" required>
             </div>
             <div class="mb-3">
               <label class="form-label">パスワード(確認)</label>
-              <input type="password" class="form-control" id="newUserConfirmPassword" placeholder="再入力" required>
-              <div class="form-text text-danger" id="addPasswordError">パスワードが一致しません</div>
+              <input type="password" class="form-control" id="editConfirmPassword" placeholder="再入力" required>
+              <div class="form-text text-danger" id="editPasswordError">パスワードが一致しません</div>
             </div>
-            <button type="submit" class="btn btn-primary" id="addSaveBtn">追加</button>
-          </form>
-        </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="editSaveBtn">保存</button>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // ダミーデータ
-    const companies = ["AlphaCorp","BetaCorp","GammaInc"];
-    const schools = ["名古屋校","東京校","大阪校","横浜校"];
-    const allUsers = [
-      {id: 1, name: "山田太郎", email: "taro@example.com", company: "AlphaCorp", school: "名古屋校", role: "システム管理者"},
-      {id: 2, name: "鈴木花子", email: "hanako@example.com", company: "BetaCorp", school: "東京校", role: "企業管理者"},
-    ];
+<!-- 新しい管理者追加モーダル -->
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新しい管理者を追加</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addAdminForm">
+          <div class="mb-3">
+            <label class="form-label">名前</label>
+            <input type="text" class="form-control" id="newAdminName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">メールアドレス</label>
+            <input type="email" class="form-control" id="newAdminEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">企業</label>
+            <select class="form-select" id="newAdminCompany"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">スクール</label>
+            <select class="form-select" id="newAdminSchool"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ロール</label>
+            <select class="form-select" id="newAdminRole" required>
+              <!-- 後でJSで読み込んでoptionを差し込む -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">パスワード</label>
+            <input type="password" class="form-control" id="newAdminPassword" placeholder="8文字以上" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">パスワード(確認)</label>
+            <input type="password" class="form-control" id="newAdminConfirmPassword" placeholder="再入力" required>
+            <div class="form-text text-danger" id="addPasswordError">パスワードが一致しません</div>
+          </div>
+          <button type="submit" class="btn btn-success" id="addSaveBtn">追加</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
-    const userTbody = document.getElementById("userTbody");
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ロール一覧（実際はvalue=内部ロール値, label=表示用日本語）
+  const roleOptions = [
+    { value: "systemAdmin",   label: "システム管理者" },
+    { value: "companyAdmin",  label: "企業管理者" },
+    { value: "schoolAdmin",   label: "スクール管理者" }
+  ];
 
-    function populateSelectOptions(selectElement, options) {
-      selectElement.innerHTML='';
-      options.forEach(opt=>{
-        const option=document.createElement('option');
-        option.value=opt;
-        option.textContent=opt;
-        selectElement.appendChild(option);
-      });
-    }
+  // ダミーデータ例
+  const allCompanies = [
+    "(システム管理者: 企業指定なし)",
+    "AlphaCorp",
+    "BetaInc",
+    "GammaSolutions"
+  ];
+  const allSchools = [
+    "(企業管理者: スクール指定なし)",
+    "名古屋校",
+    "東京校",
+    "大阪校"
+  ];
+  
+  // サンプル管理者データを増やしました
+  let allAdmins = [
+    {
+      id: 1,
+      name: "山田太郎",
+      email: "taro_sys@example.com",
+      company: "(システム管理者: 企業指定なし)",
+      school: "(企業管理者: スクール指定なし)",
+      role: "systemAdmin"
+    },
+    {
+      id: 2,
+      name: "鈴木花子",
+      email: "hanako_comp@example.com",
+      company: "AlphaCorp",
+      school: "(企業管理者: スクール指定なし)",
+      role: "companyAdmin"
+    },
+    {
+      id: 3,
+      name: "佐藤一郎",
+      email: "ichiro_sch@example.com",
+      company: "BetaInc",
+      school: "名古屋校",
+      role: "schoolAdmin"
+    },
+    {
+      id: 4,
+      name: "ジョン・ドウ",
+      email: "john.system@example.com",
+      company: "(システム管理者: 企業指定なし)",
+      school: "(企業管理者: スクール指定なし)",
+      role: "systemAdmin"
+    },
+    {
+      id: 5,
+      name: "陳 健",
+      email: "chen@betainc.jp",
+      company: "BetaInc",
+      school: "大阪校",
+      role: "schoolAdmin"
+    },
+  ];
 
-    document.addEventListener("DOMContentLoaded",()=>{
-      renderUserTable();
-      populateSelectOptions(document.getElementById("newUserCompany"),companies);
-      populateSelectOptions(document.getElementById("newUserSchool"),schools);
+  const adminTbody = document.getElementById("adminTbody");
+
+  // テーブル描画
+  function renderAdminTable() {
+    adminTbody.innerHTML = "";
+    // （現状はフィルタ未実装なので全件表示）
+    allAdmins.forEach(ad => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${ad.name}</td>
+        <td>${ad.email}</td>
+        <td>${ad.company||""}</td>
+        <td>${ad.school||""}</td>
+        <td>${convertRoleToLabel(ad.role)}</td>
+        <td>
+          <button class="btn btn-warning btn-sm me-1" data-id="${ad.id}" data-action="edit">編集</button>
+          <button class="btn btn-delete btn-sm" data-id="${ad.id}" data-action="delete">削除</button>
+        </td>
+      `;
+      adminTbody.appendChild(tr);
     });
+  }
 
-    function renderUserTable() {
-      userTbody.innerHTML = "";
-      // Filter省略:全表示
-      allUsers.forEach(user => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.company}</td>
-          <td>${user.school}</td>
-          <td>${user.role}</td>
-          <td>
-            <button class="btn btn-edit btn-sm me-1" data-id="${user.id}" data-action="edit">編集</button>
-            <button class="btn btn-delete btn-sm me-1" data-id="${user.id}" data-action="delete">削除</button>
-          </td>
-        `;
-        userTbody.appendChild(tr);
-      });
-    }
+  // ロール内部値を日本語表示に変換
+  function convertRoleToLabel(roleValue) {
+    const found = roleOptions.find(r=>r.value===roleValue);
+    return found ? found.label : roleValue;
+  }
 
-    // 編集・削除イベント
-    userTbody.addEventListener('click',e=>{
-      const btn=e.target.closest('button');
-      if(!btn)return;
-      const id=parseInt(btn.getAttribute('data-id'));
-      const action=btn.getAttribute('data-action');
-      const user = allUsers.find(u=>u.id===id);
-      if(action==="edit"){
-        openEditModal(user);
-      } else if(action==="delete"){
-        if(confirm(`${user.name}を削除しますか？`)){
-          // 削除処理
-          alert("削除しました");
-        }
+  function convertLabelToRole(roleLabel){
+    // 逆変換: label→value
+    const found = roleOptions.find(r=>r.label===roleLabel);
+    return found ? found.value : roleLabel;
+  }
+
+  // ページ初期表示
+  document.addEventListener("DOMContentLoaded",()=>{
+    renderAdminTable();
+
+    // 新規追加モーダルの企業・スクールセレクトにオプションを設定
+    populateSelectOptions(document.getElementById("newAdminCompany"), allCompanies);
+    populateSelectOptions(document.getElementById("newAdminSchool"), allSchools);
+    // ロールselect
+    populateRoleSelect(document.getElementById("newAdminRole"));
+
+    // 検索ダミー
+    document.getElementById("searchBtn").addEventListener("click",()=>{
+      alert("検索機能は未実装。");
+    });
+    document.getElementById("clearBtn").addEventListener("click",()=>{
+      document.getElementById("searchName").value='';
+      document.getElementById("searchEmail").value='';
+      renderAdminTable();
+    });
+  });
+
+  function populateSelectOptions(select, arr) {
+    select.innerHTML = "";
+    arr.forEach(opt=>{
+      const option = document.createElement("option");
+      option.value = opt;
+      option.textContent = opt;
+      select.appendChild(option);
+    });
+  }
+
+  function populateRoleSelect(select) {
+    select.innerHTML = "";
+    roleOptions.forEach(opt=>{
+      const option = document.createElement("option");
+      option.value = opt.value;       // "systemAdmin" etc
+      option.textContent = opt.label; // "システム管理者"等
+      select.appendChild(option);
+    });
+  }
+
+  // テーブル内ボタンクリック(編集/削除)
+  adminTbody.addEventListener("click", e=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const id = parseInt(btn.getAttribute("data-id"));
+    const action = btn.getAttribute("data-action");
+    const admin = allAdmins.find(a=>a.id===id);
+    if(action==="edit"){
+      openEditModal(admin);
+    } else if(action==="delete"){
+      if(confirm(`${admin.name} を削除しますか？`)){
+        // 実際にはAPI呼び出しで削除
+        allAdmins = allAdmins.filter(a=>a.id!==id);
+        renderAdminTable();
+        alert("削除しました。");
       }
-    });
-
-    function openEditModal(user){
-      const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
-      document.getElementById('editUserName').value=user.name;
-      document.getElementById('editUserEmail').value=user.email;
-      populateSelectOptions(document.getElementById("editUserCompany"),companies);
-      document.getElementById('editUserCompany').value=user.company;
-      populateSelectOptions(document.getElementById("editUserSchool"),schools);
-      document.getElementById('editUserSchool').value=user.school;
-      document.getElementById('editUserRole').value=user.role;
-      document.getElementById('enablePasswordEdit').checked=false;
-      document.getElementById('editPasswordFields').style.display='none';
-      document.getElementById('editPasswordError').style.display='none';
-      editModal.show();
     }
+  });
 
-    document.getElementById('enablePasswordEdit').addEventListener('change',function(){
-      const checked=this.checked;
-      document.getElementById('editPasswordFields').style.display=checked?'block':'none';
-      // リセット
-      document.getElementById('editNewPassword').value='';
-      document.getElementById('editConfirmPassword').value='';
-      document.getElementById('editPasswordError').style.display='none';
-    });
+  // 編集モーダルを開く
+  function openEditModal(admin){
+    const editModal = new bootstrap.Modal(document.getElementById('editAdminModal'));
 
-    document.getElementById('editUserForm').addEventListener('submit',function(e){
-      e.preventDefault();
-      const enablePw = document.getElementById('enablePasswordEdit').checked;
-      if(enablePw){
-        const np=document.getElementById('editNewPassword').value;
-        const cp=document.getElementById('editConfirmPassword').value;
-        if(np.length<8){
-          alert("パスワードは8文字以上にしてください");
-          return;
-        }
-        if(np!==cp){
-          document.getElementById('editPasswordError').style.display='block';
-          return;
-        }
-      }
-      alert("ユーザー情報を保存しました");
-      const modalEl = document.getElementById('editUserModal');
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-    });
+    document.getElementById("editAdminName").value  = admin.name;
+    document.getElementById("editAdminEmail").value = admin.email;
+    populateSelectOptions(document.getElementById("editAdminCompany"), allCompanies);
+    document.getElementById("editAdminCompany").value = admin.company;
+    populateSelectOptions(document.getElementById("editAdminSchool"), allSchools);
+    document.getElementById("editAdminSchool").value = admin.school;
 
-    // 新規追加ユーザー
-    document.getElementById('addUserForm').addEventListener('submit',function(e){
-      e.preventDefault();
-      const np=document.getElementById('newUserPassword').value;
-      const cp=document.getElementById('newUserConfirmPassword').value;
+    // ロールselectを再構築
+    populateRoleSelect(document.getElementById("editAdminRole"));
+    document.getElementById("editAdminRole").value = admin.role; 
+
+    document.getElementById("enablePasswordEdit").checked = false;
+    document.getElementById("editPasswordFields").style.display = 'none';
+    document.getElementById("editPasswordError").style.display = 'none';
+
+    editModal.show();
+  }
+
+  // 「パスワードを変更する」のチェックボックス
+  document.getElementById('enablePasswordEdit').addEventListener('change',function(){
+    const checked = this.checked;
+    document.getElementById('editPasswordFields').style.display = checked?'block':'none';
+    document.getElementById('editNewPassword').value='';
+    document.getElementById('editConfirmPassword').value='';
+    document.getElementById('editPasswordError').style.display='none';
+  });
+
+  // 編集フォームsubmit
+  document.getElementById("editAdminForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    const enablePw = document.getElementById('enablePasswordEdit').checked;
+    if(enablePw){
+      const np = document.getElementById('editNewPassword').value;
+      const cp = document.getElementById('editConfirmPassword').value;
       if(np.length<8){
         alert("パスワードは8文字以上にしてください");
         return;
       }
       if(np!==cp){
-        document.getElementById('addPasswordError').style.display='block';
+        document.getElementById('editPasswordError').style.display='block';
         return;
       }
-      alert("新規ユーザーを追加しました");
-      const modalEl=document.getElementById('addUserModal');
-      const modal=bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-      // 実際にはサーバーAPIにPOST後、allUsersにpushしてrenderUserTable();
-    });
+    }
+    // 実際にはAPI PUTなど
+    alert("管理者情報を更新しました。");
+    bootstrap.Modal.getInstance(document.getElementById('editAdminModal')).hide();
+    // テーブル更新も本来はAPIレスポンス後
+  });
 
-    document.getElementById('newUserConfirmPassword').addEventListener('input',function(){
-      const np=document.getElementById('newUserPassword').value;
-      const cp=this.value;
-      if(cp!==np){
-        document.getElementById('addPasswordError').style.display='block';
-      } else {
-        document.getElementById('addPasswordError').style.display='none';
-      }
-    });
+  // 新規追加モーダルが開くとき
+  const addAdminModalEl = document.getElementById("addAdminModal");
+  addAdminModalEl.addEventListener("show.bs.modal",()=>{
+    // フォームリセット
+    document.getElementById("newAdminName").value='';
+    document.getElementById("newAdminEmail").value='';
+    populateSelectOptions(document.getElementById("newAdminCompany"), allCompanies);
+    populateSelectOptions(document.getElementById("newAdminSchool"), allSchools);
+    populateRoleSelect(document.getElementById("newAdminRole"));
+    document.getElementById("newAdminRole").value='systemAdmin';
+    document.getElementById("newAdminPassword").value='';
+    document.getElementById("newAdminConfirmPassword").value='';
+    document.getElementById('addPasswordError').style.display='none';
+  });
 
-    document.getElementById('editConfirmPassword').addEventListener('input',function(){
-      const np=document.getElementById('editNewPassword').value;
-      const cp=this.value;
-      if(cp!==np){
-        document.getElementById('editPasswordError').style.display='block';
-      } else {
-        document.getElementById('editPasswordError').style.display='none';
-      }
-    });
+  // 新規追加submit
+  document.getElementById("addAdminForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    const name  = document.getElementById("newAdminName").value.trim();
+    const email = document.getElementById("newAdminEmail").value.trim();
+    const comp  = document.getElementById("newAdminCompany").value;
+    const sch   = document.getElementById("newAdminSchool").value;
+    const role  = document.getElementById("newAdminRole").value;
+    const pw    = document.getElementById("newAdminPassword").value;
+    const cpw   = document.getElementById("newAdminConfirmPassword").value;
 
-    // 検索・クリアボタンイベント（省略可）
-    document.getElementById('searchBtn').addEventListener('click',()=>{
-      alert("検索機能は未実装");
+    if(pw.length<8){
+      alert("パスワードは8文字以上にしてください");
+      return;
+    }
+    if(pw!==cpw){
+      document.getElementById('addPasswordError').style.display='block';
+      return;
+    }
+    // roleに応じた会社/スクール必須ロジックなどは省略（実際はAPIでバリデ）
+    const newId = allAdmins.length>0 ? (Math.max(...allAdmins.map(a=>a.id))+1) : 1;
+    allAdmins.push({
+      id: newId,
+      name, 
+      email,
+      company: comp,
+      school: sch,
+      role
     });
-    document.getElementById('clearBtn').addEventListener('click',()=>{
-      document.getElementById('searchName').value='';
-      document.getElementById('searchEmail').value='';
-      renderUserTable();
-    });
+    renderAdminTable();
 
-  </script>
+    alert("新しい管理者を追加しました。");
+    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
+  });
+
+  // 簡易検索（ダミー）
+  document.getElementById("searchBtn").addEventListener("click",()=>{
+    alert("検索機能は未実装。");
+  });
+  document.getElementById("clearBtn").addEventListener("click",()=>{
+    document.getElementById("searchName").value='';
+    document.getElementById("searchEmail").value='';
+    renderAdminTable();
+  });
+</script>
 </body>
 </html>

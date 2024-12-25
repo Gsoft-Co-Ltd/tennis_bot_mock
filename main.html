@@ -88,7 +88,6 @@
   }
 
   .sidebar {
-    /* 本来はwidthをトグルで変えていたが、折りたたみ機能削除により固定 */
     width:210px;
     background-color: #3a506b;
     padding-top: 20px;
@@ -163,16 +162,6 @@
     margin-right: 20px;
   }
 
-  /* ---以下、ヘッダー＆サイドバーの折りたたみ機能関連CSSを削除しました---
-  .collapsed-header {...}
-  .collapsed-sidebar {...}
-  などを削除
-  -------------------------------------------------------- */
-
-  /* ヘッダー折り畳みボタンも削除したため、以下も削除
-  .toggle-header-btn {...}
-  .toggle-sidebar-btn {...}
-  */
 </style>
 </head>
 <body>
@@ -191,6 +180,10 @@
       </select>
     </div>
     <div class="user-actions">
+      <!-- 権限表示を追加（固定: システム管理者） -->
+      <span class="text-warning me-3 fw-bold" style="white-space:nowrap;">
+        [現在の権限: システム管理者]
+      </span>
       <span class="user-name me-2">山田太郎</span>
       <button class="btn btn-outline-light me-2">
         <a
@@ -206,7 +199,6 @@
         <i class="bi bi-box-arrow-right"></i> ログアウト
       </button>
     </div>
-    <!-- 折りたたみボタン(toggleHeaderBtn)は削除済み -->
   </header>
 
   <!-- ログアウト確認モーダル -->
@@ -424,7 +416,6 @@
           </div>
         </div>
       </div>
-      <!-- サイドバー下部に折りたたみボタン(toggleSidebarBtn)は削除済み -->
     </nav>
 
     <!-- コンテンツエリア -->
@@ -470,6 +461,7 @@
   </div>
 
   <script>
+    // ロゴクリックでメインフレームを「school_schedule.html」に戻す
     document
       .querySelector(".navbar-brand")
       .addEventListener("click", function (event) {
@@ -477,6 +469,7 @@
         document.getElementById("mainFrame").src = "./school_management/school_schedule.html";
       });
 
+    // サイドバー各リンク
     document.querySelectorAll(".sidebar-link").forEach((link) => {
       link.addEventListener("click", function (event) {
         event.preventDefault();
@@ -487,6 +480,7 @@
       });
     });
 
+    // ログアウトボタン
     document.getElementById("logout").addEventListener("click", function () {
       const modal = new bootstrap.Modal(
         document.getElementById("logoutConfirmationModal")
@@ -494,19 +488,20 @@
       modal.show();
     });
 
+    // ログアウト実行
     document
       .getElementById("confirmLogout")
       .addEventListener("click", function () {
         window.location.href = "login.html";
       });
 
+    // iframe連動（例: student_list.html から postMessage でnavigate）
     window.addEventListener("message", function (event) {
       if (event.data && event.data.type === "navigate") {
         const targetUrl = event.data.url;
         document.getElementById("mainFrame").src = targetUrl;
       }
     });
-
   </script>
 
 </body>
