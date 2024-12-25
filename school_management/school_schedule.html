@@ -12,7 +12,7 @@
   --border-color: #e2e8f0;
   --text-color: #334155;
   --hour-height: 60px; 
-  --total-height: 750px; /* 9:00～21:30までの高さ */
+  --total-height: 750px; /* 9:00～21:30 */
   --time-col-width: 60px;
   --timeslot-col-width: 120px;
   --court-width: 100px;
@@ -34,14 +34,40 @@ body {
   overflow-x:hidden; /* 横スクロールバー非表示 */
 }
 
-.controls {
-  display:flex; 
-  gap:12px; 
-  margin:20px; 
-  align-items:center;
+/* カード風レイアウト用（ヘッダー不要のため削除） */
+.card {
+  background:#fff;
+  border:1px solid var(--border-color);
+  border-radius:8px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  margin-left:20px; /* 左に揃える */
+  margin-top:20px;
+  max-width:600px;
+  padding:10px 20px; /* card内の余白 */
 }
 
-button {
+/* 企業・スクール選択ボックス */
+.select-group {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-start; /* 左に寄せる */
+  text-align:left;
+  width:100%;
+}
+.select-group label {
+  font-weight:600;
+}
+.select-group select {
+  padding:6px 12px;
+  border:1px solid var(--border-color);
+  border-radius:6px;
+  font-size:14px;
+  background:white;
+  max-width:150px;
+}
+.select-group button {
   background-color: var(--primary-blue);
   color:white; 
   border:none; 
@@ -51,27 +77,52 @@ button {
   cursor:pointer; 
   transition:opacity 0.2s;
 }
-button:hover {
+.select-group button:hover {
   opacity:0.9;
 }
 
-select {
-  padding:8px 12px;
+/* 「今日の予定」「週の予定」「曜日フィルタ」ボックス */
+.switch-group {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-start; /* 左寄せ */
+  text-align:left;
+  width:100%;
+}
+.switch-group button {
+  background-color: var(--primary-blue);
+  color:white; 
+  border:none; 
+  padding:8px 16px; 
+  border-radius:6px;
+  font-size:14px; 
+  cursor:pointer; 
+  transition:opacity 0.2s;
+}
+.switch-group button:hover {
+  opacity:0.9;
+}
+.switch-group select {
+  padding:6px 12px;
   border:1px solid var(--border-color);
   border-radius:6px;
   font-size:14px;
   background:white;
 }
 
-/* 週表示用コンテナ（従来の週表示） */
+/* 週表示用コンテナ */
 .main-container {
   position: relative;
   width: 2280px; 
   height: calc(var(--total-height) + 82px);
-  margin:20px auto;
+  margin:20px auto; /* 週スケジュール本体は中央 */
   border:1px solid var(--border-color);
   overflow:hidden;
 }
+
+/* 時間線 */
 .hour-line {
   position:absolute; 
   left:0; right:0; 
@@ -99,6 +150,8 @@ select {
   box-sizing:border-box;
   z-index:1;
 }
+
+/* 曜日ヘッダ＆コート */
 .day-header {
   position:absolute; 
   top:0; 
@@ -135,6 +188,7 @@ select {
   z-index:1;
 }
 
+/* レッスン */
 .lesson {
   position:absolute; 
   left:4px; right:4px; 
@@ -150,8 +204,8 @@ select {
   transition:transform 0.2s;
 }
 .lesson.beginner { background:#3498db; }
-.lesson.intermediate {background:#2ecc71;}
-.lesson.advanced {background:#9b59b6;}
+.lesson.intermediate { background:#2ecc71; }
+.lesson.advanced { background:#9b59b6; }
 .lesson-title {font-weight:500; margin-bottom:2px;}
 .lesson-info {font-size:11px; opacity:0.9;}
 
@@ -222,11 +276,10 @@ select {
   border-radius:8px; 
   background:#fff;
   position:relative;
-  width:1000px; /* 広めにとる */
+  width:1000px; 
   height:300px; 
-  overflow:hidden; /* 横スクロールさせない */
+  overflow:hidden; 
   box-shadow:0 2px 4px rgba(0,0,0,0.1);
-  position:relative;
 }
 
 .day-schedule-title {
@@ -297,7 +350,6 @@ select {
   z-index:1;
 }
 
-/* レッスン */
 .day-lesson {
   position:absolute;
   border-radius:4px; 
@@ -313,27 +365,53 @@ select {
 .day-lesson.intermediate {background:#2ecc71;}
 .day-lesson.advanced {background:#9b59b6;}
 .day-lesson:hover {opacity:0.9;}
-
 </style>
 </head>
 <body>
-<div class="controls">
-  <button id="today-button">今日の予定</button>
-  <button id="week-button">一週間の予定</button>
-  <select id="filter-day">
-    <option value="all">全ての曜日</option>
-    <option value="月曜日">月曜日</option>
-    <option value="火曜日">火曜日</option>
-    <option value="水曜日">水曜日</option>
-    <option value="木曜日">木曜日</option>
-    <option value="金曜日">金曜日</option>
-    <option value="土曜日">土曜日</option>
-    <option value="日曜日">日曜日</option>
-  </select>
+
+<!-- 企業・スクール選択 (ヘッダー不要) -->
+<div class="card">
+  <div class="select-group">
+    <label for="companySelect">企業:</label>
+    <select id="companySelect">
+      <option value="companyA" selected>株式会社A</option>
+      <option value="companyB">株式会社B</option>
+      <option value="companyC">株式会社C</option>
+    </select>
+
+    <label for="schoolSelect">スクール:</label>
+    <select id="schoolSelect">
+      <option value="schoolX" selected>東京スクール</option>
+      <option value="schoolY">大阪スクール</option>
+      <option value="schoolZ">福岡スクール</option>
+    </select>
+
+    <button id="selectButton">選択</button>
+  </div>
 </div>
 
+<!-- スケジュール切り替え (ヘッダー不要) -->
+<div class="card">
+  <div class="switch-group">
+    <button id="today-button">今日の予定</button>
+    <button id="week-button">一週間の予定</button>
+    <select id="filter-day">
+      <option value="all">全ての曜日</option>
+      <option value="月曜日">月曜日</option>
+      <option value="火曜日">火曜日</option>
+      <option value="水曜日">水曜日</option>
+      <option value="木曜日">木曜日</option>
+      <option value="金曜日">金曜日</option>
+      <option value="土曜日">土曜日</option>
+      <option value="日曜日">日曜日</option>
+    </select>
+  </div>
+</div>
+
+<!-- 週表示 -->
 <div class="main-container" id="main-container"></div>
 
+<!-- 日表示 -->
 <div id="day-schedule-container">
   <div class="day-schedule-title" id="day-schedule-title"></div>
   <table class="day-schedule-table" id="day-schedule-table"></table>
@@ -342,6 +420,7 @@ select {
   <div class="day-schedule-content" id="day-schedule-content"></div>
 </div>
 
+<!-- ポップアップ -->
 <div class="overlay" id="overlay"></div>
 <div class="popup" id="popup">
   <h2>受講者一覧 <span id="participant-count"></span></h2>
@@ -371,6 +450,7 @@ const courts = ["コートA","コートB","コートC"];
 const levels=["beginner","intermediate","advanced"];
 const coaches=["田中","佐藤","鈴木","山田","加藤","渡辺","高橋","松本","伊藤","中村","橋本","清水","林","斎藤","森田","原田","川島","石井","木村","山本"];
 
+/* ダミーデータ生成 */
 function randomParticipants(count,cap){
   const names=["田中","佐藤","鈴木","高橋","伊藤","渡辺","中村","小林","加藤","山本","松本","清水","木村","林","斎藤","山崎","原田","森田","桜井","相川","橋本","内田","石井","川島","藤田","島田","中村優子","加藤太一","山口美紀","松本麗子"];
   const parts=[];
@@ -384,6 +464,7 @@ function randomParticipants(count,cap){
   return parts;
 }
 
+// 全曜日×コート×タイムスロット
 const lessons=[];
 days.forEach(day=>{
   timeslots.forEach(ts=>{
@@ -407,6 +488,7 @@ days.forEach(day=>{
   });
 });
 
+/* レベル→日本語 */
 function levelToText(l){
   const map={beginner:"初級",intermediate:"中級",advanced:"上級"};
   return map[l]||l;
@@ -424,6 +506,7 @@ function timeToX(time){
   return (H-9)*60+M; 
 }
 
+/* ポップアップ */
 function showPopup(lesson){
   const popup=document.getElementById("popup");
   const overlay=document.getElementById("overlay");
@@ -486,6 +569,7 @@ function closePopup(){
   if(overlay) overlay.style.display='none';
 }
 
+/* 週表示スケジュール */
 function generateWeekSchedule(){
   const container=document.getElementById('main-container');
   const dayContainer=document.getElementById('day-schedule-container');
@@ -553,20 +637,18 @@ function generateWeekSchedule(){
     });
   });
 }
+
+/* 日表示 */
 function getDateForDay(day) {
   const today = new Date();
   const weekday = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
   const todayIndex = today.getDay();
   const targetIndex = weekday.indexOf(day);
-
-  // 日付のズレを計算
   const diff = targetIndex - todayIndex;
   const targetDate = new Date(today);
-  targetDate.setDate(today.getDate() + diff); // ズレを日付に反映
-
-  return targetDate; // 調整後の日付オブジェクトを返す
+  targetDate.setDate(today.getDate() + diff);
+  return targetDate;
 }
-
 
 function generateDaySchedule(day) {
   const container = document.getElementById('main-container');
@@ -582,11 +664,9 @@ function generateDaySchedule(day) {
   container.style.display = 'none';
   dayContainer.style.display = 'block';
 
-  // 選択された曜日の日付を取得
   const targetDate = getDateForDay(day);
   const formattedDate = `${targetDate.getMonth() + 1}月${targetDate.getDate()}日(${day})`;
 
-  // タイトルを更新
   dayTitle.textContent = `${formattedDate}のスケジュール`;
 
   dayTable.innerHTML='';
@@ -594,17 +674,15 @@ function generateDaySchedule(day) {
   courtList.innerHTML='';
   content.innerHTML='';
 
-  // Court and time axis adjustments
   const courtHeight=60;
   const startTime=9; 
-  const endTime=21.5; //21:30
-  const totalMin = (21*60+30)-(9*60); // 9:00 to 21:30 => 12.5h=750min
-  const contentWidth=totalMin; //1min=1px
+  const endTime=21.5; 
+  const totalMin = (21*60+30)-(9*60);
+  const contentWidth=totalMin; 
   const contentHeight=courts.length*courtHeight;
   content.style.width=contentWidth+'px';
   content.style.height=contentHeight+'px';
 
-  // Populate courts
   courts.forEach((c)=>{
     const cItem=document.createElement('div');
     cItem.className='court-item';
@@ -612,7 +690,6 @@ function generateDaySchedule(day) {
     courtList.appendChild(cItem);
   });
 
-  // Create hour lines (vertical lines) and time labels
   for(let h=9; h<=21; h++){
     const x=timeToX(`${h}:00`);
     const label=document.createElement('div');
@@ -637,7 +714,6 @@ function generateDaySchedule(day) {
     dayContainer.appendChild(vline);
   }
 
-  // Add vertical line for 21:30 if needed
   {
     const x=timeToX("21:30");
     const vline=document.createElement('div');
@@ -674,29 +750,28 @@ function generateDaySchedule(day) {
 
     const lessonDiv=document.createElement('div');
     lessonDiv.className='day-lesson '+les.level;
-    lessonDiv.style.left=(startX+100)+'px'; 
-    lessonDiv.style.top=(70+topY)+'px'; 
+    lessonDiv.style.left=(startX+100)+'px';
+    lessonDiv.style.top=(70+topY)+'px';
     lessonDiv.style.width=(width-4)+'px';
     lessonDiv.style.height=(courtHeight-4)+'px';
     lessonDiv.style.position='absolute';
     lessonDiv.style.background=levelColor(les.level);
     lessonDiv.style.zIndex='10';
 
-    // コーチ名と時間も表示
     lessonDiv.innerHTML=`
       ${levelToText(les.level)}<br>
       ${les.coach}コーチ<br>
       ${les.startTime}-${les.endTime}
     `;
-
     lessonDiv.onclick=()=>showPopup(les);
     dayContainer.appendChild(lessonDiv);
   });
 }
 
+/* 時間線 */
 function generateHourLines(container){
   for(let h=9;h<=21;h++){
-    const top=(h-9)*60; 
+    const top=(h-9)*60;
     const line=document.createElement('div');
     line.className='hour-line';
     line.style.position='absolute';
@@ -745,7 +820,7 @@ function generateTimeslotBlocks(container){
 }
 
 function generateDayBoundaries(container){
-  const dayWidth=300; 
+  const dayWidth=300;
   const baseX=180;
   for(let d=1; d<days.length; d++){
     const lineX=baseX+(d*dayWidth);
@@ -765,26 +840,36 @@ function calculateHeight(startTime, endTime) {
   const [endHour, endMinute] = endTime.split(":").map(Number);
   const startTotalMinutes = startHour * 60 + startMinute;
   const endTotalMinutes = endHour * 60 + endMinute;
-  return endTotalMinutes - startTotalMinutes; // 高さを分単位で計算
+  return endTotalMinutes - startTotalMinutes;
 }
-
-
 function calculateTop(time){
   const [h,m]=time.split(":").map(Number);
   return (h-9)*60+m;
 }
 
+// 企業スクール選択
+document.getElementById("selectButton").addEventListener("click",()=>{
+  const companyVal=document.getElementById("companySelect").value;
+  const schoolVal=document.getElementById("schoolSelect").value;
+  if(!companyVal || !schoolVal){
+    alert("企業とスクールを選んでください。");
+    return;
+  }
+  alert(`企業: ${companyVal}\nスクール: ${schoolVal}\nが選択されました(モック)。`);
+});
+
+// 今日・週 ボタン
 document.getElementById("today-button").addEventListener("click",()=>{
   const today=getTodayName();
   document.getElementById("filter-day").value=today;
   generateDaySchedule(today);
 });
-
 document.getElementById("week-button").addEventListener("click",()=>{
   document.getElementById("filter-day").value="all";
   generateWeekSchedule();
 });
 
+// 曜日フィルタ
 document.getElementById("filter-day").addEventListener("change",function(){
   const value=this.value;
   if(value==="all"){
@@ -794,8 +879,10 @@ document.getElementById("filter-day").addEventListener("change",function(){
   }
 });
 
+// ポップアップ閉じる
 document.getElementById("overlay").addEventListener("click",closePopup);
 
+// 初期ロード
 document.addEventListener("DOMContentLoaded",()=>{
   const today=getTodayName();
   document.getElementById("filter-day").value=today;
