@@ -34,14 +34,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       background:#fff;
     }
-    .card-header {
-      background-color:#007bff;
-      color:#fff;
-      font-size:1rem;
-      font-weight:bold;
-      border-radius:8px 8px 0 0;
-      padding:5px 7px;
-    }
     .card-body {
       padding:15px;
     }
@@ -117,12 +109,70 @@
       font-weight:bold;
       color:#333;
     }
+
+    .form-inline-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-inline-container .form-label {
+      margin: 0;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .form-inline-container .form-select {
+      max-width: 150px;
+      font-size: 0.9rem;
+    }
+    .form-inline-container .btn {
+      font-size: 0.9rem;
+      padding: 6px 12px; /* ボタンの高さを調整 */
+    }
+    .select-card {
+      max-width: 500px;
+    }
+
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h2 class="mb-4">テニススクール生一覧</h2>
+    <h3 class="mb-4">テニススクール生一覧</h3>
+
+    <!-- ▼▼▼ 企業・スクール選択（ヘッダーなし） ▼▼▼ -->
+    <div class="card mb-3 select-card">
+      <div class="card-body">
+        <div class="row align-items-center gx-2">
+          <!-- 企業選択 -->
+          <div class="col-auto">
+            <div class="form-inline-container">
+              <label for="companySelect" class="form-label">企業</label>
+              <select id="companySelect" class="form-select form-select-sm">
+                <option value="companyA" selected>株式会社A</option>
+                <option value="companyB">株式会社B</option>
+                <option value="companyC">株式会社C</option>
+              </select>
+            </div>
+          </div>
+          <!-- スクール選択 -->
+          <div class="col-auto">
+            <div class="form-inline-container">
+              <label for="schoolSelect" class="form-label">スクール</label>
+              <select id="schoolSelect" class="form-select form-select-sm">
+                <option value="schoolX" selected>東京スクール</option>
+                <option value="schoolY">大阪スクール</option>
+                <option value="schoolZ">福岡スクール</option>
+              </select>
+            </div>
+          </div>
+          <!-- 選択ボタン -->
+          <div class="col-auto">
+            <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ここまで企業・スクール選択 -->
 
     <!-- 検索・フィルタ BOX -->
     <div class="card">
@@ -164,15 +214,17 @@
         </div>
       </div>
     </div>
-        <!-- 同時表示件数 -->
-        <div class="d-flex align-items-center">
-          <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
-          <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
-            <option value="20" selected>20</option>
-            <option value="30">30</option>
-            <option value="50">50</option>
-          </select>
-        </div>
+
+    <!-- 同時表示件数 -->
+    <div class="d-flex align-items-center mb-3">
+      <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
+      <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
+        <option value="20" selected>20</option>
+        <option value="30">30</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+
     <!-- スクール生一覧テーブル -->
     <div class="card">
       <div class="card-header">スクール生一覧</div>
@@ -599,6 +651,18 @@
       alert("新しい会員を追加しました。");
       updateTable();
     }
+
+    // 「企業・スクール」選択ボタン
+    document.getElementById("selectButton").addEventListener("click", () => {
+      const companyValue = document.getElementById("companySelect").value;
+      const schoolValue  = document.getElementById("schoolSelect").value;
+
+      if (!companyValue || !schoolValue) {
+        alert("企業とスクールを選んでください。");
+        return;
+      }
+      alert(`企業: ${companyValue}\nスクール: ${schoolValue}\nが選択されました(モック)。`);
+    });
 
     window.onload = () => {
       updateTable();
