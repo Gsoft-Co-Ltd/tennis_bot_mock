@@ -264,7 +264,7 @@
           <th scope="col">請求日 <i class="fas fa-sort sort-icon"></i></th>
           <th scope="col">支払い状況 <i class="fas fa-sort sort-icon"></i></th>
           <th scope="col">決済方法 <i class="fas fa-sort sort-icon"></i></th>
-          <th scope="col">カテゴリ <i class="fas fa-sort sort-icon"></i></th>
+          <th scope="col">請求内容 <i class="fas fa-sort sort-icon"></i></th>
           <th scope="col">操作</th>
         </tr>
       </thead>
@@ -396,15 +396,8 @@
               />
             </div>
             <div class="mb-3">
-              <label for="category" class="form-label">カテゴリ</label>
-              <select id="category" class="form-select" required>
-                <option value="" selected disabled>
-                  カテゴリを選択してください
-                </option>
-                <option value="レッスン費">レッスン費</option>
-                <option value="ラケット費">ラケット費</option>
-                <option value="用品費">用品費</option>
-              </select>
+              <label for="category" class="form-label">請求内容</label>
+              <input type="text" class="form-control"/>
             </div>
             <div class="mb-3">
               <label for="paymentStatus" class="form-label">支払い状況</label>
