@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ポップアップ確認デバッグ</title>
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- ここから追加 -->
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin:0;
+      padding:20px;
+    }
+    h1 {
+      color: #007bff;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .demo-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    /* 境界線を消す */
+    .modal-content .modal-header {
+      border-bottom: none !important; /* 下線を消す */
+    }
+    .modal-content .modal-footer {
+      border-top: none !important;    /* 上線を消す */
+    }
+  </style>
+  <!-- ここまで追加 -->
+</head>
+<body>
+  <div class="container my-4">
+    <h1>ポップアップ（モーダル）デバッグ</h1>
+
+    <!-- デモ用ボタン群 -->
+    <div class="demo-buttons">
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
+        確認ポップアップを表示
+      </button>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#successModal">
+        成功ポップアップを表示
+      </button>
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#errorModal">
+        エラーポップアップを表示
+      </button>
+    </div>
+
+    <!-- 確認ポップアップ Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <!-- ヘッダー -->
+          <div class="modal-header">
+            <h5 class="modal-title text-primary"><i class="bi bi-question-circle"></i> 確認</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <!-- 本文 -->
+          <div class="modal-body">
+            本当にこの操作を実行しますか？
+          </div>
+          <!-- フッター -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">はい</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 成功ポップアップ Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <!-- ヘッダー -->
+          <div class="modal-header">
+            <h5 class="modal-title text-success"><i class="bi bi-check-circle"></i> 成功</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <!-- 本文 -->
+          <div class="modal-body">
+            操作が正常に完了しました！
+          </div>
+          <!-- フッター -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- エラーポップアップ Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <!-- ヘッダー -->
+          <div class="modal-header">
+            <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle"></i> エラー</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <!-- 本文 -->
+          <div class="modal-body">
+            エラーが発生しました。再度お試しください。
+          </div>
+          <!-- フッター -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- container -->
+
+  <!-- Bootstrap JS + (optional) Bootstrap Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap Icons (for the icons used in modal titles) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+</body>
+</html>

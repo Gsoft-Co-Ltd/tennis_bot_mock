@@ -1,12 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=login.html">
-    <title>Redirecting...</title>
+    <title>インデックスページ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .links {
+            list-style-type: none;
+            padding: 0;
+        }
+        .links li {
+            margin: 10px 0;
+        }
+        .links a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 18px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to login...</p>
+    <h1>インデックスページ</h1>
+    <ul class="links">
+        <li><a href="main.html">管理者トップ</a></li>
+        <li><a href="student_rich_menu.html">生徒リッチメニュー</a></li>
+        <li><a href="student_pages/registration/1member_info.html">会員登録</a></li>
+        <li><a href="popup_debug.html">ポップアップデバッグ</a></li>
+    </ul>
 </body>
 </html>
