@@ -106,15 +106,13 @@
   </div>
 
   <!-- ▼ レッスン一覧テーブル ▼ -->
-  <h6 class="section-title mt-4">レッスン一覧</h6>
+  <h6 class="section-title mt-4">現在の予約レッスン一覧</h6>
   <table class="table table-bordered table-sm" id="lessonTable">
     <thead>
       <tr>
         <th>日付</th>
         <th>時間</th>
         <th>クラス/レッスン名</th>
-        <th>コーチ</th>
-        <th>コート</th>
         <th>状態</th>
         <th>操作</th>
       </tr>
@@ -125,8 +123,6 @@
         <td>2024-11-28</td>
         <td>09:00-10:30</td>
         <td>基礎クラス</td>
-        <td>田中コーチ</td>
-        <td>Aコート</td>
         <td>
           <span class="status-reserved">予約</span>
         </td>
@@ -138,8 +134,6 @@
         <td>2024-12-15</td>
         <td>16:00-17:30</td>
         <td>特別レッスン（バックハンド強化）</td>
-        <td>鈴木コーチ</td>
-        <td>Bコート</td>
         <td>
           <span class="status-reschedule">振替</span>
         </td>
@@ -151,8 +145,6 @@
         <td>2024-12-18</td>
         <td>14:00-15:30</td>
         <td>初心者クラス</td>
-        <td>高橋コーチ</td>
-        <td>Cコート</td>
         <td>
           <span class="status-absent">欠席</span>
         </td>
@@ -164,8 +156,6 @@
         <td>2025-01-05</td>
         <td>10:00-11:30</td>
         <td>上級クラス</td>
-        <td>伊藤コーチ</td>
-        <td>Dコート</td>
         <td>
           <span class="status-reserved">予約</span>
         </td>
@@ -177,31 +167,25 @@
   </table>
 
   <!-- ▼ 振替チケット一覧テーブル ▼ -->
-  <h6 class="section-title mt-4">振替チケット一覧</h6>
+  <h6 class="section-title mt-4">振替一覧</h6>
   <table class="table table-bordered table-sm" id="ticketTable">
     <thead>
       <tr>
-        <th>チケットID</th>
         <th>発生元</th>
-        <th>発生日</th>
         <th>有効期限</th>
         <th>操作</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>TCKT-0001</td>
-        <td>2024-11-20欠席分</td>
-        <td>2024-11-20</td>
+        <td>2024年11月20日（月）/14：00‐15：00/中級        </td>
         <td>2025-02-20</td>
         <td>
           <button class="btn btn-sm btn-danger deleteTicketBtn">削除</button>
         </td>
       </tr>
       <tr>
-        <td>TCKT-0002</td>
-        <td>2024-12-05欠席分</td>
-        <td>2024-12-05</td>
+        <td>2024年11月26日（日）/15：00‐16：00/中級        </td>
         <td>2025-03-05</td>
         <td>
           <button class="btn btn-sm btn-danger deleteTicketBtn">削除</button>
