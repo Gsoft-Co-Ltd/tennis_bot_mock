@@ -10,6 +10,8 @@
     body {
       background-color: #f5f7fa;
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     .container {
@@ -37,7 +39,7 @@
 
     h1 {
       font-size: 20px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     p {
@@ -45,7 +47,13 @@
       margin-bottom: 20px;
     }
 
-    .swiper-container {
+    .instructions {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .swiper {
       width: 100%;
       height: auto;
     }
@@ -56,14 +64,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 10px 0;
-    }
-
-    .token-display {
-      font-size: 12px;
-      word-break: break-all;
-      margin-top: 10px;
-      color: #555;
+      padding: 20px;
     }
 
     .buttons {
@@ -82,27 +83,25 @@
       <img src="../resource/tennis_icon.svg" alt="Tennis Logo"> Tennis BoT
     </div>
     <h1>チェックイン</h1>
-    <p>バーコードをスキャナにかざしてください。<br>チェックインはレッスン開始の30分前から可能です。</p>
+    <p>バーコードをスキャナにかざしてください。</p>
+    <p class="instructions">スワイプして家族会員のQRコードを切り替えることができます。</p>
 
-    <div class="swiper-container">
+    <div class="swiper">
       <div class="swiper-wrapper">
         <!-- スライド1 -->
         <div class="swiper-slide">
           <p>会員: 山田一郎 (ID:GS003)</p>
           <canvas id="qrCanvas1"></canvas>
-          <div class="token-display" id="tokenText1"></div>
         </div>
         <!-- スライド2 -->
         <div class="swiper-slide">
           <p>会員: 山田花子 (ID:GS004)</p>
           <canvas id="qrCanvas2"></canvas>
-          <div class="token-display" id="tokenText2"></div>
         </div>
         <!-- スライド3 -->
         <div class="swiper-slide">
           <p>会員: 山田次郎 (ID:GS005)</p>
           <canvas id="qrCanvas3"></canvas>
-          <div class="token-display" id="tokenText3"></div>
         </div>
       </div>
       <!-- ページネーション -->
@@ -131,7 +130,6 @@
     const token3 = generateToken();
 
     // QRコード生成
-    // QRCode.toCanvas(canvas, text, options)
     QRCode.toCanvas(document.getElementById('qrCanvas1'), token1, {width:200}, function (error) {
       if (error) console.error(error);
     });
@@ -142,7 +140,7 @@
       if (error) console.error(error);
     });
 
-    const swiper = new Swiper('.swiper-container', {
+    const swiper = new Swiper('.swiper', {
       loop: false,
       pagination: {
         el: '.swiper-pagination',
