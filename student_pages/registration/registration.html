@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>会員登録（マルチステップ・モック）</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 10px 15px 70px 15px;
+      background-color: #fff;
+      min-height: 100vh;
+    }
+
+    .logo {
+      text-align: center;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+    .logo img {
+      width: 30px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #007bff;
+    }
+
+    .step-description {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    /* ステップ切り替え用 */
+    .step-page {
+      display: none;
+    }
+    .step-page.active {
+      display: block;
+    }
+
+    .form-check-label,
+    .form-label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .btn-area {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    .btn-area .btn {
+      flex: 1;
+    }
+
+    .divider {
+      margin: 10px 0;
+      border-top: 1px solid #ccc;
+    }
+
+    /* スクロール領域確保 */
+    .scroll-area {
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      background-color: #fafafa;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* カード風 */
+    .info-card {
+      padding: 12px;
+      background-color: #f9f9f9;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .info-card strong {
+      color: #333;
+    }
+
+    /* メモ書き等 */
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* エラーメッセージの赤文字 */
+    .error-message {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* レスポンシブ調整 */
+    @media(max-width: 400px){
+      .btn-area {
+        flex-direction: column;
+      }
+      .btn-area .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <img src="../../resource/tennis_icon.svg" alt="Tennis Logo">
+    Tennis BoT
+  </div>
+
+  <!-- ステップ1：会員登録 -->
+  <div id="step1" class="step-page active">
+    <div class="section-title">会員登録</div>
+
+    <div class="mb-3">
+      <label class="form-label">種別 <span class="text-danger">*</span></label>
+      <div class="d-flex flex-row">
+        <div class="form-check me-3">
+          <input
+            class="form-check-input"
+            type="radio"
+            id="generalMember"
+            name="memberType"
+            value="general"
+          />
+          <label class="form-check-label" for="generalMember">一般</label>
+        </div>
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            id="kidJuniorMember"
+            name="memberType"
+            value="kidJunior"
+          />
+          <label class="form-check-label" for="kidJuniorMember">キッズ・ジュニア</label>
+        </div>
+      </div>
+      <div id="memberTypeError" class="error-message"></div>
+    </div>
+      
+    <div class="mb-3">
+      <label for="lastName" class="form-label">姓 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="lastName" placeholder="例：山田" />
+      <div id="lastNameError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="firstName" class="form-label">名 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="firstName" placeholder="例：太郎" />
+      <div id="firstNameError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="lastNameKana" class="form-label">姓（フリガナ） <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="lastNameKana"
+        placeholder="例：ヤマダ"
+      />
+      <div id="lastNameKanaError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="firstNameKana" class="form-label">名（フリガナ） <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="firstNameKana"
+        placeholder="例：タロウ"
+      />
+      <div id="firstNameKanaError" class="error-message"></div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">性別 <span class="text-danger">*</span></label>
+      <div class="d-flex flex-row">
+        <div class="form-check me-3">
+          <input
+            type="radio"
+            class="form-check-input"
+            name="genderRadio"
+            id="genderMale"
+            value="male"
+          />
+          <label for="genderMale" class="form-check-label">男性</label>
+        </div>
+        <div class="form-check me-3">
+          <input
+            type="radio"
+            class="form-check-input"
+            name="genderRadio"
+            id="genderFemale"
+            value="female"
+          />
+          <label for="genderFemale" class="form-check-label">女性</label>
+        </div>
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            name="genderRadio"
+            id="genderOther"
+            value="other"
+          />
+          <label for="genderOther" class="form-check-label">その他</label>
+        </div>
+      </div>
+      <div id="genderError" class="error-message"></div>
+    </div>      
+
+    <div class="mb-3">
+      <label for="postalCode" class="form-label">郵便番号 <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="postalCode"
+        placeholder="例：123-4567"
+        onblur="fetchAddress()"
+      />
+      <div id="postalCodeError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="address" class="form-label">住所 <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="address"
+        placeholder="例：東京都渋谷区1-2-3"
+      />
+      <div id="addressError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="address2" class="form-label">住所（マンション名など）</label>
+      <input
+        type="text"
+        class="form-control"
+        id="address2"
+        placeholder="建物名・部屋番号など"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="phone" class="form-label">電話番号（携帯番号） <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="phone"
+        placeholder="例：090-1234-5678"
+      />
+      <div id="phoneError" class="error-message"></div>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-secondary" onclick="cancelRegistration()">キャンセル</button>
+      <button class="btn btn-primary" onclick="validateStep1()">次へ</button>
+    </div>
+  </div><!-- /#step1 -->
+
+  <!-- step2：緊急連絡先 -->
+  <div id="step2" class="step-page">
+    <div class="section-title">緊急連絡先・保護者</div>
+
+    <div class="mb-3">
+      <label for="emergencyName" class="form-label">氏名</label>
+      <input
+        type="text"
+        class="form-control"
+        id="emergencyName"
+        placeholder="例：山田 花子"
+      />
+      <div id="emergencyNameError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="emergencyRelation" class="form-label">間柄</label>
+      <input
+        type="text"
+        class="form-control"
+        id="emergencyRelation"
+        placeholder="例：妻、母、兄弟、友人等"
+      />
+      <div id="emergencyRelationError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="emergencyPhone" class="form-label">電話番号（携帯番号）</label>
+      <input
+        type="text"
+        class="form-control"
+        id="emergencyPhone"
+        placeholder="例：090-1111-2222"
+      />
+      <div id="emergencyPhoneError" class="error-message"></div>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(1)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep2()">次へ</button>
+    </div>
+  </div><!-- /#step2 -->
+
+  <!-- step3：利用規約・個人情報保護方針 -->
+  <div id="step3" class="step-page">
+    <div class="section-title">利用規約・個人情報保護方針</div>
+
+    <div class="scroll-area">
+      <p>
+        テニススクール利用規約<br>
+        <br>
+        第1条（適用範囲）<br>
+        本利用規約（以下「本規約」といいます）は、当スクールが提供するすべてのサービス（以下「本サービス」といいます）の利用条件を定めるものです。<br>
+        本サービスを利用するすべての方（以下「利用者」といいます）は、本規約に同意したものとみなされます。<br>
+        <br>
+        第2条（会員資格）<br>
+        （以下略）<br>
+        <br>
+        ～長い利用規約のサンプルをここに想定～<br>
+      </p>
+      <br>
+      <p>
+        <strong>【個人情報保護方針】</strong><br>
+        当スクールは、利用者の個人情報を以下の目的で利用します：<br>
+        ・レッスン予約管理<br>
+        ・緊急連絡<br>
+        ・サービス案内<br>
+        （以下略）<br>
+      </p>
+    </div>
+
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="agreeTerms" />
+      <label for="agreeTerms" class="form-check-label">
+        利用規約に同意します
+      </label>
+      <div id="agreeTermsError" class="error-message"></div>
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="privacyCheck" />
+      <label for="privacyCheck" class="form-check-label">
+        個人情報の取り扱いに同意します
+      </label>
+      <div id="privacyError" class="error-message"></div>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(2)">戻る</button>
+      <button class="btn btn-primary" id="step3NextBtn" onclick="validateStep3()">次へ</button>
+    </div>
+  </div><!-- /#step3 -->
+
+  <!-- step4：レベル選択 -->
+  <div id="step4" class="step-page">
+    <div class="section-title">レベル選択</div>
+
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="childLevel" class="form-check-input" value="child">
+      <label for="childLevel" class="form-check-label">チャイルド</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="shortLevel" class="form-check-input" value="short">
+      <label for="shortLevel" class="form-check-label">ショート</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="midiLevel" class="form-check-input" value="midi">
+      <label for="midiLevel" class="form-check-label">ミディ</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="regularLevel" class="form-check-input" value="regular">
+      <label for="regularLevel" class="form-check-label">レギュラー</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="hajimeteLevel" class="form-check-input" value="hajimete">
+      <label for="hajimeteLevel" class="form-check-label">はじめて</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="beginnerLevel" class="form-check-input" value="beginner">
+      <label for="beginnerLevel" class="form-check-label">初級</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="basicAdvLevel" class="form-check-input" value="basic_adv">
+      <label for="basicAdvLevel" class="form-check-label">初中級</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="intermediateLevel" class="form-check-input" value="intermediate">
+      <label for="intermediateLevel" class="form-check-label">中級</label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="radio" name="levelRadio" id="advancedLevel" class="form-check-input" value="advanced">
+      <label for="advancedLevel" class="form-check-label">上級</label>
+    </div>
+    <div id="levelError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(3)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep4()">次へ</button>
+    </div>
+  </div><!-- /#step4 -->
+
+  <!-- step5：曜日・コース・受講開始時期 -->
+  <div id="step5" class="step-page">
+    <div class="section-title">曜日・コース・受講開始時期</div>
+
+    <!-- 曜日 -->
+    <div class="mb-3">
+      <label class="form-label">曜日 <span class="text-danger">*</span></label>
+      <select class="form-select" id="daySelect">
+        <option value="">選択してください</option>
+        <option value="mon">月曜</option>
+        <option value="tue">火曜</option>
+        <option value="wed">水曜</option>
+        <option value="thu">木曜</option>
+        <option value="fri">金曜</option>
+        <option value="sat">土曜</option>
+        <option value="sun">日曜</option>
+      </select>
+      <div id="daySelectError" class="error-message"></div>
+    </div>
+
+    <!-- コース -->
+    <div class="mb-3">
+      <label class="form-label">コース <span class="text-danger">*</span></label>
+      <select class="form-select" id="courseSelect">
+        <option value="">選択してください</option>
+        <option value="weekday-day">平日昼</option>
+        <option value="weekday-night">平日夜</option>
+        <option value="weekend">土日</option>
+      </select>
+      <div id="courseSelectError" class="error-message"></div>
+    </div>
+
+    <!-- 受講開始期(必須) -->
+    <div class="mb-3">
+      <label class="form-label">受講開始時期 <span class="text-danger">*</span></label>
+      <select class="form-select" id="startPeriodSelect">
+        <option value="">選択してください</option>
+        <option value="now">当期</option>
+        <option value="next">翌期</option>
+        <option value="next2">翌々期</option>
+      </select>
+      <div id="startPeriodError" class="error-message"></div>
+    </div>
+
+    <div id="dayCourseError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(4)">戻る</button>
+      <button class="btn btn-primary" onclick="validateDayCourse()">次へ</button>
+    </div>
+  </div><!-- /#step5 -->
+
+  <!-- step6：クラス選択 -->
+  <div id="step6" class="step-page">
+    <div class="section-title">クラス選択</div>
+
+    <div class="form-check mb-2">
+      <input type="checkbox" id="class1" class="form-check-input" value="class1">
+      <label class="form-check-label" for="class1">
+        月曜日10:00～11:30　初級クラス　(残り3枠)
+      </label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="checkbox" id="class2" class="form-check-input" value="class2">
+      <label class="form-check-label" for="class2">
+        月曜日19:00～20:30　中級クラス　(残り1枠)
+      </label>
+    </div>
+    <div class="form-check mb-2">
+      <input type="checkbox" id="class3" class="form-check-input" value="class3">
+      <label class="form-check-label" for="class3">
+        水曜日10:00～11:30　初級クラス　(残り5枠)
+      </label>
+    </div>
+    <div id="classSelectError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(5)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep6()">次へ</button>
+    </div>
+  </div><!-- /#step6 -->
+
+  <!-- step7：料金選択 -->
+  <div id="step7" class="step-page">
+    <div class="section-title">料金選択</div>
+
+    <div class="mb-3">
+      <label class="form-label">入会金</label>
+      <p>3,000円</p>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">年会費</label>
+      <p>2,000円</p>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">割引1</label>
+      <select class="form-select">
+        <option value="">適用しない</option>
+        <option value="family">家族割</option>
+        <option value="under30">30歳未満割</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">割引2</label>
+      <select class="form-select">
+        <option value="">適用しない</option>
+        <option value="optionA">複数コース割引</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">オプションA</label>
+      <select class="form-select">
+        <option value="">なし</option>
+        <option value="locker">ロッカー</option>
+        <option value="parking">駐車場</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">オプションB</label>
+      <select class="form-select">
+        <option value="">なし</option>
+        <option value="racket">ラケットレンタル</option>
+        <option value="shoes">シューズレンタル</option>
+      </select>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(6)">戻る</button>
+      <button class="btn btn-primary" onclick="goToStep(8)">次へ</button>
+    </div>
+  </div><!-- /#step7 -->
+
+  <!-- step8：最終確認 -->
+  <div id="step8" class="step-page">
+    <div class="section-title">ご利用料金確認</div>
+
+    <div class="info-card">
+      <p>
+        <strong>入会金:</strong> 3,000円<br>
+        <strong>年会費:</strong> 2,000円<br>
+      </p>
+      <hr>
+      <p>
+        <strong>【月額費用】</strong><br>
+        月曜 10:00～11:30 初級 ￥12,000<br>
+        水曜 10:00～11:30 初級 ￥12,000<br>
+        <strong>複数割引: -2,000円</strong>
+      </p>
+      <hr>
+      <p style="font-size:16px;">
+        <strong>合計：27,000円（税込）</strong>
+      </p>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(7)">戻る</button>
+      <button class="btn btn-success" onclick="completeRegistration()">
+        申し込む
+      </button>
+    </div>
+  </div><!-- /#step8 -->
+
+</div><!-- /.container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ステップ管理
+  function goToStep(stepNumber) {
+    const pages = document.querySelectorAll('.step-page');
+    pages.forEach(pg => pg.classList.remove('active'));
+    const target = document.getElementById('step' + stepNumber);
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function cancelRegistration() {
+    const yes = confirm('登録をキャンセルします。よろしいですか？');
+    if(yes) {
+      location.href = 'somewhere_top.html';
+    }
+  }
+
+  // バリデーション用メソッド
+  function setError(id, message) {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerText = message;
+    }
+  }
+  function clearError(id) {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerText = '';
+    }
+  }
+
+  // step1バリデーション
+  function validateStep1() {
+    setError('memberTypeError','');
+    setError('lastNameError','');
+    setError('firstNameError','');
+    setError('lastNameKanaError','');
+    setError('firstNameKanaError','');
+    setError('genderError','');
+    setError('postalCodeError','');
+    setError('addressError','');
+    setError('phoneError','');
+
+    let isValid = true;
+
+    // 種別(必須)
+    const memberTypeGeneral = document.getElementById('generalMember');
+    const memberTypeKid = document.getElementById('kidJuniorMember');
+    if(!memberTypeGeneral.checked && !memberTypeKid.checked) {
+      setError('memberTypeError', '必須項目です');
+      isValid = false;
+    }
+
+    // 姓/名(必須)
+    const ln = document.getElementById('lastName').value.trim();
+    const fn = document.getElementById('firstName').value.trim();
+    if(!ln) {
+      setError('lastNameError', '姓を入力してください');
+      isValid = false;
+    }
+    if(!fn) {
+      setError('firstNameError', '名を入力してください');
+      isValid = false;
+    }
+
+    // フリガナ(必須)
+    const lnKana = document.getElementById('lastNameKana').value.trim();
+    const fnKana = document.getElementById('firstNameKana').value.trim();
+    if(!lnKana) {
+      setError('lastNameKanaError', 'フリガナ（姓）を入力してください');
+      isValid = false;
+    }
+    if(!fnKana) {
+      setError('firstNameKanaError', 'フリガナ（名）を入力してください');
+      isValid = false;
+    }
+
+    // 性別(必須)
+    const genderMale = document.getElementById('genderMale');
+    const genderFemale = document.getElementById('genderFemale');
+    const genderOther = document.getElementById('genderOther');
+    if(!genderMale.checked && !genderFemale.checked && !genderOther.checked) {
+      setError('genderError', '性別を選択してください');
+      isValid = false;
+    }
+
+    // 郵便番号(必須)
+    const pc = document.getElementById('postalCode').value.replace('-','').trim();
+    if(!pc) {
+      setError('postalCodeError','郵便番号を入力してください');
+      isValid = false;
+    } else if(pc.length !== 7 || isNaN(pc)) {
+      setError('postalCodeError','正しい郵便番号(7桁数字)を入力してください');
+      isValid = false;
+    }
+
+    // 住所(必須)
+    const ad = document.getElementById('address').value.trim();
+    if(!ad) {
+      setError('addressError','住所を入力してください');
+      isValid = false;
+    }
+
+    // 電話番号(必須)
+    const ph = document.getElementById('phone').value.trim();
+    if(!ph) {
+      setError('phoneError','電話番号を入力してください');
+      isValid = false;
+    } else {
+      const phoneRegex = /^[0-9\-]+$/;
+      if(!phoneRegex.test(ph)) {
+        setError('phoneError','電話番号の形式が正しくありません');
+        isValid = false;
+      }
+    }
+
+    if(isValid) {
+      goToStep(2);
+    }
+  }
+
+  // step2バリデーション
+  function validateStep2(){
+    // 今回はすべて任意と想定、バリデなし
+    goToStep(3);
+  }
+
+  // 郵便番号で住所自動取得
+  function fetchAddress() {
+    const postalCode = document.getElementById("postalCode").value.replace("-", "");
+    const addressField = document.getElementById("address");
+
+    clearError('postalCodeError');
+
+    if(!postalCode) return; 
+
+    if (postalCode.length !== 7 || isNaN(postalCode)) {
+      setError('postalCodeError','正しい郵便番号(7桁数字)を入力してください');
+      return;
+    }
+
+    fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.results) {
+          const result = data.results[0];
+          addressField.value = `${result.address1}${result.address2}${result.address3}`;
+        } else {
+          setError('postalCodeError','該当する住所が見つかりませんでした');
+        }
+      })
+      .catch(error => {
+        console.error("エラーが発生しました:", error);
+        setError('postalCodeError','住所の取得に失敗しました');
+      });
+  }
+
+  // step3: 利用規約チェック + 個人情報同意
+  function validateStep3(){
+    clearError('agreeTermsError');
+    clearError('privacyError');
+
+    const agreeTerms = document.getElementById('agreeTerms');
+    const privacyCheck = document.getElementById('privacyCheck');
+
+    let valid = true;
+    if(!agreeTerms.checked){
+      setError('agreeTermsError','利用規約への同意が必要です');
+      valid = false;
+    }
+    if(!privacyCheck.checked){
+      setError('privacyError','個人情報の取り扱いに同意が必要です');
+      valid = false;
+    }
+
+    if(!valid) return;
+
+    goToStep(4);
+  }
+
+  // step4バリデーション(レベル選択)
+  function validateStep4(){
+    clearError('levelError');
+    const radios = document.getElementsByName('levelRadio');
+    let chosen = false;
+    for(const r of radios){
+      if(r.checked) {
+        chosen = true;
+        break;
+      }
+    }
+    if(!chosen){
+      setError('levelError','レベルを選択してください');
+      return;
+    }
+    goToStep(5);
+  }
+
+  // step5: 曜日・コース・受講開始時期(必須)
+  function validateDayCourse() {
+    clearError('daySelectError');
+    clearError('courseSelectError');
+    clearError('startPeriodError');
+    clearError('dayCourseError');
+
+    const dayValue = document.getElementById('daySelect').value;
+    const courseValue = document.getElementById('courseSelect').value;
+    const startPeriodValue = document.getElementById('startPeriodSelect').value;
+    let valid = true;
+
+    // 曜日
+    if(!dayValue) {
+      setError('daySelectError','曜日を選択してください');
+      valid = false;
+    }
+    // コース
+    if(!courseValue) {
+      setError('courseSelectError','コースを選択してください');
+      valid = false;
+    }
+    // 受講開始時期(必須)
+    if(!startPeriodValue){
+      setError('startPeriodError','受講開始時期を選択してください');
+      valid = false;
+    }
+
+    if(!valid) return;
+
+    // 矛盾チェック
+    if((dayValue === 'sat' || dayValue === 'sun')
+       && (courseValue === 'weekday-day' || courseValue === 'weekday-night')) {
+      setError('dayCourseError','土日を選んだのに「平日」を選んでいます');
+      return;
+    }
+    if((dayValue === 'mon' || dayValue === 'tue' || dayValue === 'wed' || dayValue === 'thu' || dayValue === 'fri')
+       && courseValue === 'weekend') {
+      setError('dayCourseError','平日を選んだのに「土日」を選んでいます');
+      return;
+    }
+
+    goToStep(6);
+  }
+
+  // step6: クラス選択(最低1つ)
+  function validateStep6(){
+    clearError('classSelectError');
+
+    const class1 = document.getElementById('class1');
+    const class2 = document.getElementById('class2');
+    const class3 = document.getElementById('class3');
+
+    let chosen = false;
+    if(class1.checked || class2.checked || class3.checked){
+      chosen = true;
+    }
+    if(!chosen){
+      setError('classSelectError','クラスを1つ以上選択してください');
+      return;
+    }
+    goToStep(7);
+  }
+
+  // step8: 完了
+  function completeRegistration() {
+    const yes = confirm('この内容で申し込みます。よろしいですか？');
+    if(yes){
+      alert('お申込みありがとうございました！');
+      location.href='./registration.html';
+    }
+  }
+
+  function cancelRegistration() {
+    const yes = confirm('登録をキャンセルします。よろしいですか？');
+    if(yes) {
+      location.href = 'somewhere_top.html';
+    }
+  }
+</script>
+</body>
+</html>
