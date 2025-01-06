@@ -15,8 +15,8 @@
     }
 
     .container {
-      max-width: 400px;
-      margin: 50px auto;
+      height: 100vh;
+      max-width: 500px;
       padding: 20px;
       background: #fff;
       border-radius: 10px;
@@ -49,7 +49,7 @@
 
     .instructions {
       font-size: 12px;
-      color: #555;
+      color: #ff6700;
       margin-bottom: 20px;
     }
 
@@ -90,17 +90,17 @@
       <div class="swiper-wrapper">
         <!-- スライド1 -->
         <div class="swiper-slide">
-          <p>会員: 山田一郎 (ID:GS003)</p>
+          <p>山田一郎 (ID:GS003)</p>
           <canvas id="qrCanvas1"></canvas>
         </div>
         <!-- スライド2 -->
         <div class="swiper-slide">
-          <p>会員: 山田花子 (ID:GS004)</p>
+          <p>山田花子 (ID:GS004)</p>
           <canvas id="qrCanvas2"></canvas>
         </div>
         <!-- スライド3 -->
         <div class="swiper-slide">
-          <p>会員: 山田次郎 (ID:GS005)</p>
+          <p>山田次郎 (ID:GS005)</p>
           <canvas id="qrCanvas3"></canvas>
         </div>
       </div>
@@ -119,8 +119,8 @@
     function generateToken() {
       const chars = 'abcdef0123456789';
       let t = '';
-      for(let i=0; i<16; i++){
-        t += chars[Math.floor(Math.random()*chars.length)];
+      for (let i = 0; i < 16; i++) {
+        t += chars[Math.floor(Math.random() * chars.length)];
       }
       return t;
     }
@@ -130,14 +130,14 @@
     const token3 = generateToken();
 
     // QRコード生成
-    QRCode.toCanvas(document.getElementById('qrCanvas1'), token1, {width:200}, function (error) {
-      if (error) console.error(error);
+    QRCode.toCanvas(document.getElementById('qrCanvas1'), token1, { width: 200 }, function (error) {
+      if (error) console.error('QRコードの生成に失敗しました:', error);
     });
-    QRCode.toCanvas(document.getElementById('qrCanvas2'), token2, {width:200}, function (error) {
-      if (error) console.error(error);
+    QRCode.toCanvas(document.getElementById('qrCanvas2'), token2, { width: 200 }, function (error) {
+      if (error) console.error('QRコードの生成に失敗しました:', error);
     });
-    QRCode.toCanvas(document.getElementById('qrCanvas3'), token3, {width:200}, function (error) {
-      if (error) console.error(error);
+    QRCode.toCanvas(document.getElementById('qrCanvas3'), token3, { width: 200 }, function (error) {
+      if (error) console.error('QRコードの生成に失敗しました:', error);
     });
 
     const swiper = new Swiper('.swiper', {
