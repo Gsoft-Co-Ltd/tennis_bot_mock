@@ -298,7 +298,7 @@
     <div class="section-title">緊急連絡先・保護者</div>
 
     <div class="mb-3">
-      <label for="emergencyName" class="form-label">氏名</label>
+      <label for="emergencyName" class="form-label">氏名</label><span class="text-danger">*</span>
       <input
         type="text"
         class="form-control"
@@ -308,7 +308,7 @@
       <div id="emergencyNameError" class="error-message"></div>
     </div>
     <div class="mb-3">
-      <label for="emergencyRelation" class="form-label">間柄</label>
+      <label for="emergencyRelation" class="form-label">間柄</label><span class="text-danger">*</span>
       <input
         type="text"
         class="form-control"
@@ -318,7 +318,7 @@
       <div id="emergencyRelationError" class="error-message"></div>
     </div>
     <div class="mb-3">
-      <label for="emergencyPhone" class="form-label">電話番号（携帯番号）</label>
+      <label for="emergencyPhone" class="form-label">電話番号（携帯番号）</label><span class="text-danger">*</span>
       <input
         type="text"
         class="form-control"
@@ -435,21 +435,39 @@
   <div id="step5" class="step-page">
     <div class="section-title">曜日・コース・受講開始時期</div>
 
-    <!-- 曜日 -->
     <div class="mb-3">
       <label class="form-label">曜日 <span class="text-danger">*</span></label>
-      <select class="form-select" id="daySelect">
-        <option value="">選択してください</option>
-        <option value="mon">月曜</option>
-        <option value="tue">火曜</option>
-        <option value="wed">水曜</option>
-        <option value="thu">木曜</option>
-        <option value="fri">金曜</option>
-        <option value="sat">土曜</option>
-        <option value="sun">日曜</option>
-      </select>
       <div id="daySelectError" class="error-message"></div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayMon" name="days" value="mon">
+        <label for="dayMon" class="form-check-label">月曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayTue" name="days" value="tue">
+        <label for="dayTue" class="form-check-label">火曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayWed" name="days" value="wed">
+        <label for="dayWed" class="form-check-label">水曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayThu" name="days" value="thu">
+        <label for="dayThu" class="form-check-label">木曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayFri" name="days" value="fri">
+        <label for="dayFri" class="form-check-label">金曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="daySat" name="days" value="sat">
+        <label for="daySat" class="form-check-label">土曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="daySun" name="days" value="sun">
+        <label for="daySun" class="form-check-label">日曜</label>
+      </div>
     </div>
+    <!-- /★★★ [修正ここまで] ★★★ -->
 
     <!-- コース -->
     <div class="mb-3">
@@ -487,6 +505,7 @@
   <div id="step6" class="step-page">
     <div class="section-title">クラス選択</div>
 
+    <!-- ここで定員0の場合も表示し、0ならdisabledにする -->
     <div class="form-check mb-2">
       <input type="checkbox" id="class1" class="form-check-input" value="class1">
       <label class="form-check-label" for="class1">
@@ -505,6 +524,14 @@
         水曜日10:00～11:30　初級クラス　(残り5枠)
       </label>
     </div>
+
+    <div class="form-check mb-2">
+      <input type="checkbox" id="class4" class="form-check-input" value="class4" disabled>
+      <label class="form-check-label" for="class4">
+        木曜日10:00～11:30　上級クラス　(残り0枠)
+      </label>
+    </div>
+
     <div id="classSelectError" class="error-message"></div>
 
     <div class="btn-area">
@@ -525,37 +552,35 @@
       <label class="form-label">年会費</label>
       <p>2,000円</p>
     </div>
-    <div class="mb-3">
-      <label class="form-label">割引1</label>
-      <select class="form-select">
-        <option value="">適用しない</option>
-        <option value="family">家族割</option>
-        <option value="under30">30歳未満割</option>
-      </select>
+
+    <div class="mb-3" id="discountContainer">
+      <label class="form-label">割引</label>
+      <div class="discount-item mb-2">
+        <select class="form-select" name="discount[]">
+          <option value="">なし</option>
+          <option value="family">家族割</option>
+          <option value="under30">30歳未満割</option>
+          <option value="multiple">複数コース割引</option>
+        </select>
+      </div>
+      <button class="btn btn-sm btn-outline-primary" type="button" onclick="addDiscount()">割引を追加</button>
     </div>
-    <div class="mb-3">
-      <label class="form-label">割引2</label>
-      <select class="form-select">
-        <option value="">適用しない</option>
-        <option value="optionA">複数コース割引</option>
-      </select>
+
+    <!-- ★★★ [修正] オプションを任意数追加できる機能 ★★★ -->
+    <div class="mb-3" id="optionContainer">
+      <label class="form-label">オプション</label>
+      <div class="option-item mb-2">
+        <select class="form-select" name="option[]">
+          <option value="">なし</option>
+          <option value="locker">ロッカー</option>
+          <option value="parking">駐車場</option>
+          <option value="racket">ラケットレンタル</option>
+          <option value="shoes">シューズレンタル</option>
+        </select>
+      </div>
+      <button class="btn btn-sm btn-outline-primary" type="button" onclick="addOption()">オプションを追加</button>
     </div>
-    <div class="mb-3">
-      <label class="form-label">オプションA</label>
-      <select class="form-select">
-        <option value="">なし</option>
-        <option value="locker">ロッカー</option>
-        <option value="parking">駐車場</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">オプションB</label>
-      <select class="form-select">
-        <option value="">なし</option>
-        <option value="racket">ラケットレンタル</option>
-        <option value="shoes">シューズレンタル</option>
-      </select>
-    </div>
+    <!-- /★★★ [修正ここまで] ★★★ -->
 
     <div class="btn-area">
       <button class="btn btn-outline-secondary" onclick="goToStep(6)">戻る</button>
@@ -721,8 +746,42 @@
 
   // step2バリデーション
   function validateStep2(){
-    // 今回はすべて任意と想定、バリデなし
-    goToStep(3);
+    clearError('emergencyNameError');
+    clearError('emergencyRelationError');
+    clearError('emergencyPhoneError');
+
+    let isValid = true;
+
+    // 氏名 (必須)
+    const emergencyName = document.getElementById('emergencyName').value.trim();
+    if(!emergencyName) {
+      setError('emergencyNameError', '氏名を入力してください');
+      isValid = false;
+    }
+
+    // 間柄 (必須)
+    const emergencyRelation = document.getElementById('emergencyRelation').value.trim();
+    if(!emergencyRelation) {
+      setError('emergencyRelationError', '間柄を入力してください');
+      isValid = false;
+    }
+
+    // 電話番号 (必須)
+    const emergencyPhone = document.getElementById('emergencyPhone').value.trim();
+    if(!emergencyPhone) {
+      setError('emergencyPhoneError', '電話番号を入力してください');
+      isValid = false;
+    } else {
+      const phoneRegex = /^[0-9\-]+$/;
+      if(!phoneRegex.test(emergencyPhone)) {
+        setError('emergencyPhoneError', '電話番号の形式が正しくありません');
+        isValid = false;
+      }
+    }
+
+    if(isValid) {
+      goToStep(3);
+    }
   }
 
   // 郵便番号で住所自動取得
@@ -803,16 +862,19 @@
     clearError('startPeriodError');
     clearError('dayCourseError');
 
-    const dayValue = document.getElementById('daySelect').value;
+    // ★★★ [修正] チェックボックスでの曜日判定 ★★★
+    const days = document.querySelectorAll('input[name="days"]:checked');
     const courseValue = document.getElementById('courseSelect').value;
     const startPeriodValue = document.getElementById('startPeriodSelect').value;
+
     let valid = true;
 
-    // 曜日
-    if(!dayValue) {
-      setError('daySelectError','曜日を選択してください');
+    // 曜日(最低1つ)
+    if(days.length === 0) {
+      setError('daySelectError','曜日を1つ以上選択してください');
       valid = false;
     }
+
     // コース
     if(!courseValue) {
       setError('courseSelectError','コースを選択してください');
@@ -826,15 +888,22 @@
 
     if(!valid) return;
 
-    // 矛盾チェック
-    if((dayValue === 'sat' || dayValue === 'sun')
-       && (courseValue === 'weekday-day' || courseValue === 'weekday-night')) {
-      setError('dayCourseError','土日を選んだのに「平日」を選んでいます');
+    // もともとのサンプルでは「土日」「平日」の矛盾チェックをしていたため、
+    // 選択された曜日が sat/sun の場合に weekend 以外を選んでいないか確認するなど、
+    // 必要であればロジックを複合的にチェックする。
+    // ここでは例として簡単にバリデーションを実装（複数チェック時は運用ルール次第）
+
+    const dayValues = Array.from(days).map(d => d.value);
+    const hasWeekend = dayValues.includes('sat') || dayValues.includes('sun');
+    const hasWeekday = dayValues.some(v => ['mon','tue','wed','thu','fri'].includes(v));
+
+    // 矛盾チェックサンプル
+    if(hasWeekend && courseValue !== 'weekend') {
+      setError('dayCourseError','土日が含まれる場合は「土日」コースを選択してください');
       return;
     }
-    if((dayValue === 'mon' || dayValue === 'tue' || dayValue === 'wed' || dayValue === 'thu' || dayValue === 'fri')
-       && courseValue === 'weekend') {
-      setError('dayCourseError','平日を選んだのに「土日」を選んでいます');
+    if(!hasWeekend && courseValue === 'weekend') {
+      setError('dayCourseError','平日のみ選択されている場合は「土日」コースを選択できません');
       return;
     }
 
@@ -848,9 +917,10 @@
     const class1 = document.getElementById('class1');
     const class2 = document.getElementById('class2');
     const class3 = document.getElementById('class3');
+    const class4 = document.getElementById('class4'); // 0枠(disabled) なので無視される想定
 
     let chosen = false;
-    if(class1.checked || class2.checked || class3.checked){
+    if((class1 && class1.checked) || (class2 && class2.checked) || (class3 && class3.checked)) {
       chosen = true;
     }
     if(!chosen){
@@ -858,6 +928,39 @@
       return;
     }
     goToStep(7);
+  }
+
+  // ★★★ [修正] 割引を追加する関数 ★★★
+  function addDiscount(){
+    const discountContainer = document.getElementById('discountContainer');
+    const div = document.createElement('div');
+    div.className = 'discount-item mb-2';
+    div.innerHTML = `
+      <select class="form-select" name="discount[]">
+        <option value="">なし</option>
+        <option value="family">家族割</option>
+        <option value="under30">30歳未満割</option>
+        <option value="multiple">複数コース割引</option>
+      </select>
+    `;
+    discountContainer.insertBefore(div, discountContainer.lastElementChild);
+  }
+
+  // ★★★ [修正] オプションを追加する関数 ★★★
+  function addOption(){
+    const optionContainer = document.getElementById('optionContainer');
+    const div = document.createElement('div');
+    div.className = 'option-item mb-2';
+    div.innerHTML = `
+      <select class="form-select" name="option[]">
+        <option value="">なし</option>
+        <option value="locker">ロッカー</option>
+        <option value="parking">駐車場</option>
+        <option value="racket">ラケットレンタル</option>
+        <option value="shoes">シューズレンタル</option>
+      </select>
+    `;
+    optionContainer.insertBefore(div, optionContainer.lastElementChild);
   }
 
   // step8: 完了

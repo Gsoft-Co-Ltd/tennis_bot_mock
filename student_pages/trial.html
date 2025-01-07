@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>体験レッスン申し込み（マルチステップ・モック）</title>
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 10px 15px 70px 15px;
+      background-color: #fff;
+      min-height: 100vh;
+    }
+
+    .logo {
+      text-align: center;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #4caf50;
+    }
+    .logo img {
+      width: 30px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 6px;
+      color: #007bff;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #007bff;
+    }
+
+    .step-page {
+      display: none;
+    }
+    .step-page.active {
+      display: block;
+    }
+
+    .form-check-label,
+    .form-label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .btn-area {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    .btn-area .btn {
+      flex: 1;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    @media(max-width: 400px) {
+      .btn-area {
+        flex-direction: column;
+      }
+      .btn-area .btn {
+        width: 100%;
+      }
+    }
+
+    /* グレーアウト用 */
+    .disabled-label {
+      color: #999;
+    }
+
+    /* ▼▼▼ [追加] レッスン一覧をスクロール表示するためのスタイル ▼▼▼ */
+    .lesson-scroll-area {
+      max-height: 300px; /* ここで高さ制限、縦スクロール */
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      background-color: #fafafa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <img src="../resource/tennis_icon.svg" alt="Tennis Logo">
+    Tennis BoT
+  </div>
+
+  <!-- Step1: 申し込み区分～電話番号 -->
+  <div id="step1" class="step-page active">
+    <h1>体験レッスン申し込み</h1>
+
+    <!-- 申込区分 (一般 / キッズ・ジュニア) -->
+    <div class="mb-3">
+      <label class="form-label">申込区分 <span class="text-danger">*</span></label>
+      <div class="d-flex flex-row">
+        <div class="form-check me-3">
+          <input type="radio" class="form-check-input" name="memberType" id="typeGeneral" value="general">
+          <label class="form-check-label" for="typeGeneral">一般</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" name="memberType" id="typeKidJunior" value="kidJunior">
+          <label class="form-check-label" for="typeKidJunior">キッズ・ジュニア</label>
+        </div>
+      </div>
+      <div id="memberTypeError" class="error-message"></div>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col">
+        <label for="lastName" class="form-label">姓 <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="lastName" placeholder="例：山田" />
+        <div id="lastNameError" class="error-message"></div>
+      </div>
+      <div class="col">
+        <label for="firstName" class="form-label">名 <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="firstName" placeholder="例：太郎" />
+        <div id="firstNameError" class="error-message"></div>
+      </div>
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col">
+        <label for="lastNameKana" class="form-label">姓（フリガナ） <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="lastNameKana" placeholder="例：ヤマダ" />
+        <div id="lastNameKanaError" class="error-message"></div>
+      </div>
+      <div class="col">
+        <label for="firstNameKana" class="form-label">名（フリガナ） <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="firstNameKana" placeholder="例：タロウ" />
+        <div id="firstNameKanaError" class="error-message"></div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">性別 <span class="text-danger">*</span></label>
+      <div class="d-flex flex-row">
+        <div class="form-check me-3">
+          <input type="radio" class="form-check-input" name="gender" id="genderMale" value="male">
+          <label class="form-check-label" for="genderMale">男</label>
+        </div>
+        <div class="form-check me-3">
+          <input type="radio" class="form-check-input" name="gender" id="genderFemale" value="female">
+          <label class="form-check-label" for="genderFemale">女</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" name="gender" id="genderOther" value="other">
+          <label class="form-check-label" for="genderOther">その他</label>
+        </div>
+      </div>
+      <div id="genderError" class="error-message"></div>
+    </div>
+
+    <div class="mb-3">
+      <label for="postalCode" class="form-label">郵便番号 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="postalCode" placeholder="例：123-4567"/>
+      <div id="postalCodeError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="address" class="form-label">住所 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="address" placeholder="例：東京都渋谷区1-2-3"/>
+      <div id="addressError" class="error-message"></div>
+    </div>
+    <div class="mb-3">
+      <label for="address2" class="form-label">住所（マンション名）</label>
+      <input type="text" class="form-control" id="address2" placeholder="例：渋谷マンション101号室"/>
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">電話番号（携帯番号） <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="phone" placeholder="例：090-1234-5678"/>
+      <div id="phoneError" class="error-message"></div>
+    </div>
+
+    <!-- 保護者情報: キッズ・ジュニアのみ表示 -->
+    <div id="kidJuniorArea" style="display: none;">
+      <div class="section-title" style="margin-top:1.2rem;">保護者情報</div>
+      <div class="mb-3">
+        <label for="guardianName" class="form-label">保護者（氏 名）</label>
+        <input type="text" class="form-control" id="guardianName" placeholder="例：山田 花子" />
+      </div>
+      <div class="mb-3">
+        <label for="guardianPhone" class="form-label">保護者連絡先（電話番号）</label>
+        <input type="text" class="form-control" id="guardianPhone" placeholder="例：090-1111-2222" />
+      </div>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-primary" onclick="validateStep1()">次へ</button>
+    </div>
+  </div><!-- /#step1 -->
+
+  <!-- Step2: テニス経験(必須) ～ レベル -->
+  <div id="step2" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">テニス経験 <span class="text-danger">*</span></div>
+    <div class="mb-3">
+      <div class="d-flex flex-row">
+        <div class="form-check me-3">
+          <input type="radio" class="form-check-input" name="tennisExp" id="tennisExpYes" value="yes">
+          <label class="form-check-label" for="tennisExpYes">あり</label>
+        </div>
+        <div class="form-check me-3">
+          <input type="radio" class="form-check-input" name="tennisExp" id="tennisExpNo" value="no">
+          <label class="form-check-label" for="tennisExpNo">なし</label>
+        </div>
+      </div>
+      <div id="tennisExpError" class="error-message"></div>
+      <div id="tennisExpDetail" style="display: none;" class="mt-2">
+        <label class="form-label">経験年数</label>
+        <div class="row g-2 align-items-center">
+          <div class="col-auto">
+            <span class="text-muted">硬式:</span>
+          </div>
+          <div class="col-auto">
+            <input type="number" class="form-control" id="hardExp" style="width:80px;" placeholder="年" />
+          </div>
+          <div class="col-auto">
+            <span class="text-muted">／　軟式:</span>
+          </div>
+          <div class="col-auto">
+            <input type="number" class="form-control" id="softExp" style="width:80px;" placeholder="年" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">レベル <span class="text-danger">*</span></div>
+    <div class="mb-3">
+      <select class="form-select" id="levelSelect">
+        <option value="">選択してください</option>
+        <option value="チャイルド">チャイルド</option>
+        <option value="ショート">ショート</option>
+        <option value="ミディ">ミディ</option>
+        <option value="レギュラー">レギュラー</option>
+        <option value="はじめて">はじめて</option>
+        <option value="初級">初級</option>
+        <option value="初中級">初中級</option>
+        <option value="中級">中級</option>
+        <option value="上級">上級</option>
+      </select>
+      <div id="levelError" class="error-message"></div>
+    </div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(1)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep2()">次へ</button>
+    </div>
+  </div><!-- /#step2 -->
+
+  <!-- Step3: [修正] 複数曜日チェックボックス・コース -->
+  <div id="step3" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">曜日・コース</div>
+
+    <!-- ▼▼▼ 旧：単一選択をコメントアウト ▼▼▼
+    <div class="mb-3">
+      <label class="form-label">曜日 <span class="text-danger">*</span></label>
+      <select class="form-select" id="daySelect">
+        <option value="">選択</option>
+        <option value="mon">月曜</option>
+        <option value="tue">火曜</option>
+        <option value="wed">水曜</option>
+        <option value="thu">木曜</option>
+        <option value="fri">金曜</option>
+        <option value="sat">土曜</option>
+        <option value="sun">日曜</option>
+      </select>
+      <div id="daySelectError" class="error-message"></div>
+    </div>
+    ▼▼▼ ここまで ▼▼▼ -->
+
+    <!-- ★★★ 新：複数選択チェックボックス ★★★ -->
+    <div class="mb-3">
+      <label class="form-label">曜日 <span class="text-danger">*</span></label>
+      <div id="daySelectError" class="error-message"></div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayMon" value="mon" name="days">
+        <label for="dayMon" class="form-check-label">月曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayTue" value="tue" name="days">
+        <label for="dayTue" class="form-check-label">火曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayWed" value="wed" name="days">
+        <label for="dayWed" class="form-check-label">水曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayThu" value="thu" name="days">
+        <label for="dayThu" class="form-check-label">木曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="dayFri" value="fri" name="days">
+        <label for="dayFri" class="form-check-label">金曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="daySat" value="sat" name="days">
+        <label for="daySat" class="form-check-label">土曜</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="daySun" value="sun" name="days">
+        <label for="daySun" class="form-check-label">日曜</label>
+      </div>
+    </div>
+    <!-- ★★★ 新：複数選択チェックボックスここまで ★★★ -->
+
+    <div class="mb-3">
+      <label class="form-label">コース <span class="text-danger">*</span></label>
+      <select class="form-select" id="courseSelect">
+        <option value="">選択</option>
+        <option value="weekday-day">平日昼</option>
+        <option value="weekday-night">平日夜</option>
+        <option value="weekend">土日</option>
+      </select>
+      <div id="courseSelectError" class="error-message"></div>
+    </div>
+    <div id="dayCourseError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(2)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep3()">次へ</button>
+    </div>
+  </div><!-- /#step3 -->
+
+  <!-- Step4: クラス選択 (定員0=グレーアウト) -->
+  <div id="step4" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">クラス選択</div>
+    <div class="mb-3">
+      <!-- 従来のクラス表示 -->
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="classA" value="classA">
+        <label class="form-check-label" for="classA">
+          【月曜】 9:00-10:30 (コート1) 初級クラス (残り2枠)
+        </label>
+      </div>
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="classB" value="classB">
+        <label class="form-check-label" for="classB">
+          【火曜】 19:00-20:30 (コート2) 中級クラス (残り1枠)
+        </label>
+      </div>
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="classC" value="classC">
+        <label class="form-check-label" for="classC">
+          【水曜】 10:00-11:30 (コート1) 初級クラス (残り5枠)
+        </label>
+      </div>
+
+      <!-- ★★★ 定員0クラス(グレーアウト)を追加 ★★★ -->
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="classD" value="classD" disabled>
+        <label class="form-check-label disabled-label" for="classD">
+          【木曜】 10:00-11:30 (コート1) 上級クラス (残り0枠)
+        </label>
+      </div>
+    </div>
+    <div id="classSelectError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(3)">戻る</button>
+      <!-- ★★★ 次はレッスン選択(step5)へ ★★★ -->
+      <button class="btn btn-primary" onclick="validateStep4()">次へ</button>
+    </div>
+  </div><!-- /#step4 -->
+
+  <!-- ★★★ Step5: レッスン選択 (クラスごとの60日以内のレッスン) ★★★ -->
+  <div id="step5" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">レッスン選択</div>
+
+    <!-- ▼▼▼ 元あったサンプルをコメントアウト (以下参考) ▼▼▼
+    <div class="mb-3">
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="lesson1" value="lesson1">
+        <label class="form-check-label" for="lesson1">
+          10/10(火) 9:00-10:30 (残り3枠)
+        </label>
+      </div>
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="lesson2" value="lesson2">
+        <label class="form-check-label" for="lesson2">
+          10/17(火) 9:00-10:30 (残り1枠)
+        </label>
+      </div>
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="lesson3" value="lesson3" disabled>
+        <label class="form-check-label disabled-label" for="lesson3">
+          10/24(火) 9:00-10:30 (残り0枠)
+        </label>
+      </div>
+    </div>
+    <div id="lessonSelectError" class="error-message"></div>
+    ▼▼▼ コメントアウトここまで ▼▼▼ -->
+
+    <!-- ★★★ [追加実装] スクロール表示で約20件を想定 ★★★ -->
+    <div class="lesson-scroll-area" id="lessonList">
+      <!-- ここにJSでレッスン一覧を動的にレンダリング -->
+    </div>
+    <div id="lessonSelectError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(4)">戻る</button>
+      <button class="btn btn-primary" onclick="validateStep5()">次へ</button>
+    </div>
+  </div><!-- /#step5 -->
+
+  <!-- ▼▼▼ 元々のStep5 (個人情報) は id="step6" に変更 ▼▼▼ -->
+  <!-- Step6: 個人情報の取り扱い＆送信 -->
+  <div id="step6" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">個人情報の取り扱い</div>
+    <p class="note">
+      当スクールの個人情報保護方針に基づき、お客様の情報はレッスン予約管理および連絡にのみ使用いたします。（想定）
+    </p>
+    <div class="form-check mb-3">
+      <input type="checkbox" class="form-check-input" id="privacyCheck">
+      <label class="form-check-label" for="privacyCheck">
+        個人情報の取り扱いに同意します
+      </label>
+    </div>
+    <div id="privacyError" class="error-message"></div>
+
+    <div class="btn-area">
+      <button class="btn btn-outline-secondary" onclick="goToStep(5)">戻る</button>
+      <!-- 次は予約完了画面(step7)へ -->
+      <button class="btn btn-success" onclick="submitTrial()">体験レッスン申込確定</button>
+    </div>
+  </div><!-- /#step6 -->
+
+  <!-- ★★★ Step7: 予約完了画面 ★★★ -->
+  <div id="step7" class="step-page">
+    <h1>体験レッスン申し込み</h1>
+    <div class="section-title">予約完了</div>
+    <p class="note">
+      体験レッスンの通常料金は2,000円です。<br>
+      キャンペーンなどの割引については、当日、現地でスタッフにお申し付けください。
+    </p>
+
+    <!-- ★★★ [追加] 予約を行ったレッスンの一覧表示 ★★★ -->
+    <div>
+      <h5>予約したレッスン:</h5>
+      <ul id="reservedLessonList" style="font-size: 0.9rem; color: #333;">
+        <!-- ここに選択レッスン(レッスン名、日時、コート名)が入る -->
+      </ul>
+    </div>
+    <!-- /追加 -->
+
+    <div class="btn-area">
+      <button class="btn btn-primary" onclick="finishAll()">OK</button>
+    </div>
+  </div><!-- /#step7 -->
+
+</div><!-- /container -->
+
+<script>
+  const typeGeneral   = document.getElementById("typeGeneral");
+  const typeKidJunior = document.getElementById("typeKidJunior");
+  const kidJuniorArea = document.getElementById("kidJuniorArea");
+
+  if(typeGeneral && typeKidJunior){
+    typeGeneral.addEventListener('change', toggleKidJuniorArea);
+    typeKidJunior.addEventListener('change', toggleKidJuniorArea);
+  }
+  function toggleKidJuniorArea(){
+    if(typeKidJunior.checked){
+      kidJuniorArea.style.display = "block";
+    } else {
+      kidJuniorArea.style.display = "none";
+    }
+  }
+
+  // === STEP NAVIGATION ===
+  function goToStep(stepNumber){
+    // 全ステップを非表示
+    const pages = document.querySelectorAll(".step-page");
+    pages.forEach(pg => pg.classList.remove("active"));
+
+    const target = document.getElementById("step" + stepNumber);
+    if(target){
+      target.classList.add("active");
+      window.scrollTo(0,0);
+    }
+  }
+
+  // ---------- STEP1 バリデーション ----------
+  function validateStep1(){
+    // エラーメッセージクリア
+    clearError('memberTypeError');
+    clearError('lastNameError');
+    clearError('firstNameError');
+    clearError('lastNameKanaError');
+    clearError('firstNameKanaError');
+    clearError('genderError');
+    clearError('postalCodeError');
+    clearError('addressError');
+    clearError('phoneError');
+
+    let isValid = true;
+
+    // 申込区分
+    const isGeneral = document.getElementById('typeGeneral').checked;
+    const isKid     = document.getElementById('typeKidJunior').checked;
+    if(!isGeneral && !isKid){
+      setError('memberTypeError','必須項目です');
+      isValid = false;
+    }
+
+    // 姓/名
+    const ln = document.getElementById('lastName').value.trim();
+    const fn = document.getElementById('firstName').value.trim();
+    if(!ln){
+      setError('lastNameError','必須項目です');
+      isValid = false;
+    }
+    if(!fn){
+      setError('firstNameError','必須項目です');
+      isValid = false;
+    }
+
+    // フリガナ
+    const lnKana = document.getElementById('lastNameKana').value.trim();
+    const fnKana = document.getElementById('firstNameKana').value.trim();
+    if(!lnKana){
+      setError('lastNameKanaError','必須項目です');
+      isValid = false;
+    }
+    if(!fnKana){
+      setError('firstNameKanaError','必須項目です');
+      isValid = false;
+    }
+
+    // 性別
+    const gMale   = document.getElementById('genderMale').checked;
+    const gFemale = document.getElementById('genderFemale').checked;
+    const gOther  = document.getElementById('genderOther').checked;
+    if(!gMale && !gFemale && !gOther){
+      setError('genderError','必須項目です');
+      isValid = false;
+    }
+
+    // 郵便番号
+    const postal  = document.getElementById('postalCode').value.replace('-','').trim();
+    if(!postal){
+      setError('postalCodeError','必須項目です');
+      isValid = false;
+    } else if(postal.length !== 7 || isNaN(postal)){
+      setError('postalCodeError','7桁の数字で入力してください');
+      isValid = false;
+    }
+
+    // 住所
+    const address = document.getElementById('address').value.trim();
+    if(!address){
+      setError('addressError','必須項目です');
+      isValid = false;
+    }
+
+    // 電話番号
+    const phone = document.getElementById('phone').value.trim();
+    if(!phone){
+      setError('phoneError','必須項目です');
+      isValid = false;
+    } else {
+      const phoneRegex = /^[0-9\-]+$/;
+      if(!phoneRegex.test(phone)){
+        setError('phoneError','形式が正しくありません');
+        isValid = false;
+      }
+    }
+
+    if(isValid){
+      goToStep(2);
+    }
+  }
+
+  // ---------- STEP2 バリデーション ----------
+  function validateStep2(){
+    clearError('tennisExpError');
+    clearError('levelError');
+
+    const tennisYes = document.getElementById('tennisExpYes').checked;
+    const tennisNo  = document.getElementById('tennisExpNo').checked;
+    if(!tennisYes && !tennisNo){
+      setError('tennisExpError','必須項目です（あり / なし を選択してください）');
+      return;
+    }
+
+    // レベル必須
+    const levelVal = document.getElementById('levelSelect').value;
+    if(!levelVal){
+      setError('levelError','必須項目です');
+      return;
+    }
+    goToStep(3);
+  }
+
+  // ---------- STEP3 バリデーション (曜日/コース) ----------
+  function validateStep3(){
+    clearError('daySelectError');
+    clearError('courseSelectError');
+    clearError('dayCourseError');
+
+    let valid = true;
+
+    // ★★ 複数チェックボックスの取得
+    const checkedDays = document.querySelectorAll('input[name="days"]:checked');
+    const courseValue = document.getElementById('courseSelect').value;
+
+    if(checkedDays.length === 0){
+      setError('daySelectError','曜日を1つ以上選択してください');
+      valid = false;
+    }
+    if(!courseValue){
+      setError('courseSelectError','必須項目です');
+      valid = false;
+    }
+
+    if(!valid) return;
+
+    // 矛盾チェック例
+    const dayValues = Array.from(checkedDays).map(d => d.value);
+    const hasWeekend = dayValues.includes('sat') || dayValues.includes('sun');
+    const hasWeekday = dayValues.some(d => ['mon','tue','wed','thu','fri'].includes(d));
+
+    if(hasWeekend && (courseValue === 'weekday-day' || courseValue === 'weekday-night')){
+      setError('dayCourseError','土日が含まれるのに「平日」を選んでいます');
+      return;
+    }
+    if(!hasWeekend && courseValue === 'weekend'){
+      setError('dayCourseError','平日のみなのに「土日」コースを選んでいます');
+      return;
+    }
+
+    goToStep(4);
+  }
+
+  // ---------- STEP4 バリデーション (クラス選択) ----------
+  function validateStep4(){
+    clearError('classSelectError');
+    const classA = document.getElementById('classA').checked;
+    const classB = document.getElementById('classB').checked;
+    const classC = document.getElementById('classC').checked;
+    // classDはdisabled (定員0)なので選択できない
+
+    if(!classA && !classB && !classC){
+      setError('classSelectError','最低1つは選択してください');
+      return;
+    }
+
+    // 次はレッスン選択(step5)へ
+    goToStep(5);
+  }
+
+  // ▼▼▼ [追加] レッスン一覧データ（20件サンプル） ▼▼▼
+  // 実際には選択したクラスごとにAPI等で取得し、60日以内のデータをフィルタする想定
+  const lessonsData = [
+    { id: 'lesson1',  name: 'レッスン1',  dateTime: '2025/01/10 09:00-10:30', court: 'コート1', capacity: 3 },
+    { id: 'lesson2',  name: 'レッスン2',  dateTime: '2025/01/12 19:00-20:30', court: 'コート2', capacity: 2 },
+    { id: 'lesson3',  name: 'レッスン3',  dateTime: '2025/01/15 10:00-11:30', court: 'コート1', capacity: 0 },
+    { id: 'lesson4',  name: 'レッスン4',  dateTime: '2025/01/17 09:00-10:30', court: 'コート1', capacity: 5 },
+    { id: 'lesson5',  name: 'レッスン5',  dateTime: '2025/01/20 09:00-10:30', court: 'コート3', capacity: 1 },
+    { id: 'lesson6',  name: 'レッスン6',  dateTime: '2025/01/21 19:00-20:30', court: 'コート2', capacity: 3 },
+    { id: 'lesson7',  name: 'レッスン7',  dateTime: '2025/01/22 09:00-10:30', court: 'コート1', capacity: 2 },
+    { id: 'lesson8',  name: 'レッスン8',  dateTime: '2025/01/24 10:00-11:30', court: 'コート1', capacity: 4 },
+    { id: 'lesson9',  name: 'レッスン9',  dateTime: '2025/01/25 09:00-10:30', court: 'コート2', capacity: 0 },
+    { id: 'lesson10', name: 'レッスン10', dateTime: '2025/01/27 09:00-10:30', court: 'コート3', capacity: 2 },
+    { id: 'lesson11', name: 'レッスン11', dateTime: '2025/02/01 09:00-10:30', court: 'コート1', capacity: 1 },
+    { id: 'lesson12', name: 'レッスン12', dateTime: '2025/02/03 19:00-20:30', court: 'コート2', capacity: 0 },
+    { id: 'lesson13', name: 'レッスン13', dateTime: '2025/02/06 09:00-10:30', court: 'コート1', capacity: 5 },
+    { id: 'lesson14', name: 'レッスン14', dateTime: '2025/02/07 10:00-11:30', court: 'コート1', capacity: 3 },
+    { id: 'lesson15', name: 'レッスン15', dateTime: '2025/02/08 09:00-10:30', court: 'コート2', capacity: 4 },
+    { id: 'lesson16', name: 'レッスン16', dateTime: '2025/02/10 09:00-10:30', court: 'コート3', capacity: 0 },
+    { id: 'lesson17', name: 'レッスン17', dateTime: '2025/02/12 19:00-20:30', court: 'コート2', capacity: 2 },
+    { id: 'lesson18', name: 'レッスン18', dateTime: '2025/02/15 09:00-10:30', court: 'コート1', capacity: 1 },
+    { id: 'lesson19', name: 'レッスン19', dateTime: '2025/02/18 10:00-11:30', court: 'コート1', capacity: 6 },
+    { id: 'lesson20', name: 'レッスン20', dateTime: '2025/02/20 09:00-10:30', court: 'コート3', capacity: 0 },
+  ];
+
+  // ▼▼▼ [追加] 選択されたレッスン一覧を保持する配列 ▼▼▼
+  let selectedLessons = [];
+
+  // ---------- Step5 初期描画で20件のレッスン一覧を表示する ----------
+  function renderLessons() {
+  const lessonListDiv = document.getElementById('lessonList');
+  if (!lessonListDiv) return;
+
+  let html = '';
+  lessonsData.forEach(lesson => {
+    const disabled = lesson.capacity === 0 ? 'disabled' : '';
+    const labelClass = lesson.capacity === 0 ? 'disabled-label' : '';
+    html += `
+    <div class="form-check mb-2">
+      <input type="radio" class="form-check-input" name="lesson" id="${lesson.id}" value="${lesson.id}" ${disabled}>
+      <label class="form-check-label ${labelClass}" for="${lesson.id}">
+        ${lesson.dateTime}　${lesson.name}　(${lesson.court}) 残り${lesson.capacity}枠
+      </label>
+    </div>
+    `;
+  });
+  lessonListDiv.innerHTML = html;
+}
+
+
+  // ---------- STEP5 バリデーション (レッスン選択) ----------
+  function validateStep5() {
+  clearError('lessonSelectError');
+
+  // 選択されたラジオボタンを取得
+  const selectedRadio = document.querySelector('input[name="lesson"]:checked');
+  if (!selectedRadio) {
+    setError('lessonSelectError', '受講するレッスンを1つ選択してください');
+    return;
+  }
+
+  // 選択されたレッスンをグローバル変数に保存
+  const selectedLessonId = selectedRadio.value;
+  selectedLessons = lessonsData.filter(lesson => lesson.id === selectedLessonId);
+
+  // 次のステップへ
+  goToStep(6);
+}
+
+
+  // ---------- Step6 バリデーション (個人情報同意) ----------
+  function submitTrial(){
+    clearError('privacyError');
+    const privacy = document.getElementById('privacyCheck');
+    if(!privacy.checked){
+      setError('privacyError','同意が必要です');
+      return;
+    }
+    // 同意があれば step7(完了画面)へ
+    goToStep(7);
+
+    // ▼▼▼ [追加] 完了画面で選択したレッスンを表示 ▼▼▼
+    renderFinalLessons();
+  }
+
+  // ---------- Step7: 完了画面のボタンで終了処理(例) ----------
+  function finishAll(){
+    alert("ご予約ありがとうございました。");
+    // 例: TOPへ戻るなど
+    // location.href = 'somewhere_top.html';
+  }
+
+  // ▼▼▼ [追加] Step7で予約したレッスンを表示する関数 ▼▼▼
+  function renderFinalLessons(){
+    const ul = document.getElementById('reservedLessonList');
+    if(!ul) return;
+
+    ul.innerHTML = ''; // いったんクリア
+    selectedLessons.forEach(lesson => {
+      const li = document.createElement('li');
+      // レッスン名・日時・コート名を表示
+      li.textContent = `${lesson.name} / ${lesson.dateTime} / ${lesson.court}`;
+      ul.appendChild(li);
+    });
+  }
+
+  // ---------- UTILS ----------
+  function setError(id, msg){
+    const el = document.getElementById(id);
+    if(el){
+      el.textContent = msg;
+    }
+  }
+  function clearError(id){
+    const el = document.getElementById(id);
+    if(el){
+      el.textContent = '';
+    }
+  }
+
+  // テニス経験: detail表示
+  function toggleTennisExpDetail(){
+    const yes = document.getElementById('tennisExpYes').checked;
+    const detail = document.getElementById('tennisExpDetail');
+    if(detail){
+      detail.style.display = yes ? "block" : "none";
+    }
+  }
+  document.getElementById('tennisExpYes').addEventListener('change', toggleTennisExpDetail);
+  document.getElementById('tennisExpNo').addEventListener('change', toggleTennisExpDetail);
+
+  // 初期表示 step1
+  goToStep(1);
+
+  // Step5の画面が初めて表示された時に、レッスン一覧を描画するためのフック
+  // 画面遷移ごとに呼び出してもよいし、最初に一度だけ呼んでも可
+  // 今回はサンプルとしてページロード時に描画
+  renderLessons();
+
+</script>
+</body>
+</html>
