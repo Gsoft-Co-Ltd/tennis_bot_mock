@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>レッスン予定・予約画面（テニスボット）</title>
+  <title>レッスン予定・予約 (中級限定)</title>
   <!-- Bootstrap 5 -->
   <link 
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -17,27 +17,31 @@
       font-family: "Noto Sans JP", sans-serif;
     }
 
-    .header {
-      background-color: #4caf50;
-      color: #fff;
-      padding: 12px;
-      text-align: center;
-      font-weight: bold;
-      position: relative;
-    }
-    .header .title {
-      font-size: 1.2rem;
-      margin: 0;
-    }
-
-    .container {
-      max-width: 600px;
+    /* コンテナ本体 */
+    .container-main {
+      max-width: 500px;
       margin: 0 auto;
       padding: 15px;
       background-color: #fff;
       min-height: 100vh;
+      box-sizing: border-box;
     }
 
+    /* タイトル部分はコンテナ内に配置 */
+    .logo {
+      text-align: center;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+    .logo img {
+      width: 30px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
     /* タブ */
     .tab-menu {
       display: flex;
@@ -52,6 +56,7 @@
       font-size: 0.95rem;
       cursor: pointer;
       text-align: center;
+      color: #666;
     }
     .tab-menu button.active {
       border-bottom: 3px solid #4caf50;
@@ -93,6 +98,7 @@
       font-size: 0.85rem;
       cursor: pointer;
       color: #fff;
+      white-space: nowrap;
     }
     .btn-outline {
       background-color: #4caf50;
@@ -103,21 +109,72 @@
     .btn-secondary {
       background-color: #607d8b;
     }
+    .btn-cancel {
+      background-color: #9c27b0; /* 紫系 */
+    }
 
-    /* 残チケット */
-    .ticket-info {
-      background: #fafafa;
-      padding: 8px;
-      font-size: 0.85rem;
+    /* 縦スクロール領域 (予約・振替レッスンが多い場合) */
+    .scroll-area {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      padding: 6px;
+      margin-bottom: 12px;
+      background-color: #fafafa;
+    }
+
+    /* タブコンテントの隠し/表示 */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ▼▼▼ 操作確認パネル (単純な表示/非表示のみ) ▼▼▼ */
+    .confirm-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      max-width: 500px;
+      background: #fff;
+      border-top: 2px solid #ccc;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      padding: 10px;
+      z-index: 999; /* 前面に表示 */
+      display: none; /* 最初は非表示 */
+    }
+    .confirm-panel .confirm-text {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
       color: #333;
-      border: 1px solid #ddd;
+    }
+    .confirm-panel .confirm-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .confirm-panel .confirm-actions button {
+      flex: 1;
+      border: none;
       border-radius: 4px;
-      margin: 12px 0;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-confirm-yes {
+      background-color: #4caf50;
+    }
+    .btn-confirm-no {
+      background-color: #777;
     }
 
     @media (max-width: 400px) {
-      .lesson-card {
-        margin-bottom: 16px;
+      .container-main {
+        padding: 10px;
       }
       .tab-menu button {
         font-size: 0.85rem;
@@ -125,20 +182,20 @@
       .lesson-card .actions button {
         font-size: 0.8rem;
       }
-      .container {
-        padding: 10px;
+      .confirm-panel .confirm-actions button {
+        font-size: 0.8rem;
+        padding: 8px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <div class="header">
-    <p class="title">レッスン予定・予約</p>
-  </div>
-
-  <div class="container">
+  <div class="container-main">
+    <div class="logo">
+        <img src="../resource/tennis_icon.svg" alt="Tennis Logo">
+        Tennis BoT
+      </div>
 
     <!-- タブ切り替えボタン -->
     <div class="tab-menu">
@@ -150,118 +207,247 @@
       </button>
     </div>
 
-    <!-- ▼▼ レッスン予定一覧 (予約済み) ▼▼ -->
-    <div id="reservedTab" class="tab-content">
-      <h2 style="font-size:1.1rem; margin-bottom:10px; color:#333;">
-        あなたのレッスン予定
-      </h2>
-
-      <!-- 例: レッスンカード1 -->
-      <div class="lesson-card">
-        <h2>初級クラス</h2>
-        <div class="lesson-info">
-          <div>日時: 2024/03/05 (火) 19:00 - 20:30</div>
-          <div>コート: コート3</div>
-          <div>ステータス: 予約済</div>
-        </div>
-        <div class="actions">
-          <button class="btn-danger" onclick="absentLesson()">欠席連絡</button>
-        </div>
-      </div>
-
-      <!-- レッスンカード2 -->
-      <div class="lesson-card">
-        <h2>中級クラス</h2>
-        <div class="lesson-info">
-          <div>日時: 2024/03/07 (木) 9:00 - 10:30</div>
-          <div>コート: コート1</div>
-          <div>ステータス: 予約済</div>
-        </div>
-        <div class="actions">
-          <button class="btn-danger" onclick="absentLesson()">欠席連絡</button>
-        </div>
-      </div>
-
-      <!-- etc... -->
+    <!-- ▼▼ レッスン予定一覧 (予約済/振替済/欠席) ▼▼ -->
+    <div id="reservedTab" class="tab-content active">
+      <div id="reservedList"></div>
     </div>
     <!-- ▲▲ レッスン予定一覧 ▲▲ -->
 
     <!-- ▼▼ 予約・振替Tab ▼▼ -->
-    <div id="bookingTab" class="tab-content" style="display:none;">
-      <h2 style="font-size:1.1rem; margin-bottom:10px; color:#333;">
-        予約・振替可能なレッスン
-      </h2>
-
-      <!-- 振替チケットなどの情報 -->
-      <div class="ticket-info">
-        <p>振替チケット: <strong>2枚</strong> 残っています</p>
+    <div id="bookingTab" class="tab-content">
+      <div class="scroll-area" id="bookingList">
+        <!-- ここにJSでレッスン一覧を生成 -->
       </div>
-
-      <!-- 例: レッスンカード(予約候補1) -->
-      <div class="lesson-card">
-        <h2>初級クラス</h2>
-        <div class="lesson-info">
-          <div>日時: 2024/03/10 (日) 9:00 - 10:30</div>
-          <div>コート: コート2</div>
-        </div>
-        <div class="actions">
-          <button class="btn-outline" onclick="reserveLesson()">予約</button>
-          <button class="btn-secondary" onclick="substituteLesson()">振替</button>
-        </div>
-      </div>
-
-      <div class="lesson-card">
-        <h2>上級クラス</h2>
-        <div class="lesson-info">
-          <div>日時: 2024/03/15 (土) 13:00 - 14:30</div>
-          <div>コート: コート1</div>
-        </div>
-        <div class="actions">
-          <button class="btn-outline" onclick="reserveLesson()">予約</button>
-          <button class="btn-secondary" onclick="substituteLesson()">振替</button>
-        </div>
-      </div>
-
-      <!-- etc... -->
     </div>
     <!-- ▲▲ 予約・振替Tab ▲▲ -->
+  </div><!-- /.container-main -->
 
-  </div><!-- /container -->
+  <!-- ▼▼▼ 操作確認パネル (通知なし) ▼▼▼ -->
+  <div id="confirmPanel" class="confirm-panel">
+    <div id="confirmText" class="confirm-text"></div>
+    <div class="confirm-actions">
+      <button id="confirmYesBtn" class="btn-confirm-yes">はい</button>
+      <button id="confirmNoBtn" class="btn-confirm-no">いいえ</button>
+    </div>
+  </div>
 
-  <!-- Script (for tabs, actions) -->
+  <!-- Script -->
   <script>
+    // ▼▼▼ タブ切り替え ▼▼▼
     function switchTab(tabName) {
+      const reservedTab = document.getElementById('reservedTab');
+      const bookingTab  = document.getElementById('bookingTab');
       const tabReservedBtn = document.getElementById('tabReserved');
       const tabBookingBtn  = document.getElementById('tabBooking');
-      const reservedTab    = document.getElementById('reservedTab');
-      const bookingTab     = document.getElementById('bookingTab');
 
       if(tabName === 'reserved'){
-        // レッスン予定一覧を表示
+        reservedTab.classList.add('active');
+        bookingTab.classList.remove('active');
         tabReservedBtn.classList.add('active');
         tabBookingBtn.classList.remove('active');
-        reservedTab.style.display = 'block';
-        bookingTab.style.display  = 'none';
       } else {
-        // 予約・振替を表示
+        reservedTab.classList.remove('active');
+        bookingTab.classList.add('active');
         tabReservedBtn.classList.remove('active');
         tabBookingBtn.classList.add('active');
-        reservedTab.style.display = 'none';
-        bookingTab.style.display  = 'block';
       }
     }
 
-    function absentLesson(){
-      alert("欠席連絡が送信されました。（デモ）");
+    // ▼▼▼ 操作確認パネル制御 (表示/非表示だけ) ▼▼▼
+    let confirmCallback = null;
+    function showConfirmPanel(message, onYes){
+      confirmCallback = onYes;
+      const panel = document.getElementById('confirmPanel');
+      const textEl = document.getElementById('confirmText');
+      textEl.innerText = message;
+      panel.style.display = 'block';
+    }
+    function hideConfirmPanel(){
+      const panel = document.getElementById('confirmPanel');
+      panel.style.display = 'none';
+      confirmCallback = null;
+    }
+    document.getElementById('confirmYesBtn').addEventListener('click', () => {
+      if(confirmCallback){
+        confirmCallback();
+      }
+      hideConfirmPanel();
+    });
+    document.getElementById('confirmNoBtn').addEventListener('click', () => {
+      hideConfirmPanel();
+    });
+
+    // ▼▼▼ レッスン予定データ ▼▼▼
+    // status: "予約済", "欠席", "振替済"
+    const reservedLessons = [
+      {
+        id: 'r1',
+        name: '中級クラス',
+        date: '2025/02/15',
+        time: '19:00 - 20:30',
+        court: 'コート3',
+        status: '予約済'
+      },
+      {
+        id: 'r2',
+        name: '中級クラス',
+        date: '2025/02/20',
+        time: '09:00 - 10:30',
+        court: 'コート1',
+        status: '振替済'
+      },
+      {
+        id: 'r3',
+        name: '中級クラス',
+        date: '2025/02/21',
+        time: '10:00 - 11:30',
+        court: 'コート2',
+        status: '欠席'
+      }
+    ];
+
+    // 予約・振替（中級のみ）※自分が既に振替や予約しているレッスンは当然表示されません。
+    const bookingSampleData = [
+      { id: 101, name: '中級クラス', date:'2025/02/25', time:'09:00 - 10:30', court:'コート1'},
+      { id: 102, name: '中級クラス', date:'2025/02/26', time:'19:00 - 20:30', court:'コート3'},
+      { id: 103, name: '中級クラス', date:'2025/02/28', time:'10:00 - 11:30', court:'コート2'},
+      { id: 104, name: '中級クラス', date:'2025/03/02', time:'09:00 - 10:30', court:'コート1'},
+      { id: 105, name: '中級クラス', date:'2025/03/05', time:'19:00 - 20:30', court:'コート2'},
+      { id: 106, name: '中級クラス', date:'2025/03/08', time:'09:00 - 10:30', court:'コート3'},
+      { id: 107, name: '中級クラス', date:'2025/03/10', time:'10:00 - 11:30', court:'コート2'},
+      { id: 108, name: '中級クラス', date:'2025/03/12', time:'09:00 - 10:30', court:'コート1'},
+      { id: 109, name: '中級クラス', date:'2025/03/15', time:'19:00 - 20:30', court:'コート3'},
+      { id: 110, name: '中級クラス', date:'2025/03/18', time:'09:00 - 10:30', court:'コート2'},
+    ];
+
+    // ▼▼▼ レッスン予定を描画 (通知なし) ▼▼▼
+    function renderReservedLessons(){
+      const container = document.getElementById('reservedList');
+      if(!container) return;
+      container.innerHTML = '';
+
+      reservedLessons.forEach(lesson => {
+        const div = document.createElement('div');
+        div.className = 'lesson-card';
+        div.innerHTML = `
+          <h2>${lesson.name}</h2>
+          <div class="lesson-info">
+            <div>日時: ${lesson.date} (${lesson.time})</div>
+            <div>コート: ${lesson.court}</div>
+            <div>ステータス: <strong>${lesson.status}</strong></div>
+          </div>
+          <div class="actions" id="actions-${lesson.id}"></div>
+        `;
+        container.appendChild(div);
+
+        const actionsContainer = document.getElementById(`actions-${lesson.id}`);
+        if(!actionsContainer) return;
+
+        if(lesson.status === '予約済'){
+          const absentBtn = document.createElement('button');
+          absentBtn.className = 'btn-danger';
+          absentBtn.textContent = '欠席連絡';
+          absentBtn.onclick = () => {
+            showConfirmPanel(
+              `「${lesson.name}」(${lesson.date} ${lesson.time})を欠席にしますか？`,
+              () => absentLesson(lesson.id)
+            );
+          };
+          actionsContainer.appendChild(absentBtn);
+
+        } else if(lesson.status === '欠席'){
+          const cancelAbsentBtn = document.createElement('button');
+          cancelAbsentBtn.className = 'btn-secondary';
+          cancelAbsentBtn.textContent = '欠席キャンセル';
+          cancelAbsentBtn.onclick = () => {
+            showConfirmPanel(
+              `「${lesson.name}」(${lesson.date} ${lesson.time})の欠席を取り消しますか？`,
+              () => cancelAbsent(lesson.id)
+            );
+          };
+          actionsContainer.appendChild(cancelAbsentBtn);
+
+        } else if(lesson.status === '振替済'){
+          const cancelBtn = document.createElement('button');
+          cancelBtn.className = 'btn-cancel';
+          cancelBtn.textContent = 'キャンセル';
+          cancelBtn.onclick = () => {
+            showConfirmPanel(
+              `「${lesson.name}」(${lesson.date} ${lesson.time})の振替をキャンセルしますか？`,
+              () => cancelSubstitute(lesson.id)
+            );
+          };
+          actionsContainer.appendChild(cancelBtn);
+        }
+      });
     }
 
-    function reserveLesson(){
-      alert("予約を確定しました。（デモ）");
+    // ▼▼▼ 実際のステータス変更 (通知なし) ▼▼▼
+    function absentLesson(lessonId){
+      const lesson = reservedLessons.find(l => l.id === lessonId);
+      if(!lesson) return;
+      lesson.status = '欠席';
+      renderReservedLessons();
+    }
+    function cancelAbsent(lessonId){
+      const lesson = reservedLessons.find(l => l.id === lessonId);
+      if(!lesson) return;
+      lesson.status = '予約済';
+      renderReservedLessons();
+    }
+    function cancelSubstitute(lessonId){
+      const lesson = reservedLessons.find(l => l.id === lessonId);
+      if(!lesson) return;
+      reservedLessons.splice(reservedLessons.indexOf(lesson), 1);
+      renderReservedLessons();
     }
 
-    function substituteLesson(){
-      alert("振替を確定しました。（デモ）");
+    // ▼▼▼ 予約・振替レッスン描画 (通知なし) ▼▼▼
+    function renderBookingLessons(){
+      const bookingListEl = document.getElementById('bookingList');
+      if(!bookingListEl) return;
+      bookingListEl.innerHTML = '';
+
+      bookingSampleData.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('lesson-card');
+        div.innerHTML = `
+          <h2>${item.name}</h2>
+          <div class="lesson-info">
+            <div>日時: ${item.date} (${item.time})</div>
+            <div>コート: ${item.court}</div>
+          </div>
+          <div class="actions">
+            <button class="btn-outline" id="reserveBtn-${item.id}">予約</button>
+            <button class="btn-secondary" id="substituteBtn-${item.id}">振替</button>
+          </div>
+        `;
+        bookingListEl.appendChild(div);
+
+        const rBtn = document.getElementById(`reserveBtn-${item.id}`);
+        if(rBtn){
+          rBtn.onclick = () => {
+            showConfirmPanel(
+              `「${item.name}」(${item.date} ${item.time})を予約しますか？`,
+              () => { /* 予約後の通知をしない */ }
+            );
+          };
+        }
+        const sBtn = document.getElementById(`substituteBtn-${item.id}`);
+        if(sBtn){
+          sBtn.onclick = () => {
+            showConfirmPanel(
+              `「${item.name}」(${item.date} ${item.time})を振替しますか？`,
+              () => { /* 振替後の通知をしない */ }
+            );
+          };
+        }
+      });
     }
+
+    // ページ初期表示
+    renderReservedLessons();
+    renderBookingLessons();
   </script>
 </body>
 </html>
