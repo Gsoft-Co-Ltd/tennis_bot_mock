@@ -131,7 +131,6 @@
     .select-card {
       max-width: 500px;
     }
-
   </style>
 </head>
 
@@ -264,123 +263,223 @@
       </div>
     </div>
 
-    <!-- 会員追加モーダル -->
+    <!-- ▼▼▼ 会員追加モーダル（単一フォーム） ▼▼▼ -->
     <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">会員追加</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
-            <form id="addMemberForm">
+
               <div class="mb-3">
-                <label class="form-label fw-bold">会員番号</label>
-                <input type="text" class="form-control" id="addMemberId" placeholder="例: 010"/>
+                <label for="lastName" class="form-label fw-bold">姓 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="lastName" placeholder="例：山田" />
+                <div id="lastNameError" class="text-danger"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label fw-bold">氏名</label>
-                <input type="text" class="form-control" id="addMemberName" placeholder="例: 山田 花子"/>
+                <label for="firstName" class="form-label fw-bold">名 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="firstName" placeholder="例：太郎" />
+                <div id="firstNameError" class="text-danger"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label fw-bold">フリガナ</label>
-                <input type="text" class="form-control" id="addMemberKana" placeholder="例: ヤマダ ハナコ"/>
+                <label for="lastNameKana" class="form-label fw-bold">姓（フリガナ） <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="lastNameKana"
+                  placeholder="例：ヤマダ"
+                />
+                <div id="lastNameKanaError" class="text-danger"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label fw-bold">郵便番号</label>
-                <input type="text" class="form-control" id="addPostalCode" placeholder="例: 460-0000"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">住所</label>
-                <input type="text" class="form-control" id="addAddress" placeholder="例: 愛知県名古屋市中区1-2-3"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">電話番号</label>
-                <input type="text" class="form-control" id="addPhone" placeholder="例: 090-1234-5678"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">メール</label>
-                <input type="email" class="form-control" id="addEmail" placeholder="例: hanako.sato@example.com"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">性別</label>
-                <select class="form-select" id="addGender">
-                  <option>男性</option>
-                  <option>女性</option>
-                  <option>その他</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">生年月日</label>
-                <input type="date" class="form-control" id="addBirthDate"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">入会日</label>
-                <input type="date" class="form-control" id="addJoinDate"/>
+                <label for="firstNameKana" class="form-label fw-bold">名（フリガナ） <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="firstNameKana"
+                  placeholder="例：タロウ"
+                />
+                <div id="firstNameKanaError" class="text-danger"></div>
               </div>
 
-              <hr>
-              <h6 class="fw-bold">口座情報</h6>
               <div class="mb-3">
-                <label class="form-label">銀行名</label>
-                <input type="text" class="form-control" id="addBankName" placeholder="例: 三菱UFJ銀行"/>
+                <label class="form-label fw-bold">性別 <span class="text-danger">*</span></label>
+                <div class="d-flex flex-row">
+                  <div class="form-check me-3">
+                    <input
+                      type="radio"
+                      class="form-check-input"
+                      name="genderRadio"
+                      id="genderMale"
+                      value="male"
+                    />
+                    <label for="genderMale" class="form-check-label">男性</label>
+                  </div>
+                  <div class="form-check me-3">
+                    <input
+                      type="radio"
+                      class="form-check-input"
+                      name="genderRadio"
+                      id="genderFemale"
+                      value="female"
+                    />
+                    <label for="genderFemale" class="form-check-label">女性</label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      type="radio"
+                      class="form-check-input"
+                      name="genderRadio"
+                      id="genderOther"
+                      value="other"
+                    />
+                    <label for="genderOther" class="form-check-label">その他</label>
+                  </div>
+                </div>
+                <div id="genderError" class="text-danger"></div>
+              </div>   
+
+              <div class="mb-3">
+                <label for="postalCode" class="form-label fw-bold">郵便番号 <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="postalCode"
+                  placeholder="例：123-4567"
+                  onblur="fetchAddress()"
+                />
+                <div id="postalCodeError" class="text-danger"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label">支店名</label>
-                <input type="text" class="form-control" id="addBranchName" placeholder="例: 名古屋支店"/>
+                <label for="address" class="form-label fw-bold">住所 <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address"
+                  placeholder="例：東京都渋谷区1-2-3"
+                />
+                <div id="addressError" class="text-danger"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label">口座種別</label>
-                <select class="form-select" id="addAccountType">
-                  <option>普通</option>
-                  <option>当座</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">口座番号</label>
-                <input type="text" class="form-control" id="addAccountNumber" placeholder="1234567"/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">口座名義</label>
-                <input type="text" class="form-control" id="addAccountHolder" placeholder="例: ヤマダ ハナコ"/>
+                <label for="address2" class="form-label fw-bold">住所（マンション名など）</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address2"
+                  placeholder="建物名・部屋番号など"
+                />
               </div>
 
-              <hr>
-              <h6 class="fw-bold">コース・クラス・レベル</h6>
               <div class="mb-3">
-                <label class="form-label">レベル</label>
-                <select class="form-select" id="addLevel">
-                  <option>初級</option>
-                  <option>中級</option>
-                  <option>上級</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">クラス</label>
-                <select class="form-select" id="addClass">
-                  <option>Aクラス</option>
-                  <option>Bクラス</option>
-                  <option>Cクラス</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">コース</label>
-                <select class="form-select" id="addCourse">
-                  <option>入門コース</option>
-                  <option>中級コース</option>
-                  <option>応用コース</option>
-                </select>
+                <label for="phone" class="form-label fw-bold">電話番号（携帯番号） <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="phone"
+                  placeholder="例：090-1234-5678"
+                />
+                <div id="phoneError" class="text-danger"></div>
               </div>
 
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-            <button type="button" class="btn btn-primary" onclick="addNewMember()">登録</button>
+              <!-- 緊急連絡先 -->
+              <hr />
+              <p class="fw-bold text-primary">緊急連絡先・保護者</p>
+              <div class="mb-3">
+                <label for="emergencyName" class="form-label fw-bold">氏名 <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="emergencyName"
+                  placeholder="例：山田 花子"
+                />
+                <div id="emergencyNameError" class="text-danger"></div>
+              </div>
+              <div class="mb-3">
+                <label for="emergencyRelation" class="form-label fw-bold">間柄 <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="emergencyRelation"
+                  placeholder="例：妻、母、兄弟、友人等"
+                />
+                <div id="emergencyRelationError" class="text-danger"></div>
+              </div>
+              <div class="mb-3">
+                <label for="emergencyPhone" class="form-label fw-bold">電話番号（携帯番号） <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="emergencyPhone"
+                  placeholder="例：090-1111-2222"
+                />
+                <div id="emergencyPhoneError" class="text-danger"></div>
+              </div>
+
+              <!-- レベル -->
+              <hr />
+              <p class="fw-bold text-primary">レベル選択</p>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="childLevel" class="form-check-input" value="child">
+                <label for="childLevel" class="form-check-label">チャイルド</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="shortLevel" class="form-check-input" value="short">
+                <label for="shortLevel" class="form-check-label">ショート</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="midiLevel" class="form-check-input" value="midi">
+                <label for="midiLevel" class="form-check-label">ミディ</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="regularLevel" class="form-check-input" value="regular">
+                <label for="regularLevel" class="form-check-label">レギュラー</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="hajimeteLevel" class="form-check-input" value="hajimete">
+                <label for="hajimeteLevel" class="form-check-label">はじめて</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="beginnerLevel" class="form-check-input" value="beginner">
+                <label for="beginnerLevel" class="form-check-label">初級</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="basicAdvLevel" class="form-check-input" value="basic_adv">
+                <label for="basicAdvLevel" class="form-check-label">初中級</label>
+              </div>
+              <div class="form-check mb-2">
+                <input type="radio" name="levelRadio" id="intermediateLevel" class="form-check-input" value="intermediate">
+                <label for="intermediateLevel" class="form-check-label">中級</label>
+              </div>
+              <div class="form-check mb-3">
+                <input type="radio" name="levelRadio" id="advancedLevel" class="form-check-input" value="advanced">
+                <label for="advancedLevel" class="form-check-label">上級</label>
+              </div>
+              <div id="levelError" class="text-danger"></div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  キャンセル
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="validateAndRegister()"
+                >
+                  登録
+                </button>
+              </div>
+            </form><!-- /#singleAddForm -->
           </div>
         </div>
       </div>
     </div>
+    <!-- ▼▼▼ 会員追加モーダルここまで ▼▼▼ -->
 
   </div> <!-- /container -->
 
@@ -607,50 +706,10 @@
       updateTable();
     });
 
-    // モーダル表示
+    // モーダルを表示
     function showAddMemberModal() {
       const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
       modal.show();
-    }
-
-    // 新規会員追加
-    function addNewMember() {
-      const memberId    = document.getElementById('addMemberId').value.trim();
-      const memberName  = document.getElementById('addMemberName').value.trim();
-      const memberKana  = document.getElementById('addMemberKana').value.trim();
-      const address     = document.getElementById('addAddress').value.trim();
-      const phone       = document.getElementById('addPhone').value.trim();
-      const email       = document.getElementById('addEmail').value.trim();
-      const birthDate   = document.getElementById('addBirthDate').value;
-      const joinDate    = document.getElementById('addJoinDate').value;
-      const bankName    = document.getElementById('addBankName').value.trim();
-      const branchName  = document.getElementById('addBranchName').value.trim();
-      const accountNumber  = document.getElementById('addAccountNumber').value.trim();
-      const accountHolder  = document.getElementById('addAccountHolder').value.trim();
-
-      // 簡単な必須チェック
-      if(!memberId || !memberName || !memberKana || !address || !phone || !email
-         || !birthDate || !joinDate || !bankName || !branchName || !accountNumber || !accountHolder) {
-        alert("必要な項目をすべて入力してください。");
-        return;
-      }
-
-      const course = document.getElementById('addCourse').value;
-
-      members.push({
-        id: memberId,
-        name: memberName,
-        kana: memberKana,
-        course: course,
-        notes: "無し",
-        overdue: "無し"
-      });
-
-      document.getElementById('addMemberForm').reset();
-      const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
-      modal.hide();
-      alert("新しい会員を追加しました。");
-      updateTable();
     }
 
     // 「企業・スクール」選択ボタン
@@ -664,6 +723,165 @@
       }
       alert(`企業: ${companyValue}\nスクール: ${schoolValue}\nが選択されました(モック)。`);
     });
+
+    // ▼▼▼ 単一フォーム用バリデーション＋登録処理 ▼▼▼
+    function validateAndRegister(){
+      // 全エラークリア
+      document.getElementById('memberTypeError').innerText = '';
+      document.getElementById('lastNameError').innerText = '';
+      document.getElementById('firstNameError').innerText = '';
+      document.getElementById('lastNameKanaError').innerText = '';
+      document.getElementById('firstNameKanaError').innerText = '';
+      document.getElementById('genderError').innerText = '';
+      document.getElementById('postalCodeError').innerText = '';
+      document.getElementById('addressError').innerText = '';
+      document.getElementById('phoneError').innerText = '';
+      document.getElementById('emergencyNameError').innerText = '';
+      document.getElementById('emergencyRelationError').innerText = '';
+      document.getElementById('emergencyPhoneError').innerText = '';
+      document.getElementById('agreeTermsError').innerText = '';
+      document.getElementById('privacyError').innerText = '';
+      document.getElementById('levelError').innerText = '';
+
+      let isValid = true;
+
+
+      // 姓・名(必須)
+      const ln = document.getElementById('lastName').value.trim();
+      const fn = document.getElementById('firstName').value.trim();
+      if(!ln) {
+        document.getElementById('lastNameError').innerText = '姓を入力してください';
+        isValid = false;
+      }
+      if(!fn) {
+        document.getElementById('firstNameError').innerText = '名を入力してください';
+        isValid = false;
+      }
+
+      // フリガナ
+      const lnKana = document.getElementById('lastNameKana').value.trim();
+      const fnKana = document.getElementById('firstNameKana').value.trim();
+      if(!lnKana) {
+        document.getElementById('lastNameKanaError').innerText = 'フリガナ（姓）を入力してください';
+        isValid = false;
+      }
+      if(!fnKana) {
+        document.getElementById('firstNameKanaError').innerText = 'フリガナ（名）を入力してください';
+        isValid = false;
+      }
+
+      // 性別
+      const genderMale = document.getElementById('genderMale');
+      const genderFemale = document.getElementById('genderFemale');
+      const genderOther = document.getElementById('genderOther');
+      if(!genderMale.checked && !genderFemale.checked && !genderOther.checked) {
+        document.getElementById('genderError').innerText = '性別を選択してください';
+        isValid = false;
+      }
+
+      // 郵便番号
+      const pc = document.getElementById('postalCode').value.replace('-','').trim();
+      if(!pc) {
+        document.getElementById('postalCodeError').innerText = '郵便番号を入力してください';
+        isValid = false;
+      } else if(pc.length !== 7 || isNaN(pc)) {
+        document.getElementById('postalCodeError').innerText = '正しい郵便番号(7桁数字)を入力してください';
+        isValid = false;
+      }
+
+      // 住所
+      const ad = document.getElementById('address').value.trim();
+      if(!ad) {
+        document.getElementById('addressError').innerText = '住所を入力してください';
+        isValid = false;
+      }
+
+      // 電話番号
+      const ph = document.getElementById('phone').value.trim();
+      if(!ph) {
+        document.getElementById('phoneError').innerText = '電話番号を入力してください';
+        isValid = false;
+      } else {
+        const phoneRegex = /^[0-9\-]+$/;
+        if(!phoneRegex.test(ph)) {
+          document.getElementById('phoneError').innerText = '電話番号の形式が正しくありません';
+          isValid = false;
+        }
+      }
+
+      // 緊急連絡先
+      const emName = document.getElementById('emergencyName').value.trim();
+      if(!emName) {
+        document.getElementById('emergencyNameError').innerText = '氏名を入力してください';
+        isValid = false;
+      }
+      const emRel = document.getElementById('emergencyRelation').value.trim();
+      if(!emRel) {
+        document.getElementById('emergencyRelationError').innerText = '間柄を入力してください';
+        isValid = false;
+      }
+      const emPhone = document.getElementById('emergencyPhone').value.trim();
+      if(!emPhone) {
+        document.getElementById('emergencyPhoneError').innerText = '電話番号を入力してください';
+        isValid = false;
+      } else {
+        const phoneRegex = /^[0-9\-]+$/;
+        if(!phoneRegex.test(emPhone)) {
+          document.getElementById('emergencyPhoneError').innerText = '電話番号の形式が正しくありません';
+          isValid = false;
+        }
+      }
+
+      // レベル選択
+      const radios = document.getElementsByName('levelRadio');
+      let chosen = false;
+      for(const r of radios){
+        if(r.checked) {
+          chosen = true;
+          break;
+        }
+      }
+      if(!chosen){
+        document.getElementById('levelError').innerText = 'レベルを選択してください';
+        isValid = false;
+      }
+
+      if(isValid){
+        // 登録処理(モック)
+        alert('会員登録が完了しました（モック）。');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+        modal.hide();
+      }
+    }
+
+    // 郵便番号で住所自動取得
+    function fetchAddress() {
+      const postalCode = document.getElementById("postalCode").value.replace("-", "");
+      const addressField = document.getElementById("address");
+      document.getElementById('postalCodeError').innerText = '';
+
+      if(!postalCode) return; 
+
+      if (postalCode.length !== 7 || isNaN(postalCode)) {
+        document.getElementById('postalCodeError').innerText = '正しい郵便番号(7桁数字)を入力してください';
+        return;
+      }
+
+      fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.results) {
+            const result = data.results[0];
+            addressField.value = `${result.address1}${result.address2}${result.address3}`;
+          } else {
+            document.getElementById('postalCodeError').innerText ='該当する住所が見つかりませんでした';
+          }
+        })
+        .catch(error => {
+          console.error("エラーが発生しました:", error);
+          document.getElementById('postalCodeError').innerText ='住所の取得に失敗しました';
+        });
+    }
 
     window.onload = () => {
       updateTable();
