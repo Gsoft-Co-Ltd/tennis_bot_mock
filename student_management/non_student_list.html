@@ -19,6 +19,15 @@
     .container {
       max-width: 1100px;
     }
+    .card {
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background:#fff;
+    }
+    .card-body {
+      padding:15px;
+    }
     .table-wrap {
       background: #fff;
       border-radius: 8px;
@@ -147,30 +156,46 @@
         </div>
       </div>
     </div>
-    <!-- ここまで企業・スクール選択 -->
-  <!-- 検索・フィルターエリア -->
-  <div class="row mb-3 gx-3 align-items-end">
-    <div class="col-auto">
-      <label for="searchInput" class="form-label mb-0 fw-bold">名前検索:</label>
-      <input
-        type="text"
-        id="searchInput"
-        class="form-control search-bar"
-        placeholder="非スクール生名で検索"
-      />
-    </div>
-    <div class="col-auto">
-      <label for="filterType" class="form-label mb-0 fw-bold">会員区分:</label>
-      <select id="filterType" class="form-select">
-        <option value="">全て</option>
-        <option value="visitor">ビジター</option>
-        <option value="trial">体験</option>
-      </select>
-    </div>
-    <div class="col-auto">
-      <button class="btn btn-primary" id="filterButton">絞り込み</button>
+    <!-- ここまで企業・スクール選択 --><!-- 検索・フィルターエリア（カード化） -->
+<div class="card">
+  <div class="card-header">検索・フィルタ</div>
+  <div class="card-body">
+    <div class="row mb-3 gx-3 align-items-end">
+      <div class="col-auto">
+        <label for="searchInput" class="form-label mb-0 fw-bold">名前検索:</label>
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control search-bar"
+          placeholder="非スクール生名で検索"
+        />
+      </div>
+      <div class="col-auto">
+        <label for="filterType" class="form-label mb-0 fw-bold">会員区分:</label>
+        <select id="filterType" class="form-select">
+          <option value="">全て</option>
+          <option value="visitor">ビジター</option>
+          <option value="trial">体験</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" id="filterButton">絞り込み</button>
+      </div>
     </div>
   </div>
+</div>
+
+      <!-- 同時表示件数 -->
+      <div class="d-flex align-items-center mb-3">
+        <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
+        <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
+          <option value="20" selected>20</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+  
 
   <!-- テーブル表示エリア -->
   <div class="table-wrap">
