@@ -12,17 +12,13 @@
     body {
       background-color: #f5f7fa;
       font-family: "Noto Sans JP", sans-serif;
-      margin:0;
-      padding:20px;
+      margin: 0;
+      padding: 20px;
     }
     .form-label {
       font-weight: bold;
       color: #333;
-      margin-bottom:4px;
-    }
-    .form-control[readonly] {
-      background-color: #e9ecef;
-      color: #6c757d;
+      margin-bottom: 4px;
     }
     .btn-group {
       display: flex;
@@ -33,112 +29,74 @@
 <body>
 
   <div class="container mt-3">
-        <div class="mb-3 d-flex justify-content-end">
-          <!-- 編集 / 保存 ボタン -->
-          <button
-            type="button"
-            id="editButton"
-            class="btn btn-warning btn-sm me-2"
-            onclick="toggleEdit()"
-          >
-            編集
-          </button>
-          <button
-            type="button"
-            id="saveButton"
-            class="btn btn-success btn-sm"
-            style="display: none"
-            onclick="saveInfo()"
-          >
-            保存
-          </button>
-        </div>
-        <form id="feeForm">
-          <div class="mb-3">
-            <label for="admissionFee" class="form-label">入会金（税抜）</label>
-            <input
-              type="number"
-              id="admissionFee"
-              class="form-control"
-              value="3000"
-              readonly
-            />
-          </div>
-          <div class="mb-3">
-            <label for="annualFee" class="form-label">年会費（税抜）</label>
-            <input
-              type="number"
-              id="annualFee"
-              class="form-control"
-              value="2000"
-              readonly
-            />
-          </div>
-          <div class="mb-3">
-            <label for="suspendFee" class="form-label">休会費（税抜/1期あたり）</label>
-            <input
-              type="number"
-              id="suspendFee"
-              class="form-control"
-              value="1000"
-              readonly
-            />
-          </div>
-        </form>
-
+    <div class="mb-3 d-flex justify-content-end">
+      <!-- 保存ボタン -->
+      <button
+        type="button"
+        id="saveButton"
+        class="btn btn-success btn-sm"
+        onclick="saveInfo()"
+      >
+        保存
+      </button>
+    </div>
+    <form id="feeForm">
+      <div class="mb-3">
+        <label for="admissionFee" class="form-label">入会金（税抜）</label>
+        <input
+          type="text"
+          id="admissionFee"
+          class="form-control"
+          value="3000"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="annualFee" class="form-label">年会費（税抜）</label>
+        <input
+          type="text"
+          id="annualFee"
+          class="form-control"
+          value="2000"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="suspendFee" class="form-label">休会費（税抜/1期あたり）</label>
+        <input
+          type="text"
+          id="suspendFee"
+          class="form-control"
+          value="1000"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="trial" class="form-label">体験レッスン（1回あたり）</label>
+        <input
+          type="text"
+          id="trial"
+          class="form-control"
+          value="1500"
+        />
+      </div>
+    </form>
   </div>
 
   <script>
-    // 「編集」ボタンでフォームを編集可能にし、「保存」ボタンでフォームを再び読み取り専用にする
-    function toggleEdit() {
-      const admissionInput = document.getElementById("admissionFee");
-      const annualInput = document.getElementById("annualFee");
-      const suspendInput = document.getElementById("suspendFee");
-
-      const isReadOnly = admissionInput.hasAttribute("readonly");
-
-      // 編集モードへ移行する場合（現在：readonly）
-      if (isReadOnly) {
-        admissionInput.removeAttribute("readonly");
-        annualInput.removeAttribute("readonly");
-        suspendInput.removeAttribute("readonly");
-
-        document.getElementById("editButton").style.display = "none";
-        document.getElementById("saveButton").style.display = "inline-block";
-      }
-      // 読み取り専用に戻す場合（現在：編集モード）
-      else {
-        admissionInput.setAttribute("readonly", "readonly");
-        annualInput.setAttribute("readonly", "readonly");
-        suspendInput.setAttribute("readonly", "readonly");
-
-        document.getElementById("editButton").style.display = "inline-block";
-        document.getElementById("saveButton").style.display = "none";
-      }
-    }
-
     // 「保存」ボタンを押したときの処理
     function saveInfo() {
-      const admissionInput = document.getElementById("admissionFee");
-      const annualInput = document.getElementById("annualFee");
-      const suspendInput = document.getElementById("suspendFee");
-
-      // 数値変換 & ログ
-      const admissionVal = parseInt(admissionInput.value, 10);
-      const annualVal = parseInt(annualInput.value, 10);
-      const suspendVal = parseInt(suspendInput.value, 10);
+      const admissionVal = parseInt(document.getElementById("admissionFee").value, 10);
+      const annualVal = parseInt(document.getElementById("annualFee").value, 10);
+      const suspendVal = parseInt(document.getElementById("suspendFee").value, 10);
+      const trialVal = parseInt(document.getElementById("trial").value, 10);
 
       // ここではコンソールに出力するモック実装
       console.log("保存データ:", {
         admissionFee: admissionVal,
         annualFee: annualVal,
-        suspendFee: suspendVal
+        suspendFee: suspendVal,
+        trial: trialVal
       });
 
       alert("設定を保存しました(モック)");
-
-      // 再度読み取り専用へ
-      toggleEdit();
     }
   </script>
 
