@@ -15,10 +15,19 @@
       margin: 0;
       padding: 20px;
     }
+    .form-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
     .form-label {
       font-weight: bold;
       color: #333;
-      margin-bottom: 4px;
+      width: 300px; 
+    }
+    .form-control {
+      width: 200px; 
     }
     .btn-group {
       display: flex;
@@ -29,7 +38,7 @@
 <body>
 
   <div class="container mt-3">
-    <div class="mb-3 d-flex justify-content-end">
+    <div class="mb-3 d-flex justify-content-end" style="margin-right: 10%;">
       <!-- 保存ボタン -->
       <button
         type="button"
@@ -41,7 +50,7 @@
       </button>
     </div>
     <form id="feeForm">
-      <div class="mb-3">
+      <div class="form-group">
         <label for="admissionFee" class="form-label">入会金（税抜）</label>
         <input
           type="text"
@@ -49,8 +58,9 @@
           class="form-control"
           value="3000"
         />
+        <span>円</span>
       </div>
-      <div class="mb-3">
+      <div class="form-group">
         <label for="annualFee" class="form-label">年会費（税抜）</label>
         <input
           type="text"
@@ -58,8 +68,9 @@
           class="form-control"
           value="2000"
         />
+        <span>円</span>
       </div>
-      <div class="mb-3">
+      <div class="form-group">
         <label for="suspendFee" class="form-label">休会費（税抜/1期あたり）</label>
         <input
           type="text"
@@ -67,15 +78,17 @@
           class="form-control"
           value="1000"
         />
+        <span>円</span>
       </div>
-      <div class="mb-3">
-        <label for="trial" class="form-label">体験レッスン（1回あたり）</label>
+      <div class="form-group">
+        <label for="trial" class="form-label">体験レッスン費（1回あたり）</label>
         <input
           type="text"
           id="trial"
           class="form-control"
           value="1500"
         />
+        <span>円</span>
       </div>
     </form>
   </div>
