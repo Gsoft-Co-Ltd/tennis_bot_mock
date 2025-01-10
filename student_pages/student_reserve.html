@@ -154,8 +154,8 @@
       /* display: none; ←★元のコード(維持) */
       display: none;
       /* 追加：ヘッダー・タブ・フッターを除いた可視領域に */
-      flex: 1;               
-      overflow: hidden;      
+      flex: 1;
+      overflow: hidden;
     }
     .tab-content.active {
       display: block;
@@ -239,6 +239,17 @@
       display: flex;
       /* gap: 8px; ←★複数ボタンを置く場合のみ */
     }
+
+    /* ★ 予約チケット/振替チケットの表示用 */
+    .ticket-info {
+      margin: 0 0 10px 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .ticket-info span {
+      font-weight: bold;
+      color: #2196f3;
+    }
   </style>
 </head>
 <body>
@@ -279,6 +290,13 @@
 
     <!-- ▼▼ 予約・振替Tab ▼▼ -->
     <div id="bookingTab" class="tab-content">
+      <!-- ★ 予約チケット/振替チケットの表示部分 -->
+      <div class="ticket-info" id="ticketInfoBox">
+        <p>フリー予約チケット: <span id="freeTicketCount">-</span> 枚</p>
+        <p>振替チケット: <span id="subTicketCount">-</span> 枚</p>
+      </div>
+
+      <!-- スクロールエリア -->
       <div class="scroll-area" id="bookingList">
         <!-- ここにJSでレッスン一覧を生成 -->
       </div>
@@ -323,6 +341,9 @@
         bookingTab.classList.add('active');
         tabReservedBtn.classList.remove('active');
         tabBookingBtn.classList.add('active');
+
+        // チケット表示エリアを更新(タブ切り替え時に再表示する想定)
+        updateTicketDisplay();
       }
     }
 
@@ -420,7 +441,7 @@
       }
     ];
 
-    // 予約・振替（中級のみ）※自分が既に振替や予約しているレッスンは当然表示されません。
+    // 予約・振替（中級のみ）※自分が既に振替や予約しているレッスンは当然表示されない想定
     const bookingSampleData = [
       { id: 101, name: '中級クラス', date:'2025/02/25', time:'09:00 - 10:30', court:'コート1'},
       { id: 102, name: '中級クラス', date:'2025/02/26', time:'19:00 - 20:30', court:'コート3'},
@@ -433,6 +454,10 @@
       { id: 109, name: '中級クラス', date:'2025/03/15', time:'19:00 - 20:30', court:'コート3'},
       { id: 110, name: '中級クラス', date:'2025/03/18', time:'09:00 - 10:30', court:'コート2'},
     ];
+
+    // ★ 予約チケット/振替チケットのサンプル所持数 (実際はDB連携などで取得)
+    let freeLessonTickets = 3;     // フリー予約チケット所持数
+    let substitutionTickets = 2;   // 振替チケット所持数
 
     // ▼▼▼ レッスン予定を描画 (通知なし) ▼▼▼
     function renderReservedLessons(){
@@ -541,27 +566,58 @@
         const rBtn = document.getElementById(`reserveBtn-${item.id}`);
         if(rBtn){
           rBtn.onclick = () => {
+            // もしフリー予約チケットが0なら予約不可等の処理を入れることも可能
             showConfirmPanel(
               `「${item.name}」(${item.date} ${item.time})を予約しますか？`,
-              () => { /* 予約後の通知をしない */ }
+              () => {
+                // ここでフリー予約チケットを消費(サンプル)
+                if(freeLessonTickets > 0){
+                  freeLessonTickets--;
+                }
+                // 予約後の再描画処理など
+                console.log('予約完了 (デモ)');
+                updateTicketDisplay();
+              }
             );
           };
         }
         const sBtn = document.getElementById(`substituteBtn-${item.id}`);
         if(sBtn){
           sBtn.onclick = () => {
+            // 振替チケットの残数チェックなど
             showConfirmPanel(
               `「${item.name}」(${item.date} ${item.time})を振替しますか？`,
-              () => { /* 振替後の通知をしない */ }
+              () => {
+                // ここで振替チケットを消費(サンプル)
+                if(substitutionTickets > 0){
+                  substitutionTickets--;
+                }
+                console.log('振替完了 (デモ)');
+                updateTicketDisplay();
+              }
             );
           };
         }
       });
     }
 
+    // ★ 予約・振替チケットの表示を更新する関数
+    function updateTicketDisplay(){
+      const freeCountEl = document.getElementById('freeTicketCount');
+      const subCountEl = document.getElementById('subTicketCount');
+      if(freeCountEl) {
+        freeCountEl.textContent = freeLessonTickets;
+      }
+      if(subCountEl) {
+        subCountEl.textContent = substitutionTickets;
+      }
+    }
+
     // ページ初期表示
     renderReservedLessons();
     renderBookingLessons();
+    // 初回ロード時にもチケット数を反映
+    updateTicketDisplay();
   </script>
 </body>
 </html>

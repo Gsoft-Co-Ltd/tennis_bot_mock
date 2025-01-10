@@ -179,7 +179,14 @@
       inputs.forEach(input => {
         const errorElement = document.getElementById(`${input.id}-error`);
         if (input.hasAttribute('required')) {
-          if (!input.value.trim()) {
+          // チェックボックスかどうかで判定を分ける
+          if (input.type === 'checkbox' && !input.checked) {
+            isValid = false;
+            if (errorElement) {
+              const labelName = input.getAttribute('data-label') || input.previousElementSibling.innerText;
+              errorElement.textContent = labelName + 'は必須です。';
+            }
+          } else if (input.type !== 'checkbox' && !input.value.trim()) {
             isValid = false;
             if (errorElement) {
               const labelName = input.getAttribute('data-label') || input.previousElementSibling.innerText;
@@ -290,9 +297,21 @@
       }
 
       // 緊急連絡先の必須チェック(例: 名前、間柄、電話番号)
-      const emName = document.getElementById('emergencyName');
-      const emRel = document.getElementById('emergencyRelation');
       // すでに inputs で required になっていれば上で拾う
+
+      // ★★★ 休会退会の確認チェックを追加 ★★★
+      const confirmSuspend = document.getElementById('confirmation-suspend');
+      if(confirmSuspend && !confirmSuspend.checked){
+        isValid = false;
+        const csErr = document.getElementById('confirmation-suspend-error');
+        if(csErr) csErr.textContent = "休会手続きの確認に同意が必要です。";
+      }
+      const confirmCancel = document.getElementById('confirmation');
+      if(confirmCancel && !confirmCancel.checked){
+        isValid = false;
+        const cErr = document.getElementById('confirmation-error');
+        if(cErr) cErr.textContent = "退会手続きの確認に同意が必要です。";
+      }
 
       return isValid;
     }
