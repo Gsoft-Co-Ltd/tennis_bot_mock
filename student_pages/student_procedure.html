@@ -104,6 +104,15 @@
       margin-bottom: 10px;
     }
 
+    /* 
+      休会・退会チェックボックスのエラーメッセージを
+      チェックボックスの直下にくるように微調整
+    */
+    .form-check + .error-message {
+      margin-top: 0px;    /* label とチェックボックスの下に配置 */
+      margin-bottom: 10px;
+    }
+
     /* ボタン周り */
     .btn-area {
       display: flex;
@@ -639,7 +648,7 @@
             id="confirmation-suspend" 
             name="confirmation-suspend" 
             data-label="休会手続き確認" 
-            required
+            
           />
           <label for="confirmation-suspend" class="form-check-label">
             休会手続きを行うことを了承しました
