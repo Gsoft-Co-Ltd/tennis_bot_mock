@@ -3,169 +3,185 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>定期料金設定</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>月額料金の確認・編集</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
     body {
       background-color: #ffffff;
       font-family: Arial, sans-serif;
       padding: 20px;
     }
-    .form-label {
-      font-weight: bold;
-      color: #555;
-    }
     .section-title {
-      margin-top: 20px;
       font-size: 1.2rem;
       font-weight: bold;
       color: #333;
+      border-left: 4px solid #0d6efd;
+      padding-left: 8px;
+      margin-bottom: 15px;
+    }
+    .read-only-field {
+      padding: 8px 10px;
+      background-color: #eee;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .options-discounts-container {
+      display: flex;
+      flex-wrap: wrap; 
+      gap: 20px;
+    }
+    .checkbox-column {
+      flex: 1 1 200px; /* 幅200px以上を保つ */
+      min-width: 200px;
+    }
+    .checkbox-column h6 {
+      margin-bottom: 8px;
+    }
+    .form-check {
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
-  <p>ロッカーレンタル費、月謝など、定期的に請求する料金を登録・編集できます。</p>
 
-  <form id="regularFeeForm">
-    <div class="mb-3">
-      <label for="feeName" class="form-label">料金名</label>
-      <input 
-        type="text" 
-        id="feeName" 
-        class="form-control" 
-        placeholder="例：中級 週2回コース、ロッカーレンタル費、月謝 など" 
-        required
-      >
-    </div>
+<!-- 基本料金・コース数（読み取り専用） -->
+<div class="section-title">基本情報</div>
+<div class="mb-3">
+  <label class="form-label">基本料金</label>
+  <div class="read-only-field" id="baseFeeDisplay">12,000 円</div>
+</div>
+<div class="mb-3">
+  <label class="form-label">コース数</label>
+  <div class="read-only-field" id="courseCountDisplay">2コース</div>
+</div>
 
-    <div class="mb-3">
-      <label for="feeAmount" class="form-label">金額（税抜）</label>
-      <input 
-        type="number" 
-        id="feeAmount" 
-        class="form-control" 
-        placeholder="例：1000" 
-        required
-      >
-    </div>
+<!-- オプション・割引のチェックボックス -->
+<div class="section-title">オプション・割引の適用</div>
+<form id="feeForm" onsubmit="return false;">
 
-    <div class="mb-3">
-      <label class="form-label">請求周期</label>
+  <!-- 2カラム構成でチェックボックスを並べる例 -->
+  <div class="options-discounts-container">
+
+    <!-- 左カラム：オプション一覧 -->
+    <div class="checkbox-column">
+      <h6>オプション</h6>
+      <!-- 例：スクールに存在するオプションを列挙 -->
       <div class="form-check">
-        <input 
-          type="radio" 
-          class="form-check-input" 
-          name="billingCycle" 
-          id="cycleMonths" 
-          checked
-        >
-        <label for="cycleMonths" class="form-check-label">〇か月ごと</label>
+        <input class="form-check-input" type="checkbox" id="optLocker" onclick="recalcFee()">
+        <label class="form-check-label" for="optLocker">ロッカーレンタル (+1,000円)</label>
       </div>
-      <div class="d-flex align-items-center mb-2" style="margin-left:25px;">
-        <input 
-          type="number" 
-          id="monthsCount" 
-          class="form-control" 
-          style="max-width:80px;" 
-          value="1"
-        >
-        <span class="ms-2">か月ごと</span>
-      </div>
-
       <div class="form-check">
-        <input 
-          type="radio" 
-          class="form-check-input" 
-          name="billingCycle" 
-          id="cycleTerms"
-        >
-        <label for="cycleTerms" class="form-check-label">〇期ごと</label>
+        <input class="form-check-input" type="checkbox" id="optParking" onclick="recalcFee()">
+        <label class="form-check-label" for="optParking">駐車場利用 (+1,500円)</label>
       </div>
-      <div class="d-flex align-items-center" style="margin-left:25px;">
-        <input 
-          type="number" 
-          id="termsCount" 
-          class="form-control" 
-          style="max-width:80px;" 
-          value="1" 
-          disabled
-        >
-        <span class="ms-2">期ごと</span>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="optBall" onclick="recalcFee()">
+        <label class="form-check-label" for="optBall">ボール利用料 (+500円)</label>
+      </div>
+      <!-- 必要に応じて動的生成に変える -->
+    </div>
+
+    <!-- 右カラム：割引一覧 -->
+    <div class="checkbox-column">
+      <h6>割引</h6>
+      <!-- 例：スクールに存在する割引を列挙 -->
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="discFamily" onclick="recalcFee()">
+        <label class="form-check-label" for="discFamily">家族割（-500円）</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="discMulti" onclick="recalcFee()">
+        <label class="form-check-label" for="discMulti">複数割（10%オフ）</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="discAge" onclick="recalcFee()">
+        <label class="form-check-label" for="discAge">シニア割（-800円）</label>
       </div>
     </div>
 
-    <div class="mb-3">
-      <label for="discountSelect" class="form-label">適用割引</label>
-      <select id="discountSelect" class="form-select">
-        <option value="none" selected>割引なし</option>
-        <option value="family">家族割</option>
-        <option value="multi">複数受講割</option>
-        <option value="ageUnder30">30歳未満割</option>
-        <option value="ageOver60">60歳以上割</option>
-      </select>
+  </div>
+
+  <!-- 合計金額の表示 -->
+  <div class="mt-3">
+    <label class="form-label">合計金額</label>
+    <div class="input-group" style="max-width:250px;">
+      <input type="text" id="totalAmount" class="form-control" readonly>
+      <span class="input-group-text">円 / 月</span>
     </div>
+    <div class="form-text">※実際のロジックは要件に合わせて計算式を変更してください。</div>
+  </div>
 
-    <button type="submit" class="btn btn-primary">追加</button>
-  </form>
+  <!-- 保存ボタン -->
+  <div class="mt-3">
+    <button class="btn btn-primary" onclick="saveFee()">保存</button>
+  </div>
+</form>
 
-  <hr class="my-4">
+<script>
+  // 仮：基本料金
+  let baseFee = 12000;
 
-  <h5>設定済み定期料金一覧</h5>
-  <table class="table table-bordered table-sm">
-    <thead class="table-light">
-      <tr>
-        <th>料金名</th>
-        <th>基本金額</th>
-        <th>請求周期</th>
-        <th>割引</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- サンプルデータ（ロッカーレンタル費） -->
-      <tr>
-        <td>ロッカーレンタル費</td>
-        <td>¥1,000</td>
-        <td>1か月ごと</td>
-        <td>割引なし</td>
-        <td>
-          <button class='btn btn-warning btn-sm'>編集</button>
-          <button class='btn btn-danger btn-sm'>削除</button>
-        </td>
-      </tr>
-      <!-- サンプルデータ（月謝） -->
-      <tr>
-        <td>中級 週2回コース</td>
-        <td>¥16,000</td>
-        <td>1か月ごと</td>
-        <td>家族割</td>
-        <td>
-          <button class='btn btn-warning btn-sm'>編集</button>
-          <button class='btn btn-danger btn-sm'>削除</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  // ページ読み込み時に表示
+  window.onload = ()=>{
+    document.getElementById("baseFeeDisplay").textContent = baseFee.toLocaleString() + " 円";
+    // 例：コース数は2コース固定
+    document.getElementById("courseCountDisplay").textContent = "2コース";
+    recalcFee();
+  };
 
-  <script>
-    const cycleMonths = document.getElementById('cycleMonths');
-    const cycleTerms = document.getElementById('cycleTerms');
-    const monthsCount = document.getElementById('monthsCount');
-    const termsCount = document.getElementById('termsCount');
+  function recalcFee(){
+    let total = baseFee;
 
-    // ラジオボタン切り替え時に入力欄の有効・無効を切り替える
-    cycleMonths.addEventListener('change', () => {
-      if (cycleMonths.checked) {
-        monthsCount.disabled = false;
-        termsCount.disabled = true;
-      }
+    // オプション加算例
+    if(document.getElementById('optLocker').checked)  total += 1000;
+    if(document.getElementById('optParking').checked) total += 1500;
+    if(document.getElementById('optBall').checked)    total += 500;
+
+    // 割引(固定額,率)
+    let minus = 0;
+    let rate  = 1.0;
+
+    if(document.getElementById('discFamily').checked) {
+      minus += 500;
+    }
+    if(document.getElementById('discMulti').checked) {
+      rate *= 0.90; // 10%割引
+    }
+    if(document.getElementById('discAge').checked) {
+      minus += 800;
+    }
+
+    // 合計計算
+    total = (total - minus) * rate;
+    total = Math.round(total);
+
+    document.getElementById('totalAmount').value = total.toLocaleString();
+  }
+
+  function saveFee(){
+    const isOptLocker  = document.getElementById('optLocker').checked;
+    const isOptParking = document.getElementById('optParking').checked;
+    const isOptBall    = document.getElementById('optBall').checked;
+
+    const isDiscFamily = document.getElementById('discFamily').checked;
+    const isDiscMulti  = document.getElementById('discMulti').checked;
+    const isDiscAge    = document.getElementById('discAge').checked;
+
+    const total = document.getElementById('totalAmount').value;
+
+    // ここではモックとして console.log() に出力 + アラート
+    console.log("【保存データ】", {
+      baseFee: baseFee,
+      optLocker: isOptLocker,
+      optParking: isOptParking,
+      optBall: isOptBall,
+      discFamily: isDiscFamily,
+      discMulti: isDiscMulti,
+      discAge: isDiscAge,
+      total: total
     });
-    cycleTerms.addEventListener('change', () => {
-      if (cycleTerms.checked) {
-        monthsCount.disabled = true;
-        termsCount.disabled = false;
-      }
-    });
-  </script>
+    alert("設定を保存しました（モック）\n合計: " + total + " 円/月");
+  }
+</script>
 </body>
 </html>

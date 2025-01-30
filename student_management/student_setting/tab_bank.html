@@ -3,67 +3,110 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>口座情報</title>
+<title>口座情報管理</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <style>
-body {
-  background-color: #fff;
-  font-family: Arial, sans-serif;
-  padding:20px;
-}
+body { background-color: #f8f9fa; font-family: "メイリオ", Meiryo, sans-serif; }
+.switch-field { background: #e9ecef; padding: 15px; border-radius: 5px; }
+.required::after { content: " *"; color: red; }
+.yuucho-fields { display: none; }
 </style>
 </head>
 <body>
-<form id="bankForm" class="mt-3">
-  <div class="mb-3">
-    <label for="bankName" class="form-label">銀行名</label>
-    <input type="text" class="form-control" id="bankName" value="三菱UFJ銀行" readonly />
-  </div>
-  <div class="mb-3">
-    <label for="branchName" class="form-label">支店名</label>
-    <input type="text" class="form-control" id="branchName" value="名古屋支店" readonly />
-  </div>
-  <div class="mb-3">
-    <label for="accountType" class="form-label">口座種別</label>
-    <select class="form-control" id="accountType" disabled>
-      <option selected>普通</option>
-      <option>当座</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label for="accountNumber" class="form-label">口座番号</label>
-    <input type="text" class="form-control" id="accountNumber" value="1234567" readonly />
-  </div>
-  <div class="mb-3">
-    <label for="accountHolder" class="form-label">口座名義</label>
-    <input type="text" class="form-control" id="accountHolder" value="ヤマダ タロウ" readonly />
-  </div>
-  <div class="btn-container">
-    <button id="editBankButton" class="btn btn-warning" type="button" onclick="editBank()">編集</button>
-    <button id="saveBankButton" class="btn btn-success" type="button" style="display: none" onclick="saveBank()">保存</button>
-  </div>
-</form>
+<div class="container mt-4">
+  <form id="bankForm">
+    <!-- 銀行種別選択 -->
+    <div class="switch-field mb-4">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="bankType" id="normalBank" checked onclick="toggleBankType()">
+        <label class="form-check-label" for="normalBank">一般銀行</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="bankType" id="yuuchoBank" onclick="toggleBankType()">
+        <label class="form-check-label" for="yuuchoBank">ゆうちょ銀行</label>
+      </div>
+    </div>
+
+    <!-- 一般銀行フィールド -->
+    <div id="normalBankFields">
+      <div class="mb-3">
+        <label for="bankCode" class="form-label required">銀行コード</label>
+        <input type="text" class="form-control" id="bankCode" pattern="\d{4}" maxlength="4" required>
+        <div class="form-text">4桁の金融機関コード（例: 0005）</div>
+      </div>
+      <div class="mb-3">
+        <label for="branchCode" class="form-label required">支店コード</label>
+        <input type="text" class="form-control" id="branchCode" pattern="\d{3}" maxlength="3" required>
+        <div class="form-text">3桁の支店コード（例: 001）</div>
+      </div>
+    </div>
+
+    <!-- ゆうちょ銀行フィールド -->
+    <div id="yuuchoBankFields" class="yuucho-fields">
+      <div class="mb-3">
+        <label for="symbolNumber" class="form-label required">記号</label>
+        <input type="text" class="form-control" id="symbolNumber" pattern="\d{5}" maxlength="5">
+        <div class="form-text">5桁の記号（例: 12345）</div>
+      </div>
+      <div class="mb-3">
+        <label for="accountNumberYuucho" class="form-label required">番号</label>
+        <input type="text" class="form-control" id="accountNumberYuucho" pattern="\d{1,8}" maxlength="8">
+        <div class="form-text">1～8桁の番号</div>
+      </div>
+    </div>
+
+    <!-- 共通フィールド -->
+    <div class="mb-3">
+      <label for="accountType" class="form-label required">口座種別</label>
+      <select class="form-control" id="accountType" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="普通">普通</option>
+        <option value="当座">当座</option>
+        <option value="貯蓄" class="yuucho-option">貯蓄（ゆうちょ）</option>
+        <option value="定額" class="yuucho-option">定額貯金</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="accountHolder" class="form-label required">口座名義</label>
+      <input type="text" class="form-control" id="accountHolder" 
+             pattern="[\u30A0-\u30FF\uFF10-\uFF19\uFF20-\uFF3A\uFF41-\uFF5A\u3040-\u309F]+" 
+             placeholder="カタカナで入力（例: ﾔﾏﾀﾞ ﾀﾛｳ）" required>
+      <div class="form-text">全角カタカナまたは半角カナ（記号不可）</div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+      <button type="button" class="btn btn-secondary" onclick="resetForm()">取消</button>
+      <button type="submit" class="btn btn-primary">確認画面へ</button>
+    </div>
+  </form>
+</div>
 
 <script>
-function editBank() {
-  document.getElementById('bankName').readOnly = false;
-  document.getElementById('branchName').readOnly = false;
-  document.getElementById('accountNumber').readOnly = false;
-  document.getElementById('accountHolder').readOnly = false;
-  document.getElementById('accountType').disabled = false;
-  document.getElementById('editBankButton').style.display='none';
-  document.getElementById('saveBankButton').style.display='inline-block';
+function toggleBankType() {
+  const isYuucho = document.getElementById('yuuchoBank').checked;
+  document.getElementById('normalBankFields').style.display = isYuucho ? 'none' : 'block';
+  document.getElementById('yuuchoBankFields').style.display = isYuucho ? 'block' : 'none';
+  
+  // 口座種別オプション切り替え
+  document.querySelectorAll('#accountType option').forEach(opt => {
+    opt.hidden = opt.classList.contains('yuucho-option') ? !isYuucho : isYuucho;
+  });
+  document.getElementById('accountType').value = '';
 }
-function saveBank() {
-  alert("口座情報を保存しました。");
-  document.getElementById('bankName').readOnly = true;
-  document.getElementById('branchName').readOnly = true;
-  document.getElementById('accountNumber').readOnly = true;
-  document.getElementById('accountHolder').readOnly = true;
-  document.getElementById('accountType').disabled = true;
-  document.getElementById('editBankButton').style.display='inline-block';
-  document.getElementById('saveBankButton').style.display='none';
+
+function resetForm() {
+  document.getElementById('bankForm').reset();
+  toggleBankType();
 }
+
+// バリデーション強化
+document.getElementById('bankForm').addEventListener('submit', function(e) {
+  if(!this.checkValidity()) {
+    e.preventDefault();
+    alert('入力内容を確認してください');
+  }
+});
 </script>
 </body>
 </html>
