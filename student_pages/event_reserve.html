@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>特別イベント予約（1ページ5件 + フッター余白）</title>
+  <!-- Bootstrap 5 (必要なければ削除OK) -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    html, body {
+      font-size: 14px; /* スマホで見やすい程度 */
+      font-family: "Noto Sans JP", sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* メインコンテナ */
+    .container-main {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 12px;
+      background-color: #fff;
+      min-height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+
+      /* フッター被り対策として下部に余白を設ける */
+      padding-bottom: 70px; /* フッター高さ(約50~60px) + 余裕 */
+    }
+
+    /* ヘッダー */
+    .header-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2196f3;
+      text-align: center;
+    }
+    .logo img {
+      width: 28px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    /* 見出し */
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      margin: 12px 0 6px;
+      color: #333;
+    }
+
+    /* チケット表示エリア(不要なら削除OK) */
+    .ticket-info {
+      font-size: 0.9rem;
+      color: #333;
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+    .ticket-info span {
+      font-weight: bold;
+      color: #2196f3;
+    }
+
+    /* イベントカード(lesson-card) */
+    .lesson-card {
+      background-color: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .lesson-card h2 {
+      font-size: 0.95rem;
+      margin: 0 0 4px 0;
+      color: #333;
+      font-weight: bold;
+    }
+    .lesson-card .lesson-info {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .lesson-card .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .lesson-card .actions button {
+      flex: 1;
+      border: none;
+      border-radius: 4px;
+      padding: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    /* ボタン色 */
+    .btn-outline {
+      background-color: #2196f3;
+    }
+    .btn-secondary {
+      background-color: #607d8b;
+    }
+    .btn-danger {
+      background-color: #f44336;
+    }
+    .btn-cancel {
+      background-color: #f44336;
+    }
+
+    /* ページネーション */
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .pagination-area button {
+      border: none;
+      background-color: #607d8b;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .pagination-info {
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .pagination-info strong {
+      color: #2196f3;
+    }
+
+    /* フッター(戻るボタン+操作確認パネルをまとめる) */
+    .footer-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      max-width: 420px;
+      background: #fff;
+      border-top: 2px solid #ccc;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      padding: 8px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* 操作確認パネル (フッター内に格納) */
+    .confirm-panel {
+      display: block;
+    }
+    .confirm-text {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .confirm-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .confirm-actions button {
+      flex: 1;
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-confirm-yes {
+      background-color: #4caf50;
+    }
+    .btn-confirm-no {
+      background-color: #777;
+    }
+
+    /* 戻るボタン */
+    .return-button-area {
+      display: flex;
+      justify-content: center;
+    }
+    .return-button-area button {
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      background-color: #607d8b;
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* レスポンシブ(400px以下) */
+    @media (max-width: 400px) {
+      .container-main {
+        padding: 8px;
+        padding-bottom: 70px; 
+      }
+      .lesson-card .actions button {
+        font-size: 0.75rem;
+      }
+      .pagination-area button {
+        font-size: 0.75rem;
+      }
+      .confirm-actions button {
+        font-size: 0.75rem;
+        padding: 6px;
+      }
+      .return-button-area button {
+        font-size: 0.75rem;
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container-main">
+
+  <!-- ヘッダー -->
+  <div class="header-bar">
+    <div class="logo">
+      <img src="../resource/tennis_icon.svg" alt="Tennis Logo">
+      Tennis BoT
+    </div>
+  </div>
+
+  <!-- チケット表示(不要なら削除OK) -->
+  <div class="ticket-info">
+    <p>フリー予約チケット: <span id="freeTicketCount">3</span> 枚</p>
+    <p>振替チケット: <span id="subTicketCount">2</span> 枚</p>
+  </div>
+
+  <!-- タイトル見出し -->
+  <h2 class="section-title">特別イベント一覧</h2>
+
+  <!-- ページネーション -->
+  <div class="pagination-area">
+    <button id="prevBtn" onclick="goPrev()">前へ</button>
+    <div class="pagination-info" id="pageInfo">- / -</div>
+    <button id="nextBtn" onclick="goNext()">次へ</button>
+  </div>
+
+  <!-- イベント一覧 -->
+  <div id="eventList"></div>
+
+</div><!-- /.container-main -->
+
+<!-- フッター(戻るボタン + 確認パネルをまとめる) -->
+<div class="footer-bar">
+
+  <!-- 操作確認パネル -->
+  <div id="confirmPanel" class="confirm-panel">
+    <div id="confirmText" class="confirm-text"></div>
+    <div class="confirm-actions">
+      <button id="confirmYesBtn" class="btn-confirm-yes">はい</button>
+      <button id="confirmNoBtn" class="btn-confirm-no">いいえ</button>
+    </div>
+  </div>
+
+  <!-- 戻るボタン -->
+  <div class="return-button-area">
+    <button type="button" onclick="window.history.back()">
+      戻る
+    </button>
+  </div>
+
+</div>
+
+<script>
+  // ▼▼▼ チケット残数(デモ) ▼▼▼
+  let freeTickets = 3;
+  let subTickets = 2;
+
+  // ▼▼▼ イベントデータ ▼▼▼
+  // 修正点: 
+  //  - "wday" で曜日を追加 (例: '日','火'など)
+  //  - "capacity" & "current" で (current/容量) を表示
+  //  - "status" を日本語に直している: '予約済み','未予約','振替済み'
+  //  - "details" の末尾に「推奨レベル」の文言を追加
+  const specialEvents = [
+    {
+      id:'ev1',
+      name:'夏のフォアハンド徹底トレーニング',
+      date:'2025/07/20',
+      wday:'日',
+      time:'10:00 - 12:00',
+      status:'予約済み',
+      capacity:10,
+      current:3,
+      detail:'<p>フォアハンド強化イベント。参加費: 3,000円。<br/>推奨レベル: 初級,中級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev2',
+      name:'ダブルス強化特別イベント',
+      date:'2025/08/05',
+      wday:'火',
+      time:'13:00 - 15:30',
+      status:'未予約',
+      capacity:8,
+      current:0,
+      detail:'<p>ダブルス専門戦術練習。参加費: 2,500円<br/>推奨レベル: 初級,中級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev3',
+      name:'猛暑対策！早朝クリニック',
+      date:'2025/08/10',
+      wday:'木',
+      time:'07:00 - 09:00',
+      status:'振替済み',
+      capacity:6,
+      current:4,
+      detail:'<p>朝の涼しい時間帯で効率よく。参加費: 2,000円<br/>推奨レベル: 初級,中級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev4',
+      name:'サービス＆リターン強化講習',
+      date:'2025/08/12',
+      wday:'土',
+      time:'16:00 - 18:00',
+      status:'未予約',
+      capacity:6,
+      current:2,
+      detail:'<p>サービス・リターン特化。参加費: 3,000円<br/>推奨レベル: 初級,中級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev5',
+      name:'バックハンド徹底トレーニング',
+      date:'2025/08/18',
+      wday:'金',
+      time:'10:00 - 12:00',
+      status:'予約済み',
+      capacity:8,
+      current:8,
+      detail:'<p>バックハンド集中講座。参加費: 2,500円<br/>推奨レベル: 初級,中級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev6',
+      name:'ジュニア向け夏休み集中講座',
+      date:'2025/08/25',
+      wday:'火',
+      time:'09:00 - 11:00',
+      status:'未予約',
+      capacity:12,
+      current:1,
+      detail:'<p>小中学生向けの集中講座。参加費: 2,000円<br/>推奨レベル: 初級,ジュニア初級,ジュニアプレイヤーズなど</p>'
+    },
+    {
+      id:'ev7',
+      name:'秋の体力強化合宿',
+      date:'2025/09/10',
+      wday:'日',
+      time:'09:00 - 15:00',
+      status:'未予約',
+      capacity:12,
+      current:0,
+      detail:'<p>1日集中合宿形式。参加費: 4,000円<br/>推奨レベル: 中級,ジュニアプレイヤーズなど</p>'
+    }
+  ];
+
+  // ページネーション関連
+  let currentPage = 1;
+  const pageSize = 5;
+  const totalEvents = specialEvents.length;
+  const totalPages = Math.ceil(totalEvents / pageSize);
+
+  window.addEventListener('DOMContentLoaded', () => {
+    renderPage();
+  });
+
+  function goPrev(){
+    if(currentPage > 1){
+      currentPage--;
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function goNext(){
+    if(currentPage < totalPages){
+      currentPage++;
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function renderPage(){
+    const container = document.getElementById('eventList');
+    container.innerHTML = '';
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageData = specialEvents.slice(startIndex, endIndex);
+
+    pageData.forEach(evt => {
+      container.appendChild(createEventCard(evt));
+    });
+
+    document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages}`;
+    document.getElementById('prevBtn').disabled = (currentPage === 1);
+    document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+  }
+
+  // カード生成
+  function createEventCard(evt){
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+
+    // 定員(現在/容量) 例: "3/10"
+    const capacityStr = `${evt.current}/${evt.capacity}`;
+
+    // HTML組み立て
+    card.innerHTML = `
+      <h2>${evt.name}</h2>
+      <div class="lesson-info">
+        <div>日時: ${evt.date} (${evt.wday}) ${evt.time}</div>
+        <div>ステータス: <strong>${evt.status}</strong></div>
+        <div>定員: ${capacityStr}</div>
+      </div>
+      <div style="font-size:0.85rem; margin-bottom:6px;">
+        ${evt.detail}
+      </div>
+      <div class="actions" id="actions-${evt.id}"></div>
+    `;
+
+    const actionsBox = card.querySelector(`#actions-${evt.id}`);
+    if(!actionsBox) return card;
+
+    // 状態に応じてボタンを出し分け
+    if(evt.status === '予約済み'){
+      // 予約済み → キャンセル
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'btn-cancel';
+      cancelBtn.textContent = 'キャンセル';
+      cancelBtn.onclick = () => {
+        showConfirmPanel(
+          `「${evt.name}」(${evt.date})をキャンセルしますか？`,
+          () => cancelReservation(evt.id)
+        );
+      };
+      actionsBox.appendChild(cancelBtn);
+
+    } else if(evt.status === '振替済み'){
+      // 振替済み → キャンセル
+      const cancelSubBtn = document.createElement('button');
+      cancelSubBtn.className = 'btn-danger';
+      cancelSubBtn.textContent = 'キャンセル';
+      cancelSubBtn.onclick = () => {
+        showConfirmPanel(
+          `「${evt.name}」(${evt.date})をキャンセルしますか？`,
+          () => cancelSubstitution(evt.id)
+        );
+      };
+      actionsBox.appendChild(cancelSubBtn);
+
+    } else {
+      // 未予約 → 予約 or 振替
+      const reserveBtn = document.createElement('button');
+      reserveBtn.className = 'btn-outline';
+      reserveBtn.textContent = '予約';
+      reserveBtn.onclick = () => {
+        showConfirmPanel(
+          `「${evt.name}」(${evt.date})を予約しますか？`,
+          () => doReserve(evt.id)
+        );
+      };
+      actionsBox.appendChild(reserveBtn);
+
+      const subBtn = document.createElement('button');
+      subBtn.className = 'btn-secondary';
+      subBtn.textContent = '振替';
+      subBtn.onclick = () => {
+        showConfirmPanel(
+          `「${evt.name}」(${evt.date})を振替で予約しますか？`,
+          () => doSubstitute(evt.id)
+        );
+      };
+      actionsBox.appendChild(subBtn);
+    }
+    return card;
+  }
+
+  // 予約/振替/キャンセルの簡易処理
+  function doReserve(id){
+    if(freeTickets > 0){
+      freeTickets--;
+      document.getElementById('freeTicketCount').textContent = freeTickets;
+    }
+    const ev = specialEvents.find(e => e.id === id);
+    if(ev) ev.status = '予約済み';
+    renderPage();
+  }
+  function doSubstitute(id){
+    if(subTickets > 0){
+      subTickets--;
+      document.getElementById('subTicketCount').textContent = subTickets;
+    }
+    const ev = specialEvents.find(e => e.id === id);
+    if(ev) ev.status = '振替済み';
+    renderPage();
+  }
+  function cancelReservation(id){
+    const ev = specialEvents.find(e => e.id === id);
+    if(ev) ev.status = '未予約';
+    renderPage();
+  }
+  function cancelSubstitution(id){
+    const ev = specialEvents.find(e => e.id === id);
+    if(ev) ev.status = '未予約';
+    renderPage();
+  }
+
+  // 確認パネルの表示/非表示
+  let confirmCallback = null;
+  function showConfirmPanel(message, onYes){
+    confirmCallback = onYes;
+    document.getElementById('confirmText').textContent = message;
+    document.getElementById('confirmPanel').style.display = 'block';
+  }
+  function hideConfirmPanel(){
+    document.getElementById('confirmPanel').style.display = 'block';
+    confirmCallback = null;
+  }
+  document.getElementById('confirmYesBtn').onclick = () => {
+    if(confirmCallback) confirmCallback();
+    hideConfirmPanel();
+  };
+  document.getElementById('confirmNoBtn').onclick = () => {
+    hideConfirmPanel();
+  };
+</script>
+</body>
+</html>
