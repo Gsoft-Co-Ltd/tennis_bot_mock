@@ -103,7 +103,7 @@
       color: #999;
     }
 
-    /* ▼▼▼ [追加] レッスン一覧をスクロール表示するためのスタイル ▼▼▼ */
+    /* レッスン一覧をスクロール表示するためのスタイル */
     .lesson-scroll-area {
       max-height: 300px; /* ここで高さ制限、縦スクロール */
       overflow-y: auto;
@@ -186,6 +186,13 @@
       <div id="genderError" class="error-message"></div>
     </div>
 
+    <!-- ▼▼▼ [追加] 生年月日 ▼▼▼ -->
+    <div class="mb-3">
+      <label for="birthDate" class="form-label">生年月日 <span class="text-danger">*</span></label>
+      <input type="date" class="form-control" id="birthDate" placeholder="例：1990-01-01" />
+      <div id="birthDateError" class="error-message"></div>
+    </div>
+
     <div class="mb-3">
       <label for="postalCode" class="form-label">郵便番号 <span class="text-danger">*</span></label>
       <input type="text" class="form-control" id="postalCode" placeholder="例：123-4567"/>
@@ -207,7 +214,7 @@
     </div>
 
     <!-- 保護者情報: キッズ・ジュニアのみ表示 -->
-    <div id="kidJuniorArea" >
+    <div id="kidJuniorArea">
       <div class="section-title" style="margin-top:1.2rem;">保護者情報</div>
       <div class="mb-3">
         <label for="guardianName" class="form-label">保護者（氏 名）</label>
@@ -282,29 +289,12 @@
     </div>
   </div><!-- /#step2 -->
 
-  <!-- Step3: [修正] 複数曜日チェックボックス・コース -->
+  <!-- Step3: 曜日・コース -->
   <div id="step3" class="step-page">
     <h1>体験レッスン申し込み</h1>
     <div class="section-title">曜日・コース</div>
 
-    <!-- ▼▼▼ 旧：単一選択をコメントアウト ▼▼▼
-    <div class="mb-3">
-      <label class="form-label">曜日 <span class="text-danger">*</span></label>
-      <select class="form-select" id="daySelect">
-        <option value="">選択</option>
-        <option value="mon">月曜</option>
-        <option value="tue">火曜</option>
-        <option value="wed">水曜</option>
-        <option value="thu">木曜</option>
-        <option value="fri">金曜</option>
-        <option value="sat">土曜</option>
-        <option value="sun">日曜</option>
-      </select>
-      <div id="daySelectError" class="error-message"></div>
-    </div>
-    ▼▼▼ ここまで ▼▼▼ -->
-
-    <!-- ★★★ 新：複数選択チェックボックス ★★★ -->
+    <!-- 曜日(複数選択) -->
     <div class="mb-3">
       <label class="form-label">曜日 <span class="text-danger">*</span></label>
       <div id="daySelectError" class="error-message"></div>
@@ -337,7 +327,6 @@
         <label for="daySun" class="form-check-label">日曜</label>
       </div>
     </div>
-    <!-- ★★★ 新：複数選択チェックボックスここまで ★★★ -->
 
     <div class="mb-3">
       <label class="form-label">コース <span class="text-danger">*</span></label>
@@ -362,31 +351,29 @@
     <h1>体験レッスン申し込み</h1>
     <div class="section-title">クラス選択</div>
     <div class="mb-3">
-      <!-- 従来のクラス表示 -->
+      <!-- ▼▼▼ [修正] コート情報を削除 ▼▼▼ -->
       <div class="form-check mb-2">
         <input type="checkbox" class="form-check-input" id="classA" value="classA">
         <label class="form-check-label" for="classA">
-          【月曜】 9:00-10:30 (コート1) 初級クラス (残り2枠)
+          【月曜】 9:00-10:30 初級クラス (残り2枠)
         </label>
       </div>
       <div class="form-check mb-2">
         <input type="checkbox" class="form-check-input" id="classB" value="classB">
         <label class="form-check-label" for="classB">
-          【火曜】 19:00-20:30 (コート2) 中級クラス (残り1枠)
+          【火曜】 19:00-20:30 中級クラス (残り1枠)
         </label>
       </div>
       <div class="form-check mb-2">
         <input type="checkbox" class="form-check-input" id="classC" value="classC">
         <label class="form-check-label" for="classC">
-          【水曜】 10:00-11:30 (コート1) 初級クラス (残り5枠)
+          【水曜】 10:00-11:30 初級クラス (残り5枠)
         </label>
       </div>
-
-      <!-- ★★★ 定員0クラス(グレーアウト)を追加 ★★★ -->
       <div class="form-check mb-2">
         <input type="checkbox" class="form-check-input" id="classD" value="classD" disabled>
         <label class="form-check-label disabled-label" for="classD">
-          【木曜】 10:00-11:30 (コート1) 上級クラス (残り0枠)
+          【木曜】 10:00-11:30 上級クラス (残り0枠)
         </label>
       </div>
     </div>
@@ -394,41 +381,16 @@
 
     <div class="btn-area">
       <button class="btn btn-outline-secondary" onclick="goToStep(3)">戻る</button>
-      <!-- ★★★ 次はレッスン選択(step5)へ ★★★ -->
       <button class="btn btn-primary" onclick="validateStep4()">次へ</button>
     </div>
   </div><!-- /#step4 -->
 
-  <!-- ★★★ Step5: レッスン選択 (クラスごとの60日以内のレッスン) ★★★ -->
+  <!-- Step5: レッスン選択 (クラスごとの60日以内のレッスン) -->
   <div id="step5" class="step-page">
     <h1>体験レッスン申し込み</h1>
     <div class="section-title">レッスン選択</div>
 
-    <!-- ▼▼▼ 元あったサンプルをコメントアウト (以下参考) ▼▼▼
-    <div class="mb-3">
-      <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="lesson1" value="lesson1">
-        <label class="form-check-label" for="lesson1">
-          10/10(火) 9:00-10:30 (残り3枠)
-        </label>
-      </div>
-      <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="lesson2" value="lesson2">
-        <label class="form-check-label" for="lesson2">
-          10/17(火) 9:00-10:30 (残り1枠)
-        </label>
-      </div>
-      <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="lesson3" value="lesson3" disabled>
-        <label class="form-check-label disabled-label" for="lesson3">
-          10/24(火) 9:00-10:30 (残り0枠)
-        </label>
-      </div>
-    </div>
-    <div id="lessonSelectError" class="error-message"></div>
-    ▼▼▼ コメントアウトここまで ▼▼▼ -->
-
-    <!-- ★★★ [追加実装] スクロール表示で約20件を想定 ★★★ -->
+    <!-- ▼▼▼ [追加実装] スクロール表示で約20件を想定 ▼▼▼ -->
     <div class="lesson-scroll-area" id="lessonList">
       <!-- ここにJSでレッスン一覧を動的にレンダリング -->
     </div>
@@ -440,7 +402,6 @@
     </div>
   </div><!-- /#step5 -->
 
-  <!-- ▼▼▼ 元々のStep5 (個人情報) は id="step6" に変更 ▼▼▼ -->
   <!-- Step6: 個人情報の取り扱い＆送信 -->
   <div id="step6" class="step-page">
     <h1>体験レッスン申し込み</h1>
@@ -458,12 +419,11 @@
 
     <div class="btn-area">
       <button class="btn btn-outline-secondary" onclick="goToStep(5)">戻る</button>
-      <!-- 次は予約完了画面(step7)へ -->
       <button class="btn btn-success" onclick="submitTrial()">体験レッスン申込確定</button>
     </div>
   </div><!-- /#step6 -->
 
-  <!-- ★★★ Step7: 予約完了画面 ★★★ -->
+  <!-- Step7: 予約完了画面 -->
   <div id="step7" class="step-page">
     <h1>体験レッスン申し込み</h1>
     <div class="section-title">予約完了</div>
@@ -472,14 +432,14 @@
       キャンペーンなどの割引については、当日、現地でスタッフにお申し付けください。
     </p>
 
-    <!-- ★★★ [追加] 予約を行ったレッスンの一覧表示 ★★★ -->
-    <div>
+    <!-- ▼▼▼ [追加] 申込者氏名と予約したレッスン日付 ▼▼▼ -->
+    <div class="mb-3">
+      <h5>お申込者氏名: <span id="applicantName"></span></h5>
       <h5>予約したレッスン:</h5>
       <ul id="reservedLessonList" style="font-size: 0.9rem; color: #333;">
-        <!-- ここに選択レッスン(レッスン名、日時、コート名)が入る -->
+        <!-- 選択レッスン(レッスン名・日時のみ)を表示 -->
       </ul>
     </div>
-    <!-- /追加 -->
 
     <div class="btn-area">
       <button class="btn btn-primary" onclick="finishAll()">OK</button>
@@ -489,6 +449,9 @@
 </div><!-- /container -->
 
 <script>
+  // ▼▼▼ [追加] 申込者氏名を保持する変数 ▼▼▼
+  let applicantName = '';
+
   const typeGeneral   = document.getElementById("typeGeneral");
   const typeKidJunior = document.getElementById("typeKidJunior");
   const kidJuniorArea = document.getElementById("kidJuniorArea");
@@ -520,13 +483,13 @@
 
   // ---------- STEP1 バリデーション ----------
   function validateStep1(){
-    // エラーメッセージクリア
     clearError('memberTypeError');
     clearError('lastNameError');
     clearError('firstNameError');
     clearError('lastNameKanaError');
     clearError('firstNameKanaError');
     clearError('genderError');
+    clearError('birthDateError');  // 生年月日のエラークリア
     clearError('postalCodeError');
     clearError('addressError');
     clearError('phoneError');
@@ -574,6 +537,13 @@
       isValid = false;
     }
 
+    // 生年月日
+    const bd = document.getElementById('birthDate').value;
+    if(!bd){
+      setError('birthDateError','必須項目です');
+      isValid = false;
+    }
+
     // 郵便番号
     const postal  = document.getElementById('postalCode').value.replace('-','').trim();
     if(!postal){
@@ -604,7 +574,9 @@
       }
     }
 
+    // 申込者氏名をグローバル変数に保持
     if(isValid){
+      applicantName = ln + " " + fn;  // 表示用に「姓 名」を連結
       goToStep(2);
     }
   }
@@ -638,7 +610,6 @@
 
     let valid = true;
 
-    // ★★ 複数チェックボックスの取得
     const checkedDays = document.querySelectorAll('input[name="days"]:checked');
     const courseValue = document.getElementById('courseSelect').value;
 
@@ -653,7 +624,7 @@
 
     if(!valid) return;
 
-    // 矛盾チェック例
+    // 曜日とコースの矛盾チェック（例として）
     const dayValues = Array.from(checkedDays).map(d => d.value);
     const hasWeekend = dayValues.includes('sat') || dayValues.includes('sun');
     const hasWeekday = dayValues.some(d => ['mon','tue','wed','thu','fri'].includes(d));
@@ -682,82 +653,73 @@
       setError('classSelectError','最低1つは選択してください');
       return;
     }
-
-    // 次はレッスン選択(step5)へ
     goToStep(5);
   }
 
-  // ▼▼▼ [追加] レッスン一覧データ（20件サンプル） ▼▼▼
-  // 実際には選択したクラスごとにAPI等で取得し、60日以内のデータをフィルタする想定
+  // ▼▼▼ レッスン一覧データ (コート情報削除済み) ▼▼▼
   const lessonsData = [
-    { id: 'lesson1',  name: 'レッスン1',  dateTime: '2025/01/10 09:00-10:30', court: 'コート1', capacity: 3 },
-    { id: 'lesson2',  name: 'レッスン2',  dateTime: '2025/01/12 19:00-20:30', court: 'コート2', capacity: 2 },
-    { id: 'lesson3',  name: 'レッスン3',  dateTime: '2025/01/15 10:00-11:30', court: 'コート1', capacity: 0 },
-    { id: 'lesson4',  name: 'レッスン4',  dateTime: '2025/01/17 09:00-10:30', court: 'コート1', capacity: 5 },
-    { id: 'lesson5',  name: 'レッスン5',  dateTime: '2025/01/20 09:00-10:30', court: 'コート3', capacity: 1 },
-    { id: 'lesson6',  name: 'レッスン6',  dateTime: '2025/01/21 19:00-20:30', court: 'コート2', capacity: 3 },
-    { id: 'lesson7',  name: 'レッスン7',  dateTime: '2025/01/22 09:00-10:30', court: 'コート1', capacity: 2 },
-    { id: 'lesson8',  name: 'レッスン8',  dateTime: '2025/01/24 10:00-11:30', court: 'コート1', capacity: 4 },
-    { id: 'lesson9',  name: 'レッスン9',  dateTime: '2025/01/25 09:00-10:30', court: 'コート2', capacity: 0 },
-    { id: 'lesson10', name: 'レッスン10', dateTime: '2025/01/27 09:00-10:30', court: 'コート3', capacity: 2 },
-    { id: 'lesson11', name: 'レッスン11', dateTime: '2025/02/01 09:00-10:30', court: 'コート1', capacity: 1 },
-    { id: 'lesson12', name: 'レッスン12', dateTime: '2025/02/03 19:00-20:30', court: 'コート2', capacity: 0 },
-    { id: 'lesson13', name: 'レッスン13', dateTime: '2025/02/06 09:00-10:30', court: 'コート1', capacity: 5 },
-    { id: 'lesson14', name: 'レッスン14', dateTime: '2025/02/07 10:00-11:30', court: 'コート1', capacity: 3 },
-    { id: 'lesson15', name: 'レッスン15', dateTime: '2025/02/08 09:00-10:30', court: 'コート2', capacity: 4 },
-    { id: 'lesson16', name: 'レッスン16', dateTime: '2025/02/10 09:00-10:30', court: 'コート3', capacity: 0 },
-    { id: 'lesson17', name: 'レッスン17', dateTime: '2025/02/12 19:00-20:30', court: 'コート2', capacity: 2 },
-    { id: 'lesson18', name: 'レッスン18', dateTime: '2025/02/15 09:00-10:30', court: 'コート1', capacity: 1 },
-    { id: 'lesson19', name: 'レッスン19', dateTime: '2025/02/18 10:00-11:30', court: 'コート1', capacity: 6 },
-    { id: 'lesson20', name: 'レッスン20', dateTime: '2025/02/20 09:00-10:30', court: 'コート3', capacity: 0 },
+    { id: 'lesson1',  name: 'レッスン1',  dateTime: '2025/01/10 09:00-10:30', capacity: 3 },
+    { id: 'lesson2',  name: 'レッスン2',  dateTime: '2025/01/12 19:00-20:30', capacity: 2 },
+    { id: 'lesson3',  name: 'レッスン3',  dateTime: '2025/01/15 10:00-11:30', capacity: 0 },
+    { id: 'lesson4',  name: 'レッスン4',  dateTime: '2025/01/17 09:00-10:30', capacity: 5 },
+    { id: 'lesson5',  name: 'レッスン5',  dateTime: '2025/01/20 09:00-10:30', capacity: 1 },
+    { id: 'lesson6',  name: 'レッスン6',  dateTime: '2025/01/21 19:00-20:30', capacity: 3 },
+    { id: 'lesson7',  name: 'レッスン7',  dateTime: '2025/01/22 09:00-10:30', capacity: 2 },
+    { id: 'lesson8',  name: 'レッスン8',  dateTime: '2025/01/24 10:00-11:30', capacity: 4 },
+    { id: 'lesson9',  name: 'レッスン9',  dateTime: '2025/01/25 09:00-10:30', capacity: 0 },
+    { id: 'lesson10', name: 'レッスン10', dateTime: '2025/01/27 09:00-10:30', capacity: 2 },
+    { id: 'lesson11', name: 'レッスン11', dateTime: '2025/02/01 09:00-10:30', capacity: 1 },
+    { id: 'lesson12', name: 'レッスン12', dateTime: '2025/02/03 19:00-20:30', capacity: 0 },
+    { id: 'lesson13', name: 'レッスン13', dateTime: '2025/02/06 09:00-10:30', capacity: 5 },
+    { id: 'lesson14', name: 'レッスン14', dateTime: '2025/02/07 10:00-11:30', capacity: 3 },
+    { id: 'lesson15', name: 'レッスン15', dateTime: '2025/02/08 09:00-10:30', capacity: 4 },
+    { id: 'lesson16', name: 'レッスン16', dateTime: '2025/02/10 09:00-10:30', capacity: 0 },
+    { id: 'lesson17', name: 'レッスン17', dateTime: '2025/02/12 19:00-20:30', capacity: 2 },
+    { id: 'lesson18', name: 'レッスン18', dateTime: '2025/02/15 09:00-10:30', capacity: 1 },
+    { id: 'lesson19', name: 'レッスン19', dateTime: '2025/02/18 10:00-11:30', capacity: 6 },
+    { id: 'lesson20', name: 'レッスン20', dateTime: '2025/02/20 09:00-10:30', capacity: 0 },
   ];
 
-  // ▼▼▼ [追加] 選択されたレッスン一覧を保持する配列 ▼▼▼
   let selectedLessons = [];
 
-  // ---------- Step5 初期描画で20件のレッスン一覧を表示する ----------
+  // Step5 初期表示: レッスン一覧を描画
   function renderLessons() {
-  const lessonListDiv = document.getElementById('lessonList');
-  if (!lessonListDiv) return;
+    const lessonListDiv = document.getElementById('lessonList');
+    if (!lessonListDiv) return;
 
-  let html = '';
-  lessonsData.forEach(lesson => {
-    const disabled = lesson.capacity === 0 ? 'disabled' : '';
-    const labelClass = lesson.capacity === 0 ? 'disabled-label' : '';
-    html += `
-    <div class="form-check mb-2">
-      <input type="radio" class="form-check-input" name="lesson" id="${lesson.id}" value="${lesson.id}" ${disabled}>
-      <label class="form-check-label ${labelClass}" for="${lesson.id}">
-        ${lesson.dateTime}　${lesson.name}　(${lesson.court}) 残り${lesson.capacity}枠
-      </label>
-    </div>
-    `;
-  });
-  lessonListDiv.innerHTML = html;
-}
-
-
-  // ---------- STEP5 バリデーション (レッスン選択) ----------
-  function validateStep5() {
-  clearError('lessonSelectError');
-
-  // 選択されたラジオボタンを取得
-  const selectedRadio = document.querySelector('input[name="lesson"]:checked');
-  if (!selectedRadio) {
-    setError('lessonSelectError', '受講するレッスンを1つ選択してください');
-    return;
+    let html = '';
+    lessonsData.forEach(lesson => {
+      const disabled = lesson.capacity === 0 ? 'disabled' : '';
+      const labelClass = lesson.capacity === 0 ? 'disabled-label' : '';
+      html += `
+      <div class="form-check mb-2">
+        <input type="radio" class="form-check-input" name="lesson" id="${lesson.id}" value="${lesson.id}" ${disabled}>
+        <label class="form-check-label ${labelClass}" for="${lesson.id}">
+          ${lesson.dateTime}　${lesson.name}　(残り${lesson.capacity}枠)
+        </label>
+      </div>
+      `;
+    });
+    lessonListDiv.innerHTML = html;
   }
 
-  // 選択されたレッスンをグローバル変数に保存
-  const selectedLessonId = selectedRadio.value;
-  selectedLessons = lessonsData.filter(lesson => lesson.id === selectedLessonId);
+  // Step5 バリデーション
+  function validateStep5() {
+    clearError('lessonSelectError');
+    const selectedRadio = document.querySelector('input[name="lesson"]:checked');
+    if (!selectedRadio) {
+      setError('lessonSelectError', '受講するレッスンを1つ選択してください');
+      return;
+    }
 
-  // 次のステップへ
-  goToStep(6);
-}
+    // 選択されたレッスンのみを配列に保存
+    const selectedLessonId = selectedRadio.value;
+    selectedLessons = lessonsData.filter(lesson => lesson.id === selectedLessonId);
 
+    goToStep(6);
+  }
 
-  // ---------- Step6 バリデーション (個人情報同意) ----------
+  // Step6 バリデーション (同意チェック)
   function submitTrial(){
     clearError('privacyError');
     const privacy = document.getElementById('privacyCheck');
@@ -767,28 +729,31 @@
     }
     // 同意があれば step7(完了画面)へ
     goToStep(7);
-
-    // ▼▼▼ [追加] 完了画面で選択したレッスンを表示 ▼▼▼
     renderFinalLessons();
   }
 
-  // ---------- Step7: 完了画面のボタンで終了処理(例) ----------
+  // Step7: 完了画面の終了ボタン
   function finishAll(){
     alert("ご予約ありがとうございました。");
-    // 例: TOPへ戻るなど
+    // 例: TOPへリダイレクトなど
     // location.href = 'somewhere_top.html';
   }
 
-  // ▼▼▼ [追加] Step7で予約したレッスンを表示する関数 ▼▼▼
+  // ▼▼▼ [追加] Step7でレッスン日付＋氏名を表示する関数 ▼▼▼
   function renderFinalLessons(){
     const ul = document.getElementById('reservedLessonList');
-    if(!ul) return;
+    const nameSpan = document.getElementById('applicantName');
+    if(!ul || !nameSpan) return;
 
+    // 申込者氏名
+    nameSpan.textContent = applicantName; 
+
+    // 選択レッスン一覧
     ul.innerHTML = ''; // いったんクリア
     selectedLessons.forEach(lesson => {
       const li = document.createElement('li');
-      // レッスン名・日時・コート名を表示
-      li.textContent = `${lesson.name} / ${lesson.dateTime} / ${lesson.court}`;
+      // コート情報は削除したので日時とレッスン名のみ
+      li.textContent = `${lesson.dateTime} / ${lesson.name}`;
       ul.appendChild(li);
     });
   }
@@ -821,11 +786,8 @@
   // 初期表示 step1
   goToStep(1);
 
-  // Step5の画面が初めて表示された時に、レッスン一覧を描画するためのフック
-  // 画面遷移ごとに呼び出してもよいし、最初に一度だけ呼んでも可
-  // 今回はサンプルとしてページロード時に描画
+  // ページロード時にレッスン一覧を描画
   renderLessons();
-
 </script>
 </body>
 </html>
