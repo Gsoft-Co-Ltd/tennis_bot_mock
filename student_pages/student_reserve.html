@@ -152,6 +152,14 @@
       padding: 6px;
     }
 
+    /* 警告ラベル */
+    #warningLabel {
+      display: none;
+      font-size: 0.9rem;
+      color: #d9534f;
+      margin-top: 5px;
+    }
+
     /* 確認パネル */
     .confirm-panel {
       position: fixed;
@@ -306,11 +314,13 @@
       <!-- 日付選択(インプットカレンダー) -->
       <div class="mb-3">
         <label for="dateSelect" class="form-label" style="font-size:0.9rem;">
-          予約・振替を希望する日付を選択してください:
+          日付を選択:
         </label>
         <input type="date" id="dateSelect" class="form-control" />
       </div>
-      <!-- ページネーション (予約・振替) -->
+      <!-- 警告ラベル -->
+      <div id="warningLabel"></div>
+      <!-- ページネーション表示 (予約・振替用) -->
       <div class="pagination-area">
         <button id="prevBtn" onclick="goPrev()">前へ</button>
         <div class="pagination-info" id="pageInfo">- / -</div>
@@ -564,6 +574,17 @@
   // 予約・振替タブ: 日付絞り込み & ページネーション
   // =======================
   function handleDateChange(){
+    // 日付選択時、今日以前の日付が選ばれた場合は警告を表示
+    const dateVal = document.getElementById('dateSelect').value;
+    const selectedDate = new Date(dateVal);
+    const today = new Date();
+    today.setHours(0,0,0,0); // 今日の日付を00:00に設定
+    if(selectedDate < today) {
+      document.getElementById('warningLabel').style.display = 'block';
+      document.getElementById('warningLabel').innerText = '過去の日付は選択できません。';
+    } else {
+      document.getElementById('warningLabel').style.display = 'none';
+    }
     currentPage = 1;
     filterDataByDate();
     renderBookingLessons();
@@ -631,7 +652,7 @@
       };
       document.getElementById(`substitute-${lesson.id}`).onclick = () => {
         showConfirmPanel(
-          `「${lesson.name}」(${lesson.date} ${lesson.time})を振替しますか？`,
+          `「${lesson.name}」(${lesson.date} ${lesson.time})を振替ますか？`,
           () => doSubstitute(lesson.id)
         );
       };
@@ -673,15 +694,6 @@
   document.getElementById('confirmNoBtn').onclick = () => {
     hideConfirmPanel();
   };
-
-  // =======================
-  // 曜日取得用関数
-  // =======================
-  function getWeekday(dateStr) {
-    const date = new Date(dateStr);
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    return weekdays[date.getDay()];
-  }
 </script>
 
 <!-- Bootstrap JS (タブ切り替えに必要) -->
