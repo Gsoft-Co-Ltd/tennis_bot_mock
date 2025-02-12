@@ -287,36 +287,37 @@
     
     <!-- レッスン予定パネル -->
     <div class="tab-pane fade show active" id="reservedPane" role="tabpanel" aria-labelledby="reserved-tab">
+      <!-- ページネーション (レッスン予定) -->
+      <div class="pagination-area">
+        <button id="resPrevBtn" onclick="resGoPrev()">前へ</button>
+        <div class="pagination-info" id="resPageInfo">- / -</div>
+        <button id="resNextBtn" onclick="resGoNext()">次へ</button>
+      </div>
       <div id="reservedList"></div>
     </div>
 
     <!-- 予約・振替パネル -->
     <div class="tab-pane fade" id="bookingPane" role="tabpanel" aria-labelledby="booking-tab">
-
-      <!-- チケット情報をここに配置して見やすく -->
+      <!-- チケット情報 -->
       <div class="ticket-info" id="ticketInfoBox">
         <p>フリー予約チケット: <span id="freeTicketCount">-</span> 枚</p>
         <p>振替チケット: <span id="subTicketCount">-</span> 枚</p>
       </div>
-
       <!-- 日付選択(インプットカレンダー) -->
       <div class="mb-3">
         <label for="dateSelect" class="form-label" style="font-size:0.9rem;">
-          日付を選択:
+          予約・振替を希望する日付を選択してください:
         </label>
         <input type="date" id="dateSelect" class="form-control" />
       </div>
-
-      <!-- ページネーション表示 -->
+      <!-- ページネーション (予約・振替) -->
       <div class="pagination-area">
         <button id="prevBtn" onclick="goPrev()">前へ</button>
         <div class="pagination-info" id="pageInfo">- / -</div>
         <button id="nextBtn" onclick="goNext()">次へ</button>
       </div>
-
       <!-- 予約・振替可能レッスン一覧 -->
       <div id="bookingList"></div>
-
     </div>
   </div>
 
@@ -342,6 +343,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+  // 曜日を取得する関数
+  function getWeekday(dateStr) {
+    const date = new Date(dateStr);
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    return weekdays[date.getDay()];
+  }
+
   /* ============================
      チケット数・レッスンデータのモック
      ============================ */
@@ -357,47 +365,70 @@
     { id:'r5', name:'初級クラス', date:'2025-02-11', time:'08:00 - 09:30', court:'コート1', status:'欠席' },
     { id:'r6', name:'中級クラス', date:'2025-02-12', time:'19:00 - 20:30', court:'コート3', status:'予約済' },
     { id:'r7', name:'上級クラス', date:'2025-02-14', time:'10:00 - 11:30', court:'コート2', status:'振替済' },
-    { id:'r8', name:'初級クラス', date:'2025-02-15', time:'09:00 - 10:30', court:'コート1', status:'予約済' }
+    { id:'r8', name:'初級クラス', date:'2025-02-15', time:'09:00 - 10:30', court:'コート1', status:'予約済' },
+    { id:'r9', name:'中級クラス', date:'2025-02-16', time:'10:00 - 11:30', court:'コート3', status:'予約済' },
+    { id:'r10', name:'上級クラス', date:'2025-02-18', time:'13:00 - 14:30', court:'コート2', status:'欠席' },
+    { id:'r11', name:'初級クラス', date:'2025-02-19', time:'08:00 - 09:30', court:'コート1', status:'予約済' },
+    { id:'r12', name:'中級クラス', date:'2025-02-20', time:'19:00 - 20:30', court:'コート3', status:'振替済' }
   ];
 
   // 予約・振替が可能なレッスン(ダミーデータ; YYYY-MM-DD形式)
   const bookingSampleData = [
-    { id:101, name:'中級クラス', date:'2025-02-02', time:'09:00 - 10:30', court:'コート1' },
-    { id:102, name:'中級クラス', date:'2025-02-04', time:'19:00 - 20:30', court:'コート3' },
-    { id:103, name:'中級クラス', date:'2025-02-06', time:'10:00 - 11:30', court:'コート2' },
-    { id:104, name:'中級クラス', date:'2025-02-08', time:'09:00 - 10:30', court:'コート1' },
-    { id:105, name:'中級クラス', date:'2025-02-10', time:'19:00 - 20:30', court:'コート2' },
-    { id:106, name:'中級クラス', date:'2025-02-12', time:'09:00 - 10:30', court:'コート3' },
-    { id:107, name:'中級クラス', date:'2025-02-13', time:'10:00 - 11:30', court:'コート2' },
-    { id:108, name:'初級クラス', date:'2025-02-14', time:'09:00 - 10:30', court:'コート1' },
-    { id:109, name:'初級クラス', date:'2025-02-16', time:'19:00 - 20:30', court:'コート3' },
-    { id:110, name:'初級クラス', date:'2025-02-18', time:'09:00 - 10:30', court:'コート2' },
-    { id:111, name:'初級クラス', date:'2025-02-20', time:'08:00 - 09:30', court:'コート1' },
-    { id:112, name:'上級クラス', date:'2025-02-22', time:'18:00 - 19:30', court:'コート3' }
+    { id:101, name:'中級クラス',   date:'2025-02-02', time:'09:00 - 10:30', court:'コート1' },
+    { id:102, name:'中級クラス',   date:'2025-02-03', time:'19:00 - 20:30', court:'コート3' },
+    { id:103, name:'中級クラス',   date:'2025-02-04', time:'10:00 - 11:30', court:'コート2' },
+    { id:104, name:'中級クラス',   date:'2025-02-05', time:'09:00 - 10:30', court:'コート1' },
+    { id:105, name:'中級クラス',   date:'2025-02-06', time:'19:00 - 20:30', court:'コート2' },
+    { id:106, name:'中級クラス',   date:'2025-02-07', time:'09:00 - 10:30', court:'コート3' },
+    { id:107, name:'中級クラス',   date:'2025-02-08', time:'10:00 - 11:30', court:'コート2' },
+    { id:108, name:'初級クラス',   date:'2025-02-09', time:'09:00 - 10:30', court:'コート1' },
+    { id:109, name:'初級クラス',   date:'2025-02-10', time:'19:00 - 20:30', court:'コート3' },
+    { id:110, name:'初級クラス',   date:'2025-02-11', time:'09:00 - 10:30', court:'コート2' },
+    { id:111, name:'初級クラス',   date:'2025-02-12', time:'08:00 - 09:30', court:'コート1' },
+    { id:112, name:'上級クラス',   date:'2025-02-12', time:'18:00 - 19:30', court:'コート3' },
+    { id:113, name:'中級クラス',   date:'2025-02-13', time:'09:00 - 10:30', court:'コート2' },
+    { id:114, name:'初級クラス',   date:'2025-02-14', time:'09:00 - 10:30', court:'コート1' },
+    { id:115, name:'初級クラス',   date:'2025-02-15', time:'19:00 - 20:30', court:'コート3' },
+    { id:116, name:'上級クラス',   date:'2025-02-16', time:'09:00 - 10:30', court:'コート2' },
+    { id:117, name:'初級クラス',   date:'2025-02-17', time:'08:00 - 09:30', court:'コート1' },
+    { id:118, name:'上級クラス',   date:'2025-02-18', time:'18:00 - 19:30', court:'コート3' },
+    { id:119, name:'上級クラス',   date:'2025-02-19', time:'16:00 - 17:30', court:'コート2' },
+    { id:120, name:'中級クラス',   date:'2025-02-20', time:'09:00 - 10:30', court:'コート3' },
+    { id:121, name:'初級クラス',   date:'2025-02-21', time:'08:00 - 09:30', court:'コート1' },
+    { id:122, name:'上級クラス',   date:'2025-02-22', time:'18:00 - 19:30', court:'コート3' }
   ];
 
-  // ページネーション用
+  /* ============================
+     ページネーション: 
+       - レッスン予定 (reservedLessons)
+       - 予約・振替 (bookingSampleData)
+     ============================ */
+  // レッスン予定用
+  let resCurrentPage = 1;
+  const resPageSize = 5;
+  let resTotalPages = 1;
+
+  // 予約・振替用
   let currentPage = 1;
-  const pageSize = 5; // 1ページ5件
-  let filteredData = []; // 日付で絞り込んだ後のデータ
+  const pageSize = 5;
+  let filteredData = [];
   let totalPages = 1;
 
   window.addEventListener('DOMContentLoaded', () => {
-    // レッスン予定リストを描画
+    // レッスン予定用ページネーション初期化
+    resTotalPages = Math.ceil(reservedLessons.length / resPageSize);
     renderReservedLessons();
+    updateReservedPaginationInfo();
 
-    // 予約・振替タブの初期化
+    // 予約・振替タブ初期化
     const dateSelect = document.getElementById('dateSelect');
-    // デフォルトを 2025-02-12 にする
     dateSelect.value = '2025-02-12';
     dateSelect.addEventListener('change', handleDateChange);
 
-    // 初期絞り込み: 2025-02-12 のみ表示
     filterDataByDate();
     renderBookingLessons();
     updatePaginationInfo();
 
-    // 最後にチケット表示更新
     updateTicketDisplay();
   });
 
@@ -410,19 +441,53 @@
   }
 
   // =======================
-  // レッスン予定タブ
+  // 曜日取得用関数
   // =======================
+  function getWeekday(dateStr) {
+    const date = new Date(dateStr);
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    return weekdays[date.getDay()];
+  }
+
+  // =======================
+  // レッスン予定タブ: ページネーション + 描画
+  // =======================
+  function resGoPrev(){
+    if(resCurrentPage > 1){
+      resCurrentPage--;
+      renderReservedLessons();
+      updateReservedPaginationInfo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function resGoNext(){
+    if(resCurrentPage < resTotalPages){
+      resCurrentPage++;
+      renderReservedLessons();
+      updateReservedPaginationInfo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function updateReservedPaginationInfo(){
+    document.getElementById('resPageInfo').textContent = `${resCurrentPage} / ${resTotalPages}`;
+    document.getElementById('resPrevBtn').disabled = (resCurrentPage === 1);
+    document.getElementById('resNextBtn').disabled = (resCurrentPage === resTotalPages);
+  }
   function renderReservedLessons() {
     const container = document.getElementById('reservedList');
     container.innerHTML = '';
 
-    reservedLessons.forEach(lesson => {
+    const startIndex = (resCurrentPage - 1) * resPageSize;
+    const endIndex = startIndex + resPageSize;
+    const currentReservedData = reservedLessons.slice(startIndex, endIndex);
+
+    currentReservedData.forEach(lesson => {
       const card = document.createElement('div');
       card.className = 'lesson-card';
       card.innerHTML = `
         <h2>${lesson.name}</h2>
         <div class="lesson-info">
-          <div>日時: ${lesson.date} (${lesson.time})</div>
+          <div>日時: ${lesson.date} (${getWeekday(lesson.date)}) ${lesson.time}</div>
           <div>コート: ${lesson.court}</div>
           <div>ステータス: <strong>${lesson.status}</strong></div>
         </div>
@@ -433,7 +498,6 @@
       const actionArea = document.getElementById(`action-${lesson.id}`);
       if(!actionArea) return;
 
-      // 状態でボタンを分岐
       if(lesson.status === '予約済'){
         const absentBtn = document.createElement('button');
         absentBtn.className = 'btn-danger';
@@ -445,7 +509,6 @@
           );
         };
         actionArea.appendChild(absentBtn);
-
       } else if(lesson.status === '欠席'){
         const cancelAbsentBtn = document.createElement('button');
         cancelAbsentBtn.className = 'btn-secondary';
@@ -457,7 +520,6 @@
           );
         };
         actionArea.appendChild(cancelAbsentBtn);
-
       } else if(lesson.status === '振替済'){
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn-cancel';
@@ -488,35 +550,34 @@
   function cancelSub(lessonId) {
     const idx = reservedLessons.findIndex(l => l.id === lessonId);
     if(idx >= 0) {
-      // デモ: 振替キャンセルで配列から削除
       reservedLessons.splice(idx, 1);
+      resTotalPages = Math.ceil(reservedLessons.length / resPageSize) || 1;
+      if(resCurrentPage > resTotalPages) {
+        resCurrentPage = resTotalPages;
+      }
       renderReservedLessons();
+      updateReservedPaginationInfo();
     }
   }
 
   // =======================
-  // 予約・振替タブ
+  // 予約・振替タブ: 日付絞り込み & ページネーション
   // =======================
   function handleDateChange(){
-    // 日付変更→ページを1にリセット
     currentPage = 1;
     filterDataByDate();
     renderBookingLessons();
     updatePaginationInfo();
   }
-
   function filterDataByDate(){
     const dateVal = document.getElementById('dateSelect').value;
     if(!dateVal){
-      // 未選択なら全件
       filteredData = bookingSampleData.slice();
     } else {
       filteredData = bookingSampleData.filter(evt => evt.date === dateVal);
     }
     totalPages = Math.ceil(filteredData.length / pageSize) || 1;
   }
-
-  // ページネーション
   function goPrev(){
     if(currentPage > 1){
       currentPage--;
@@ -538,7 +599,6 @@
     document.getElementById('prevBtn').disabled = (currentPage === 1);
     document.getElementById('nextBtn').disabled = (currentPage === totalPages);
   }
-
   function renderBookingLessons() {
     const container = document.getElementById('bookingList');
     container.innerHTML = '';
@@ -553,7 +613,7 @@
       card.innerHTML = `
         <h2>${lesson.name}</h2>
         <div class="lesson-info">
-          <div>日時: ${lesson.date} (${lesson.time})</div>
+          <div>日時: ${lesson.date} (${getWeekday(lesson.date)}) ${lesson.time}</div>
           <div>コート: ${lesson.court}</div>
         </div>
         <div class="actions">
@@ -613,6 +673,15 @@
   document.getElementById('confirmNoBtn').onclick = () => {
     hideConfirmPanel();
   };
+
+  // =======================
+  // 曜日取得用関数
+  // =======================
+  function getWeekday(dateStr) {
+    const date = new Date(dateStr);
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    return weekdays[date.getDay()];
+  }
 </script>
 
 <!-- Bootstrap JS (タブ切り替えに必要) -->
