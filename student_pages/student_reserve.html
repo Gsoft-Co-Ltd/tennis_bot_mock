@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>予約管理（ユーザー画面）</title>
-  <!-- Bootstrap 5 -->
+  <title>予約管理（ユーザー画面） - モダンタブ版</title>
+
+  <!-- Bootstrap 5 CSS -->
   <link 
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -23,7 +24,6 @@
       margin: 0 auto;
       padding: 15px;
       background-color: #fff;
-      /* ページ全体を縦に埋め尽くすために追加 */
       min-height: 100vh;
       box-sizing: border-box;
       display: flex;
@@ -33,7 +33,7 @@
     /* ヘッダー部分 */
     .header-bar {
       display: flex; 
-      justify-content: center;  /* 中央に配置 */
+      justify-content: center;
       align-items: center;
       margin-top: 15px;
       margin-bottom: 8px;
@@ -41,7 +41,7 @@
     .logo {
       font-size: 24px;
       font-weight: bold;
-      color: #2196f3; /* 他画面と色を合わせる */
+      color: #2196f3;
       text-align: center;
     }
     .logo img {
@@ -50,12 +50,32 @@
       margin-right: 5px;
     }
 
-    /* セクションタイトル */
-    .section-title {
-      font-size: 1rem;
+    /* モダンタブのスタイル上書き */
+    .nav-tabs {
+      border-bottom: none; /* 既定の下線を消す */
+      justify-content: center; /* タブを中央寄せ */
+      gap: 20px; /* タブ間の隙間を確保 */
+    }
+    .nav-tabs .nav-item {
+      margin-bottom: 0; /* 既定のマージンをリセット */
+    }
+    .nav-tabs .nav-link {
+      border: none; /* 既定の枠線を消す */
+      border-radius: 0;
+      color: #999;
       font-weight: bold;
-      margin: 15px 0 8px;
-      color: #333;
+      font-size: 0.95rem;
+      padding: 6px 12px;
+      background-color: transparent;
+    }
+    .nav-tabs .nav-link:hover {
+      color: #2196f3;
+      background-color: #f0f0f0;
+    }
+    .nav-tabs .nav-link.active {
+      color: #2196f3;
+      border-bottom: 3px solid #2196f3; /* アクティブ時の下線 */
+      background-color: #fff; /* 背景は白 */
     }
 
     /* レッスンカード */
@@ -112,25 +132,30 @@
       margin: 0 0 10px 0;
       font-size: 0.9rem;
       color: #333;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      background-color: #fafafa;
+      padding: 8px;
+      line-height: 1.6;
+    }
+    .ticket-info p {
+      margin: 4px 0;
     }
     .ticket-info span {
       font-weight: bold;
       color: #2196f3;
     }
 
-    /* スクロール領域 */
-    .scroll-area {
-      overflow-y: auto;
-      border: 1px solid #eee;
+    /* インプットカレンダー */
+    #dateSelect {
+      font-size: 0.9rem;
       padding: 6px;
-      margin-bottom: 12px;
-      background-color: #fafafa;
     }
 
-    /* 操作確認パネル */
+    /* 確認パネル */
     .confirm-panel {
       position: fixed;
-      bottom: 60px; /* フッターと重ならないように調整 */
+      bottom: 60px;
       left: 0;
       right: 0;
       margin: 0 auto;
@@ -140,7 +165,7 @@
       box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
       padding: 10px;
       z-index: 999;
-      display: none; /* 最初は非表示 */
+      display: none;
     }
     .confirm-text {
       font-size: 0.9rem;
@@ -184,7 +209,34 @@
       display: flex;
       justify-content: center;
     }
-    
+
+    /* ページネーション */
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .pagination-area button {
+      border: none;
+      background-color: #607d8b;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .pagination-info {
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .pagination-info strong {
+      color: #2196f3;
+    }
+
+    /* メディアクエリ */
     @media (max-width: 400px) {
       .container-main {
         padding: 10px;
@@ -195,6 +247,9 @@
       .confirm-panel .confirm-actions button {
         font-size: 0.8rem;
         padding: 8px;
+      }
+      .pagination-area button {
+        font-size: 0.75rem;
       }
     }
   </style>
@@ -211,19 +266,59 @@
     </div>
   </div>
 
-  <!-- 予約チケット/振替チケットの表示 -->
-  <div class="ticket-info" id="ticketInfoBox">
-    <p>フリー予約チケット: <span id="freeTicketCount">-</span> 枚</p>
-    <p>振替チケット: <span id="subTicketCount">-</span> 枚</p>
+  <!-- タブナビゲーション (モダンスタイル) -->
+  <ul class="nav nav-tabs" id="lessonTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="reserved-tab" data-bs-toggle="tab" data-bs-target="#reservedPane"
+        type="button" role="tab" aria-controls="reservedPane" aria-selected="true">
+        レッスン予定
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="booking-tab" data-bs-toggle="tab" data-bs-target="#bookingPane"
+        type="button" role="tab" aria-controls="bookingPane" aria-selected="false">
+        予約・振替
+      </button>
+    </li>
+  </ul>
+
+  <!-- タブのコンテンツ -->
+  <div class="tab-content" id="lessonTabContent" style="margin-top: 10px;">
+    
+    <!-- レッスン予定パネル -->
+    <div class="tab-pane fade show active" id="reservedPane" role="tabpanel" aria-labelledby="reserved-tab">
+      <div id="reservedList"></div>
+    </div>
+
+    <!-- 予約・振替パネル -->
+    <div class="tab-pane fade" id="bookingPane" role="tabpanel" aria-labelledby="booking-tab">
+
+      <!-- チケット情報をここに配置して見やすく -->
+      <div class="ticket-info" id="ticketInfoBox">
+        <p>フリー予約チケット: <span id="freeTicketCount">-</span> 枚</p>
+        <p>振替チケット: <span id="subTicketCount">-</span> 枚</p>
+      </div>
+
+      <!-- 日付選択(インプットカレンダー) -->
+      <div class="mb-3">
+        <label for="dateSelect" class="form-label" style="font-size:0.9rem;">
+          日付を選択:
+        </label>
+        <input type="date" id="dateSelect" class="form-control" />
+      </div>
+
+      <!-- ページネーション表示 -->
+      <div class="pagination-area">
+        <button id="prevBtn" onclick="goPrev()">前へ</button>
+        <div class="pagination-info" id="pageInfo">- / -</div>
+        <button id="nextBtn" onclick="goNext()">次へ</button>
+      </div>
+
+      <!-- 予約・振替可能レッスン一覧 -->
+      <div id="bookingList"></div>
+
+    </div>
   </div>
-
-  <!-- ▼▼ レッスン予定一覧 ▼▼ -->
-  <h2 class="section-title">レッスン予定</h2>
-  <div class="scroll-area" id="reservedList"></div>
-
-  <!-- ▼▼ 予約・振替が可能なレッスン一覧 ▼▼ -->
-  <h2 class="section-title">予約・振替できるレッスン</h2>
-  <div class="scroll-area" id="bookingList"></div>
 
 </div> <!-- /.container-main -->
 
@@ -243,57 +338,80 @@
   </div>
 </div>
 
+<!-- Bootstrap 5 JS (タブ切り替えに必要) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-  /* ===============================
+  /* ============================
      チケット数・レッスンデータのモック
-     =============================== */
+     ============================ */
   let freeLessonTickets = 3;   // フリー予約チケット
   let substitutionTickets = 2; // 振替チケット
 
   // レッスン予定(予約済/振替済/欠席など)
   const reservedLessons = [
-    { id:'r1', name:'中級クラス', date:'2025/02/15', time:'19:00 - 20:30', court:'コート3', status:'予約済' },
-    { id:'r2', name:'中級クラス', date:'2025/02/20', time:'09:00 - 10:30', court:'コート1', status:'振替済' },
-    { id:'r3', name:'中級クラス', date:'2025/02/21', time:'10:00 - 11:30', court:'コート2', status:'欠席' },
-    { id:'r4', name:'上級クラス', date:'2025/02/22', time:'15:00 - 16:30', court:'コート4', status:'予約済' },
-    { id:'r5', name:'初級クラス', date:'2025/02/23', time:'08:00 - 09:30', court:'コート1', status:'欠席' },
-    { id:'r6', name:'中級クラス', date:'2025/02/27', time:'19:00 - 20:30', court:'コート3', status:'予約済' },
-    { id:'r7', name:'上級クラス', date:'2025/03/01', time:'10:00 - 11:30', court:'コート2', status:'振替済' },
-    { id:'r8', name:'初級クラス', date:'2025/03/03', time:'09:00 - 10:30', court:'コート1', status:'予約済' }
+    { id:'r1', name:'中級クラス', date:'2025/02/05', time:'19:00 - 20:30', court:'コート3', status:'予約済' },
+    { id:'r2', name:'中級クラス', date:'2025/02/08', time:'09:00 - 10:30', court:'コート1', status:'振替済' },
+    { id:'r3', name:'中級クラス', date:'2025/02/09', time:'10:00 - 11:30', court:'コート2', status:'欠席' },
+    { id:'r4', name:'上級クラス', date:'2025/02/10', time:'15:00 - 16:30', court:'コート4', status:'予約済' },
+    { id:'r5', name:'初級クラス', date:'2025/02/11', time:'08:00 - 09:30', court:'コート1', status:'欠席' },
+    { id:'r6', name:'中級クラス', date:'2025/02/12', time:'19:00 - 20:30', court:'コート3', status:'予約済' },
+    { id:'r7', name:'上級クラス', date:'2025/02/14', time:'10:00 - 11:30', court:'コート2', status:'振替済' },
+    { id:'r8', name:'初級クラス', date:'2025/02/15', time:'09:00 - 10:30', court:'コート1', status:'予約済' }
   ];
 
-  // 予約・振替が可能なレッスン
+  // 予約・振替が可能なレッスン(ダミーデータ; 2025/02/02～02/22の範囲)
   const bookingSampleData = [
-    { id:101, name:'中級クラス', date:'2025/02/25', time:'09:00 - 10:30', court:'コート1' },
-    { id:102, name:'中級クラス', date:'2025/02/26', time:'19:00 - 20:30', court:'コート3' },
-    { id:103, name:'中級クラス', date:'2025/02/28', time:'10:00 - 11:30', court:'コート2' },
-    { id:104, name:'中級クラス', date:'2025/03/02', time:'09:00 - 10:30', court:'コート1' },
-    { id:105, name:'中級クラス', date:'2025/03/05', time:'19:00 - 20:30', court:'コート2' },
-    { id:106, name:'中級クラス', date:'2025/03/08', time:'09:00 - 10:30', court:'コート3' },
-    { id:107, name:'中級クラス', date:'2025/03/10', time:'10:00 - 11:30', court:'コート2' },
-    { id:108, name:'中級クラス', date:'2025/03/12', time:'09:00 - 10:30', court:'コート1' },
-    { id:109, name:'中級クラス', date:'2025/03/15', time:'19:00 - 20:30', court:'コート3' },
-    { id:110, name:'中級クラス', date:'2025/03/18', time:'09:00 - 10:30', court:'コート2' }
+    { id:101, name:'中級クラス', date:'2025/02/02', time:'09:00 - 10:30', court:'コート1' },
+    { id:102, name:'中級クラス', date:'2025/02/04', time:'19:00 - 20:30', court:'コート3' },
+    { id:103, name:'中級クラス', date:'2025/02/06', time:'10:00 - 11:30', court:'コート2' },
+    { id:104, name:'中級クラス', date:'2025/02/08', time:'09:00 - 10:30', court:'コート1' },
+    { id:105, name:'中級クラス', date:'2025/02/10', time:'19:00 - 20:30', court:'コート2' },
+    { id:106, name:'中級クラス', date:'2025/02/12', time:'09:00 - 10:30', court:'コート3' },
+    { id:107, name:'中級クラス', date:'2025/02/13', time:'10:00 - 11:30', court:'コート2' },
+    { id:108, name:'初級クラス', date:'2025/02/14', time:'09:00 - 10:30', court:'コート1' },
+    { id:109, name:'初級クラス', date:'2025/02/16', time:'19:00 - 20:30', court:'コート3' },
+    { id:110, name:'初級クラス', date:'2025/02/18', time:'09:00 - 10:30', court:'コート2' },
+    { id:111, name:'初級クラス', date:'2025/02/20', time:'08:00 - 09:30', court:'コート1' },
+    { id:112, name:'上級クラス', date:'2025/02/22', time:'18:00 - 19:30', court:'コート3' }
   ];
 
-  /* ===============================
-     初期表示処理
-     =============================== */
+  // ページネーション用
+  let currentPage = 1;
+  const pageSize = 5; // 1ページ5件
+  let filteredData = []; // 日付で絞り込んだ後のデータ
+  let totalPages = 1;
+
   window.addEventListener('DOMContentLoaded', () => {
-    updateTicketDisplay();
+    // レッスン予定リストを描画
     renderReservedLessons();
+
+    // 予約・振替タブの初期化
+    const dateSelect = document.getElementById('dateSelect');
+    // デフォルトを 2025-02-12 にする
+    dateSelect.value = '2025-02-12';
+    dateSelect.addEventListener('change', handleDateChange);
+
+    // 初期絞り込み: 2025-02-12 のみ表示
+    filterDataByDate();
     renderBookingLessons();
+    updatePaginationInfo();
+
+    // 最後にチケット表示更新
+    updateTicketDisplay();
   });
 
-  // チケット数の表示更新
+  // =======================
+  // チケット数表示
+  // =======================
   function updateTicketDisplay(){
     document.getElementById('freeTicketCount').textContent = freeLessonTickets;
     document.getElementById('subTicketCount').textContent = substitutionTickets;
   }
 
-  /* ===============================
-     レッスン予定の描画
-     =============================== */
+  // =======================
+  // レッスン予定タブ
+  // =======================
   function renderReservedLessons() {
     const container = document.getElementById('reservedList');
     container.innerHTML = '';
@@ -312,12 +430,11 @@
       `;
       container.appendChild(card);
 
-      // ボタン生成
       const actionArea = document.getElementById(`action-${lesson.id}`);
       if(!actionArea) return;
 
+      // 状態でボタンを分岐
       if(lesson.status === '予約済'){
-        // 「欠席連絡」ボタン
         const absentBtn = document.createElement('button');
         absentBtn.className = 'btn-danger';
         absentBtn.textContent = '欠席連絡';
@@ -330,7 +447,6 @@
         actionArea.appendChild(absentBtn);
 
       } else if(lesson.status === '欠席'){
-        // 「欠席キャンセル」ボタン
         const cancelAbsentBtn = document.createElement('button');
         cancelAbsentBtn.className = 'btn-secondary';
         cancelAbsentBtn.textContent = '欠席キャンセル';
@@ -343,7 +459,6 @@
         actionArea.appendChild(cancelAbsentBtn);
 
       } else if(lesson.status === '振替済'){
-        // 「キャンセル」ボタン
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn-cancel';
         cancelBtn.textContent = 'キャンセル';
@@ -373,19 +488,66 @@
   function cancelSub(lessonId) {
     const idx = reservedLessons.findIndex(l => l.id === lessonId);
     if(idx >= 0) {
-      reservedLessons.splice(idx, 1); // 振替キャンセルで完全削除する想定
+      // デモ: 振替キャンセルで配列から削除
+      reservedLessons.splice(idx, 1);
       renderReservedLessons();
     }
   }
 
-  /* ===============================
-     予約・振替が可能なレッスン描画
-     =============================== */
+  // =======================
+  // 予約・振替タブ
+  // =======================
+  function handleDateChange(){
+    // 日付変更→ページを1にリセット
+    currentPage = 1;
+    filterDataByDate();
+    renderBookingLessons();
+    updatePaginationInfo();
+  }
+
+  function filterDataByDate(){
+    const dateVal = document.getElementById('dateSelect').value;
+    if(!dateVal){
+      // 未選択なら全件
+      filteredData = bookingSampleData.slice();
+    } else {
+      filteredData = bookingSampleData.filter(evt => evt.date === dateVal);
+    }
+    totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+  }
+
+  // ページネーション
+  function goPrev(){
+    if(currentPage > 1){
+      currentPage--;
+      renderBookingLessons();
+      updatePaginationInfo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function goNext(){
+    if(currentPage < totalPages){
+      currentPage++;
+      renderBookingLessons();
+      updatePaginationInfo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function updatePaginationInfo(){
+    document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages}`;
+    document.getElementById('prevBtn').disabled = (currentPage === 1);
+    document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+  }
+
   function renderBookingLessons() {
     const container = document.getElementById('bookingList');
     container.innerHTML = '';
 
-    bookingSampleData.forEach(lesson => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageData = filteredData.slice(startIndex, endIndex);
+
+    pageData.forEach(lesson => {
       const card = document.createElement('div');
       card.className = 'lesson-card';
       card.innerHTML = `
@@ -401,15 +563,12 @@
       `;
       container.appendChild(card);
 
-      // 予約ボタン
       document.getElementById(`reserve-${lesson.id}`).onclick = () => {
         showConfirmPanel(
           `「${lesson.name}」(${lesson.date} ${lesson.time})を予約しますか？`,
           () => doReserve(lesson.id)
         );
       };
-
-      // 振替ボタン
       document.getElementById(`substitute-${lesson.id}`).onclick = () => {
         showConfirmPanel(
           `「${lesson.name}」(${lesson.date} ${lesson.time})を振替しますか？`,
@@ -424,19 +583,19 @@
       freeLessonTickets--;
     }
     updateTicketDisplay();
-    console.log(`レッスン ${lessonId} を予約しました (デモ)`);
+    console.log(`レッスン ${lessonId} を予約 (デモ)`);
   }
   function doSubstitute(lessonId){
     if(substitutionTickets > 0){
       substitutionTickets--;
     }
     updateTicketDisplay();
-    console.log(`レッスン ${lessonId} を振替しました (デモ)`);
+    console.log(`レッスン ${lessonId} を振替 (デモ)`);
   }
 
-  /* ===============================
-     確認パネル表示/非表示
-     =============================== */
+  // =======================
+  // 確認パネル
+  // =======================
   let confirmCallback = null;
   function showConfirmPanel(message, onYes){
     confirmCallback = onYes;
@@ -455,5 +614,9 @@
     hideConfirmPanel();
   };
 </script>
+
+<!-- Bootstrap JS (タブ切り替えに必要) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
