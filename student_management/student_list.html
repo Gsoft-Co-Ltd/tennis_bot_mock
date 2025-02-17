@@ -114,6 +114,12 @@
     th.status-col {
       width: 80px;
     }
+    /* 申し送り・未納の「有り」ボタン：薄い赤 */
+    .btn-light-red {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
   </style>
 </head>
 <body>
@@ -245,7 +251,7 @@
           <th style="width:10%;">申し送り</th>
           <th style="width:10%;">未納</th>
           <th class="status-col">ステータス</th>
-          <th style="width:10%;">会員詳細</th>
+          <th style="width:10%;">詳細・削除</th>
         </tr>
       </thead>
       <tbody>
@@ -434,7 +440,10 @@
         <td>${renderOverdue(item.overdue)}</td>
         <td>${renderStatus(item.status)}</td>
         <td>
-          <button class="btn btn-sm btn-details" onclick="showMemberDetail('${item.code}')">詳細</button>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-details" onclick="showMemberDetail('${item.code}')">詳細</button>
+            <button class="btn btn-sm btn-delete" onclick="deleteMember('${item.code}')">削除</button>
+          </div>
         </td>
       `;
       tableBody.appendChild(tr);
@@ -459,9 +468,9 @@
           !item.kana.toLowerCase().includes(textName)) {
         return false;
       }
-      // 連絡先検索 (サンプルでは実装例のみ)
+      // 連絡先検索 (必要なら)
       if (textContact) {
-        // 必要に応じて item.contact を判定する
+        // 例：item.contactがあれば判定する
       }
       // 申し送り
       if (checkNotes && item.notes !== "有り") return false;
@@ -469,7 +478,6 @@
       if (checkOver && item.overdue !== "有り") return false;
       // ステータス
       if (statusVal !== "all" && item.status !== statusVal) return false;
-
       return true;
     });
   }
@@ -547,7 +555,7 @@
   // ▼▼▼ 「申し送り」表示 ▼▼▼
   function renderNotes(notesVal) {
     if (notesVal === "有り") {
-      return '<button class="btn btn-info btn-sm">有り</button>';
+      return '<button class="btn btn-light-red btn-sm">有り</button>';
     } else {
       return '<button class="btn btn-outline-secondary btn-sm">無し</button>';
     }
@@ -556,7 +564,7 @@
   // ▼▼▼ 「未納」表示 ▼▼▼
   function renderOverdue(overVal) {
     if (overVal === "有り") {
-      return '<button class="btn btn-info btn-sm">有り</button>';
+      return '<button class="btn btn-light-red btn-sm">有り</button>';
     } else {
       return '<button class="btn btn-outline-secondary btn-sm">無し</button>';
     }
@@ -579,6 +587,16 @@
   // ▼▼▼ 詳細ボタン (サンプル) ▼▼▼
   function showMemberDetail(code) {
     alert(`会員コード: ${code} の詳細画面を開く想定`);
+  }
+
+  // ▼▼▼ 会員削除ボタン (削除フラグによる論理削除) ▼▼▼
+  function deleteMember(code) {
+    if (confirm("本当に削除しますか？（削除フラグを立てます）")) {
+      // 論理削除の処理を実施（サンプルでは単にデータから除外）
+      members = members.filter(item => item.code !== code);
+      renderTable();
+      alert(`会員コード: ${code} を削除しました。`);
+    }
   }
 
   // ▼▼▼ 会員追加モーダル関連 ▼▼▼
