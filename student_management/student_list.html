@@ -35,15 +35,18 @@
     th {
       background-color: #007bff;
       color: white;
-      cursor: pointer;
       position: relative;
       white-space: nowrap;
+    }
+    /* クリック可能なのは会員番号列だけ */
+    th.sortable {
+      cursor: pointer;
     }
     th .sort-icon {
       margin-left: 6px;
     }
     /* ソートアイコンのホバー表示の微調整 */
-    th:hover .sort-icon {
+    th.sortable:hover .sort-icon {
       opacity: 0.7;
     }
     .table-striped tbody tr:nth-of-type(odd) {
@@ -102,6 +105,10 @@
     }
     .card-footer {
       background: #fff;
+    }
+    /* ステータスカラムの幅を少し狭める例 */
+    th.status-col {
+      width: 70px; /* 必要に応じて調整 */
     }
   </style>
 </head>
@@ -214,23 +221,18 @@
         <table class="table table-striped table-hover mb-0" id="studentTable">
           <thead>
             <tr>
-              <th scope="col" onclick="handleSort(0)">
+              <!-- 会員番号のみソート対象 -->
+              <th scope="col" class="sortable" onclick="handleSort(0)">
                 会員番号 <i class="fas fa-sort sort-icon"></i>
               </th>
-              <th scope="col" onclick="handleSort(1)">
-                氏名 <i class="fas fa-sort sort-icon"></i>
-              </th>
-              <th scope="col" onclick="handleSort(2)">
-                フリガナ <i class="fas fa-sort sort-icon"></i>
-              </th>
-              <th scope="col" onclick="handleSort(3)">
-                コース <i class="fas fa-sort sort-icon"></i>
-              </th>
+              <th scope="col">氏名</th>
+              <th scope="col">フリガナ</th>
+              <!-- コースの代わりに"クラス"列を追加 -->
+              <th scope="col">クラス</th>
               <th scope="col">申し送り</th>
               <th scope="col">未納</th>
-              <th scope="col" onclick="handleSort(4)">
-                ステータス <i class="fas fa-sort sort-icon"></i>
-              </th>
+              <!-- ステータス列を狭める例 -->
+              <th scope="col" class="status-col">ステータス</th>
               <th scope="col">会員詳細</th>
             </tr>
           </thead>
@@ -276,22 +278,77 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   // ▼▼▼ サンプルデータ ▼▼▼
+  // - クラスは配列で保持。なければ空配列。
+  // - 複数クラスの場合、セル内で改行して表示する。
+  // - クラスが無い(空配列)なら空欄にする。
   let members = [
-    { id: "001", name: "山田 太郎",  kana: "ヤマダ タロウ",   course: "初心者コース", notes: "有り", overdue: "有り",   status: "active"    },
-    { id: "002", name: "佐藤 花子",  kana: "サトウ ハナコ",   course: "中級コース",   notes: "無し", overdue: "無し", status: "active"    },
-    { id: "003", name: "鈴木 一郎",  kana: "スズキ イチロウ", course: "応用コース",   notes: "有り", overdue: "無し", status: "active"    },
-    { id: "004", name: "高橋 次郎",  kana: "タカハシ ジロウ", course: "初心者コース", notes: "無し", overdue: "無し", status: "suspended" },
-    { id: "005", name: "林 健",     kana: "ハヤシ ケン",     course: "中級コース",   notes: "有り", overdue: "有り",   status: "withdrawn"},
-    { id: "006", name: "西山 亮",   kana: "ニシヤマ リョウ", course: "応用コース",   notes: "無し", overdue: "無し", status: "active"    },
+    {
+      code: "ABC0001",
+      name: "山田 太郎",
+      kana: "ヤマダ タロウ",
+      classes: ["月曜初級クラス", "木曜中級クラス"],
+      notes: "有り",
+      overdue: "有り",
+      status: "active"
+    },
+    {
+      code: "ABC0002",
+      name: "佐藤 花子",
+      kana: "サトウ ハナコ",
+      classes: [],
+      notes: "無し",
+      overdue: "無し",
+      status: "active"
+    },
+    {
+      code: "ABC0003",
+      name: "鈴木 一郎",
+      kana: "スズキ イチロウ",
+      classes: ["土曜ジュニアクラス"],
+      notes: "有り",
+      overdue: "無し",
+      status: "active"
+    },
+    {
+      code: "ABC0004",
+      name: "高橋 次郎",
+      kana: "タカハシ ジロウ",
+      classes: ["週末シニアクラス", "平日中級クラス"],
+      notes: "無し",
+      overdue: "無し",
+      status: "suspended"
+    },
+    {
+      code: "ABC0005",
+      name: "林 健",
+      kana: "ハヤシ ケン",
+      classes: ["月曜初級クラス"],
+      notes: "有り",
+      overdue: "有り",
+      status: "withdrawn"
+    },
+    {
+      code: "ABC0006",
+      name: "西山 亮",
+      kana: "ニシヤマ リョウ",
+      classes: [],
+      notes: "無し",
+      overdue: "無し",
+      status: "active"
+    }
   ];
 
+  // ソート関連
   let sortDirection = true;    // true: 昇順, false: 降順
   let currentSortColumn = null;
   let currentPage = 1;
   let rowsPerPage = 20;
 
+  // テーブル更新のメイン関数
   function updateTable() {
     let filteredData = filterMembers(members);
+
+    // 会員番号(0番目)だけソート対象
     if (currentSortColumn !== null) {
       filteredData = sortData(filteredData, currentSortColumn);
     }
@@ -305,6 +362,7 @@
     const filterNotes = document.getElementById("filterNotes").checked;
     const filterOverdue = document.getElementById("filterOverdue").checked;
     const statusValue = document.getElementById("statusSelect").value; 
+
     return dataArray.filter(item => {
       // 名前検索(漢字,フリガナ)
       if (
@@ -319,40 +377,17 @@
       if (filterOverdue && item.overdue !== "有り") return false;
       // ステータス
       if (statusValue !== "all" && item.status !== statusValue) return false;
+
       return true;
     });
   }
 
-  // ソート
+  // ソート（会員番号のみ対象）
   function sortData(dataArray, columnIndex) {
     dataArray.sort((a, b) => {
-      let aValue, bValue;
-      switch(columnIndex) {
-        case 0: // 会員番号
-          aValue = parseInt(a.id, 10);
-          bValue = parseInt(b.id, 10);
-          break;
-        case 1: // 氏名
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case 2: // フリガナ
-          aValue = a.kana.toLowerCase();
-          bValue = b.kana.toLowerCase();
-          break;
-        case 3: // コース
-          aValue = a.course.toLowerCase();
-          bValue = b.course.toLowerCase();
-          break;
-        case 4: // ステータス
-          aValue = a.status.toLowerCase();
-          bValue = b.status.toLowerCase();
-          break;
-        default:
-          aValue = "";
-          bValue = "";
-          break;
-      }
+      let aValue = a.code;
+      let bValue = b.code;
+
       if (aValue > bValue) {
         return sortDirection ? 1 : -1;
       } else if (aValue < bValue) {
@@ -374,12 +409,17 @@
     const pageData = dataArray.slice(startIndex, endIndex);
 
     pageData.forEach(item => {
+      // クラスを表示（複数なら改行で区切り。空配列なら空欄）
+      const classText = (item.classes && item.classes.length > 0)
+        ? item.classes.join("<br>")
+        : ""; // 空欄
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${item.id}</td>
+        <td>${item.code}</td>
         <td>${item.name}</td>
         <td>${item.kana}</td>
-        <td>${item.course}</td>
+        <td>${classText}</td>
         <td>
           ${item.notes === "有り"
             ? '<button class="btn btn-info btn-sm">有り</button>'
@@ -404,7 +444,7 @@
       `;
       tableBody.appendChild(tr);
 
-      // 詳細ボタン例(iframe操作用)
+      // 詳細ボタン例(iframe操作用など)
       const detailBtn = tr.querySelector(".detail-btn");
       detailBtn.addEventListener("click", function () {
         const targetUrl = detailBtn.getAttribute("data-url");
@@ -415,7 +455,7 @@
     });
   }
 
-  // ステータス表示
+  // ステータス表示ラベル
   function statusLabel(statusValue) {
     let labelText = "";
     let colorClass = "";
@@ -451,7 +491,7 @@
     const prevLink = document.createElement("a");
     prevLink.className = "page-link";
     prevLink.href = "#";
-    prevLink.innerText = "Previous";
+    prevLink.innerText = "Prev";
     prevLink.onclick = (e) => {
       e.preventDefault();
       if (currentPage > 1) {
@@ -462,7 +502,7 @@
     prevLi.appendChild(prevLink);
     pagination.appendChild(prevLi);
 
-    // Pages
+    // ページ番号
     for(let i=1; i<=totalPages; i++){
       const li = document.createElement("li");
       li.className = "page-item" + (currentPage === i ? " active" : "");
@@ -497,25 +537,24 @@
     pagination.appendChild(nextLi);
   }
 
-  // ソート操作
+  // ソートヘッダクリック
   function handleSort(columnIndex) {
+    // 会員番号(0)だけソート可能
     sortDirection = !sortDirection;
     currentSortColumn = columnIndex;
     updateTable();
     updateSortIcons();
   }
+
   function updateSortIcons() {
-    const headers = document.querySelectorAll("th");
-    headers.forEach((header, index) => {
+    // 会員番号列だけアイコン変化
+    const headers = document.querySelectorAll("th.sortable");
+    headers.forEach(header => {
       const icon = header.querySelector(".sort-icon");
       if (icon) {
-        if (index === currentSortColumn) {
-          icon.className = sortDirection
-            ? "fas fa-sort-up sort-icon"
-            : "fas fa-sort-down sort-icon";
-        } else {
-          icon.className = "fas fa-sort sort-icon";
-        }
+        icon.className = sortDirection
+          ? "fas fa-sort-up sort-icon"
+          : "fas fa-sort-down sort-icon";
       }
     });
   }
@@ -528,7 +567,7 @@
     updateTable();
   }
 
-  // フィルタなどのイベント
+  // 各種フィルタのイベント
   document.getElementById("searchInput").addEventListener("keyup", () => {
     currentPage=1;
     updateTable();
@@ -552,7 +591,7 @@
     updateTable();
   };
 
-  // 企業スクール選択
+  // 企業スクール選択ボタン
   document.getElementById("selectButton").addEventListener("click", () => {
     const companyValue = document.getElementById("companySelect").value;
     const schoolValue  = document.getElementById("schoolSelect").value;
@@ -563,7 +602,7 @@
     alert(`企業: ${companyValue}\nスクール: ${schoolValue}\nが選択されました(モック)。`);
   });
 
-  // モーダル関連
+  // 会員追加モーダル制御
   function showAddMemberModal() {
     const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
     modal.show();

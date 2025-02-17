@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja"> 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -23,7 +23,7 @@
       margin-bottom: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background:#fff;
+      background: #fff;
     }
     .card-body {
       padding:15px;
@@ -40,6 +40,11 @@
       position: sticky;
       top: 0;
       z-index: 10;
+      white-space: nowrap;
+    }
+    /* ソート可能カラムのカーソル変更 */
+    th.sortable {
+      cursor: pointer;
     }
     table tbody tr:nth-child(odd) {
       background-color: #f9f9f9;
@@ -64,18 +69,9 @@
     .btn-details {
       background: #6c757d;
       color: #fff;
-      margin-right: 4px;
     }
     .btn-details:hover {
       background: #5a6268;
-    }
-    .btn-edit {
-      background: #28a745;
-      color: #fff;
-      margin-right: 4px;
-    }
-    .btn-edit:hover {
-      background: #218838;
     }
     .btn-delete {
       background: #dc3545;
@@ -117,101 +113,122 @@
     .select-card {
       max-width: 500px;
     }
+    /* 操作ボタンを横並びにして文字切れしないよう調整 */
+    .action-buttons {
+      display: inline-flex;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <h3 class="mb-4">非スクール会員一覧</h3>
 
-    <!-- ▼▼▼ 企業・スクール選択（ヘッダーなし） ▼▼▼ -->
-    <div class="card mb-3 select-card">
-      <div class="card-body">
-        <div class="row align-items-center gx-2">
-          <!-- 企業選択 -->
-          <div class="col-auto">
-            <div class="form-inline-container">
-              <label for="companySelect" class="form-label">企業</label>
-              <select id="companySelect" class="form-select form-select-sm">
-                <option value="companyA" selected>株式会社A</option>
-                <option value="companyB">株式会社B</option>
-                <option value="companyC">株式会社C</option>
-              </select>
-            </div>
+  <!-- ▼▼▼ 企業・スクール選択（ヘッダーなし） ▼▼▼ -->
+  <div class="card mb-3 select-card">
+    <div class="card-body">
+      <div class="row align-items-center gx-2">
+        <!-- 企業選択 -->
+        <div class="col-auto">
+          <div class="form-inline-container">
+            <label for="companySelect" class="form-label">企業</label>
+            <select id="companySelect" class="form-select form-select-sm">
+              <option value="companyA" selected>株式会社A</option>
+              <option value="companyB">株式会社B</option>
+              <option value="companyC">株式会社C</option>
+            </select>
           </div>
-          <!-- スクール選択 -->
-          <div class="col-auto">
-            <div class="form-inline-container">
-              <label for="schoolSelect" class="form-label">スクール</label>
-              <select id="schoolSelect" class="form-select form-select-sm">
-                <option value="schoolX" selected>東京スクール</option>
-                <option value="schoolY">大阪スクール</option>
-                <option value="schoolZ">福岡スクール</option>
-              </select>
-            </div>
+        </div>
+        <!-- スクール選択 -->
+        <div class="col-auto">
+          <div class="form-inline-container">
+            <label for="schoolSelect" class="form-label">スクール</label>
+            <select id="schoolSelect" class="form-select form-select-sm">
+              <option value="schoolX" selected>東京スクール</option>
+              <option value="schoolY">大阪スクール</option>
+              <option value="schoolZ">福岡スクール</option>
+            </select>
           </div>
-          <!-- 選択ボタン -->
-          <div class="col-auto">
-            <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
-          </div>
+        </div>
+        <!-- 選択ボタン -->
+        <div class="col-auto">
+          <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
         </div>
       </div>
     </div>
-    <!-- ここまで企業・スクール選択 --><!-- 検索・フィルターエリア（カード化） -->
-<div class="card">
-  <div class="card-header">検索・フィルタ</div>
-  <div class="card-body">
-    <div class="row mb-3 gx-3 align-items-end">
-      <div class="col-auto">
-        <label for="searchInput" class="form-label mb-0 fw-bold">名前検索:</label>
-        <input
-          type="text"
-          id="searchInput"
-          class="form-control search-bar"
-          placeholder="非スクール生名で検索"
-        />
-      </div>
-      <div class="col-auto">
-        <label for="filterType" class="form-label mb-0 fw-bold">会員区分:</label>
-        <select id="filterType" class="form-select">
-          <option value="">全て</option>
-          <option value="visitor">ビジター</option>
-          <option value="trial">体験</option>
-        </select>
-      </div>
-      <div class="col-auto">
-        <button class="btn btn-primary" id="filterButton">絞り込み</button>
+  </div>
+  <!-- ここまで企業・スクール選択 -->
+
+  <!-- 検索・フィルターエリア（カード化） -->
+  <div class="card">
+    <div class="card-header">検索・フィルタ</div>
+    <div class="card-body">
+      <div class="row mb-3 gx-3 align-items-end">
+        <!-- 名前検索 -->
+        <div class="col-auto">
+          <label for="searchInput" class="form-label mb-0 fw-bold">名前検索:</label>
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control search-bar"
+            placeholder="非スクール生名で検索"
+          />
+        </div>
+        <!-- 連絡先検索 -->
+        <div class="col-auto">
+          <label for="searchContactInput" class="form-label mb-0 fw-bold">連絡先検索:</label>
+          <input
+            type="text"
+            id="searchContactInput"
+            class="form-control search-bar"
+            placeholder="電話番号・メール等"
+          />
+        </div>
+        <!-- 絞り込みボタン -->
+        <div class="col-auto">
+          <button class="btn btn-primary" id="filterButton">絞り込み</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-      <!-- 同時表示件数 -->
-      <div class="d-flex align-items-center mb-3">
-        <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
-        <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
-          <option value="20" selected>20</option>
-          <option value="30">30</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-  
+  <!-- 同時表示件数 -->
+  <div class="d-flex align-items-center mb-3">
+    <label for="rowsPerPageSelect" class="me-2 fw-bold">同時表示件数:</label>
+    <select id="rowsPerPageSelect" class="form-select" style="width: 100px;" onchange="changeRowsPerPage()">
+      <option value="20" selected>20</option>
+      <option value="30">30</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
 
   <!-- テーブル表示エリア -->
   <div class="table-wrap">
     <table class="table table-hover mb-0" id="nonMemberTable">
       <thead>
         <tr>
-          <th scope="col" style="width:5%">ID</th>
-          <th scope="col" style="width:20%">名前</th>
-          <th scope="col" style="width:15%">区分</th>
-          <th scope="col" style="width:20%">連絡先</th>
-          <th scope="col" style="width:20%">登録日時</th>
-          <th scope="col" style="width:20%">操作</th>
+          <!-- 名前 -->
+          <th style="width:20%">名前</th>
+          <!-- 区分 -->
+          <th style="width:15%">区分</th>
+          <!-- 連絡先 -->
+          <th style="width:25%">連絡先</th>
+          <!-- 登録日時 (sortable) -->
+          <th style="width:20%" class="sortable" onclick="handleSort(0)">
+            登録日時
+          </th>
+          <!-- 体験日時 (sortable) -->
+          <th style="width:20%" class="sortable" onclick="handleSort(1)">
+            体験日時
+          </th>
+          <!-- 操作 -->
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <!-- JavaScriptで行を生成 -->
+        <!-- JSで生成 -->
       </tbody>
     </table>
   </div>
@@ -227,65 +244,211 @@
 <!-- Bootstrap JS + Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // ダミーデータ作成
+  /*
+    ダミーデータ:
+    - registerAt: "登録日時"
+    - trialAt:    "体験日時"
+    どちらもソート可能。インデックス:
+      0 => registerAt
+      1 => trialAt
+  */
   let nonMembers = [
-    {id:1, name:"山田 太郎",  type:"visitor", contact:"090-1111-2222", registerAt:"2024/01/10 15:22"},
-    {id:2, name:"佐藤 花子",  type:"trial",   contact:"080-1234-5678", registerAt:"2024/02/15 10:00"},
-    {id:3, name:"鈴木 優子",  type:"visitor", contact:"070-9999-8888", registerAt:"2024/02/20 09:45"},
-    {id:4, name:"高橋 健介",  type:"trial",   contact:"052-123-4567",  registerAt:"2024/03/01 14:30"},
-    {id:5, name:"中村 さゆり",type:"visitor", contact:"naka_sayu@example.com", registerAt:"2024/03/10 13:10"},
-    {id:6, name:"林 しおり",  type:"trial",   contact:"090-2222-3333", registerAt:"2024/04/01 19:05"},
-    {id:7, name:"加藤 勇",    type:"visitor", contact:"090-7777-8888", registerAt:"2024/05/05 09:00"},
-    {id:8, name:"森田 希",    type:"visitor", contact:"morita-nozomi@example.com", registerAt:"2024/05/20 08:30"},
-    {id:9, name:"青木 一郎",  type:"trial",   contact:"080-5566-1122", registerAt:"2024/05/22 18:00"},
-    {id:10, name:"島田 光",   type:"visitor", contact:"090-9898-4545", registerAt:"2024/06/01 12:10"},
-    {id:11, name:"和田 結衣", type:"visitor", contact:"wada_yui@sample.co.jp", registerAt:"2024/06/10 21:00"},
-    {id:12, name:"清水 純子", type:"trial",   contact:"070-7777-8888", registerAt:"2024/06/15 09:45"},
-    // ここにさらに数十件増やしてもOK
+    {
+      id:1,
+      name:"山田 太郎",
+      type:"visitor",
+      contact:"090-1111-2222",
+      registerAt:"2024/01/10 15:22",
+      trialAt:"2024/02/01 10:00"
+    },
+    {
+      id:2,
+      name:"佐藤 花子",
+      type:"trial",
+      contact:"080-1234-5678",
+      registerAt:"2024/02/15 10:00",
+      trialAt:"2024/02/20 09:30"
+    },
+    {
+      id:3,
+      name:"鈴木 優子",
+      type:"visitor",
+      contact:"070-9999-8888",
+      registerAt:"2024/02/20 09:45",
+      trialAt:"2024/03/01 11:00"
+    },
+    {
+      id:4,
+      name:"高橋 健介",
+      type:"trial",
+      contact:"052-123-4567",
+      registerAt:"2024/03/01 14:30",
+      trialAt:"2024/03/10 16:00"
+    },
+    {
+      id:5,
+      name:"中村 さゆり",
+      type:"visitor",
+      contact:"naka_sayu@example.com",
+      registerAt:"2024/03/10 13:10",
+      trialAt:"2024/03/20 10:15"
+    },
+    {
+      id:6,
+      name:"林 しおり",
+      type:"trial",
+      contact:"090-2222-3333",
+      registerAt:"2024/04/01 19:05",
+      trialAt:"2024/04/05 09:00"
+    },
+    {
+      id:7,
+      name:"加藤 勇",
+      type:"visitor",
+      contact:"090-7777-8888",
+      registerAt:"2024/05/05 09:00",
+      trialAt:"2024/06/01 10:45"
+    },
+    {
+      id:8,
+      name:"森田 希",
+      type:"visitor",
+      contact:"morita-nozomi@example.com",
+      registerAt:"2024/05/20 08:30",
+      trialAt:"2024/05/25 12:00"
+    },
+    {
+      id:9,
+      name:"青木 一郎",
+      type:"trial",
+      contact:"080-5566-1122",
+      registerAt:"2024/05/22 18:00",
+      trialAt:"2024/06/01 15:30"
+    },
+    {
+      id:10,
+      name:"島田 光",
+      type:"visitor",
+      contact:"090-9898-4545",
+      registerAt:"2024/06/01 12:10",
+      trialAt:"2024/07/01 09:30"
+    },
+    {
+      id:11,
+      name:"和田 結衣",
+      type:"visitor",
+      contact:"wada_yui@sample.co.jp",
+      registerAt:"2024/06/10 21:00",
+      trialAt:"2024/07/05 12:00"
+    },
+    {
+      id:12,
+      name:"清水 純子",
+      type:"trial",
+      contact:"070-7777-8888",
+      registerAt:"2024/06/15 09:45",
+      trialAt:"2024/07/10 11:15"
+    }
   ];
-  
-  let currentPage = 1;
-  const rowsPerPage = 5;
 
+  // ページング関連
+  let currentPage = 1;
+  let rowsPerPage = 20;
+
+  // ソート関連(0=>登録日時,1=>体験日時)
+  let currentSortColumn = null; // null:ソート無し, 0 or 1
+  let sortDirection = true;     // true:昇順, false:降順
+
+  /* --------------------------------
+     フィルタ
+  -------------------------------- */
   function filterData() {
-    const text = document.getElementById("searchInput").value.toLowerCase();
-    const filterType = document.getElementById("filterType").value;
+    const nameText = document.getElementById("searchInput").value.trim().toLowerCase();
+    const contactText = document.getElementById("searchContactInput").value.trim().toLowerCase();
+
     return nonMembers.filter(item => {
       // 名前検索
-      if(!item.name.toLowerCase().includes(text)) return false;
-      // 区分
-      if(filterType && item.type!==filterType) return false;
+      if (nameText && !item.name.toLowerCase().includes(nameText)) {
+        return false;
+      }
+      // 連絡先検索
+      if (contactText && !item.contact.toLowerCase().includes(contactText)) {
+        return false;
+      }
       return true;
     });
   }
 
+  /* --------------------------------
+     ソート(登録日時 or 体験日時)
+  -------------------------------- */
+  function sortData(dataArray, columnIndex) {
+    dataArray.sort((a, b) => {
+      let aValue, bValue;
+
+      if (columnIndex === 0) {
+        // registerAt
+        aValue = parseDate(a.registerAt);
+        bValue = parseDate(b.registerAt);
+      } else {
+        // trialAt
+        aValue = parseDate(a.trialAt);
+        bValue = parseDate(b.trialAt);
+      }
+
+      if (aValue > bValue) {
+        return sortDirection ? 1 : -1;
+      } else if (aValue < bValue) {
+        return sortDirection ? -1 : 1;
+      } else {
+        return 0;
+      }
+    });
+    return dataArray;
+  }
+
+  // "YYYY/MM/DD hh:mm" の文字列を Date に変換 (簡易)
+  function parseDate(dateStr){
+    // 空文字やNULL対応(無い場合は非常に小さい値扱い)
+    if(!dateStr) return new Date("1970-01-01 00:00");
+    return new Date(dateStr);
+  }
+
+  /* --------------------------------
+     テーブル表示
+  -------------------------------- */
   function renderTable(page=1) {
-    const data = filterData();
+    let data = filterData();
+
+    // ソート処理
+    if (currentSortColumn !== null) {
+      data = sortData(data, currentSortColumn);
+    }
+
     const tableBody = document.querySelector("#nonMemberTable tbody");
     tableBody.innerHTML = "";
 
-    const startIndex = (page-1)*rowsPerPage;
-    const endIndex   = startIndex + rowsPerPage;
-    const pageData   = data.slice(startIndex,endIndex);
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const pageData = data.slice(startIndex, endIndex);
 
     pageData.forEach(person => {
       const tr = document.createElement("tr");
-      tr.innerHTML=`
-        <td>${person.id}</td>
+      tr.innerHTML = `
         <td>${person.name}</td>
-        <td>
-          ${
-            person.type==="visitor"
+        <td>${
+          person.type === "visitor"
             ? '<span class="tag-visitor">ビジター</span>'
             : '<span class="tag-trial">体験会員</span>'
-          }
-        </td>
-        <td>${person.contact||""}</td>
-        <td>${person.registerAt}</td>
+        }</td>
+        <td>${person.contact || ""}</td>
+        <td>${person.registerAt || ""}</td>
+        <td>${person.trialAt || ""}</td>
         <td>
-          <button class="btn btn-sm btn-details" onclick="showDetails(${person.id})">詳細</button>
-          <button class="btn btn-sm btn-edit" onclick="editPerson(${person.id})">編集</button>
-          <button class="btn btn-sm btn-delete" onclick="deletePerson(${person.id})">削除</button>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-details" onclick="showDetails(${person.id})">詳細</button>
+            <button class="btn btn-sm btn-delete" onclick="deletePerson(${person.id})">削除</button>
+          </div>
         </td>
       `;
       tableBody.appendChild(tr);
@@ -294,39 +457,42 @@
     renderPagination(data.length, page);
   }
 
+  /* --------------------------------
+     ページネーション
+  -------------------------------- */
   function renderPagination(totalCount, page=1) {
     const totalPages = Math.ceil(totalCount / rowsPerPage);
     const pagination = document.getElementById("pagination");
-    pagination.innerHTML="";
+    pagination.innerHTML = "";
 
     // Prev
     const prevLi = document.createElement("li");
-    prevLi.className="page-item "+(page===1?"disabled":"");
-    const prevLink=document.createElement("a");
-    prevLink.className="page-link";
-    prevLink.href="#";
-    prevLink.innerText="Prev";
-    prevLink.onclick=(e)=>{
+    prevLi.className = "page-item " + (page === 1 ? "disabled" : "");
+    const prevLink = document.createElement("a");
+    prevLink.className = "page-link";
+    prevLink.href = "#";
+    prevLink.innerText = "Prev";
+    prevLink.onclick = (e) => {
       e.preventDefault();
-      if(page>1){
-        currentPage=page-1;
+      if (page > 1) {
+        currentPage = page - 1;
         renderTable(currentPage);
       }
     };
     prevLi.appendChild(prevLink);
     pagination.appendChild(prevLi);
 
-    // Pages
-    for(let i=1; i<=totalPages; i++){
-      const li=document.createElement("li");
-      li.className="page-item "+(i===page?"active":"");
-      const a=document.createElement("a");
-      a.className="page-link";
-      a.href="#";
-      a.innerText=i;
-      a.onclick=(e)=>{
+    // ページ番号リンク
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = "page-item " + (i === page ? "active" : "");
+      const a = document.createElement("a");
+      a.className = "page-link";
+      a.href = "#";
+      a.innerText = i.toString();
+      a.onclick = (e) => {
         e.preventDefault();
-        currentPage=i;
+        currentPage = i;
         renderTable(currentPage);
       };
       li.appendChild(a);
@@ -335,15 +501,15 @@
 
     // Next
     const nextLi = document.createElement("li");
-    nextLi.className="page-item "+(page===totalPages?"disabled":"");
-    const nextLink=document.createElement("a");
-    nextLink.className="page-link";
-    nextLink.href="#";
-    nextLink.innerText="Next";
-    nextLink.onclick=(e)=>{
+    nextLi.className = "page-item " + (page === totalPages ? "disabled" : "");
+    const nextLink = document.createElement("a");
+    nextLink.className = "page-link";
+    nextLink.href = "#";
+    nextLink.innerText = "Next";
+    nextLink.onclick = (e) => {
       e.preventDefault();
-      if(page<totalPages){
-        currentPage=page+1;
+      if (page < totalPages) {
+        currentPage = page + 1;
         renderTable(currentPage);
       }
     };
@@ -351,34 +517,85 @@
     pagination.appendChild(nextLi);
   }
 
-  // イベント関連
-  document.getElementById("filterButton").addEventListener("click", ()=>{
-    currentPage=1;
-    renderTable(currentPage);
-  });
-  document.getElementById("searchInput").addEventListener("keyup", ()=>{
-    currentPage=1;
-    renderTable(currentPage);
-  });
-
-  // ダミー操作
-  function showDetails(id){
-    alert("ID="+id+" の詳細画面へ遷移(またはモーダル表示)する想定");
-  }
-  function editPerson(id){
-    alert("ID="+id+" の編集画面へ遷移(またはモーダル表示)する想定");
-  }
-  function deletePerson(id){
-    if(confirm("ID="+id+" を削除しますか？")){
-      nonMembers = nonMembers.filter(p=>p.id!==id);
+  /* --------------------------------
+     削除操作
+  -------------------------------- */
+  function deletePerson(id) {
+    if (confirm("このユーザーを削除しますか？")) {
+      nonMembers = nonMembers.filter(p => p.id !== id);
       renderTable(currentPage);
     }
   }
 
-  // 初期描画
-  window.onload=()=>{
+  /* --------------------------------
+     詳細
+  -------------------------------- */
+  function showDetails(id) {
+    alert("ID=" + id + " の詳細画面へ遷移(またはモーダル表示)する想定");
+  }
+
+  /* --------------------------------
+     ソートヘッダクリック
+     0: 登録日時(registerAt)
+     1: 体験日時(trialAt)
+  -------------------------------- */
+  function handleSort(columnIndex) {
+    if (currentSortColumn === columnIndex) {
+      // 同じ列でクリック → 昇順/降順切替
+      sortDirection = !sortDirection;
+    } else {
+      // 別の列クリック → 切り替え & 昇順で開始
+      currentSortColumn = columnIndex;
+      sortDirection = true;
+    }
+    renderTable(currentPage);
+  }
+
+  /* --------------------------------
+     同時表示件数変更
+  -------------------------------- */
+  function changeRowsPerPage() {
+    const select = document.getElementById("rowsPerPageSelect");
+    rowsPerPage = parseInt(select.value, 10);
+    currentPage = 1;
+    renderTable(currentPage);
+  }
+
+  /* --------------------------------
+     フィルタボタン + 入力イベント
+  -------------------------------- */
+  document.getElementById("filterButton").addEventListener("click", () => {
+    currentPage = 1;
+    renderTable(currentPage);
+  });
+  document.getElementById("searchInput").addEventListener("keyup", () => {
+    currentPage = 1;
+    renderTable(currentPage);
+  });
+  document.getElementById("searchContactInput").addEventListener("keyup", () => {
+    currentPage = 1;
+    renderTable(currentPage);
+  });
+
+  /* --------------------------------
+     初期表示
+  -------------------------------- */
+  window.onload = () => {
     renderTable();
   };
+
+  /* --------------------------------
+     企業スクール選択ボタン(モック)
+  -------------------------------- */
+  document.getElementById("selectButton").addEventListener("click", () => {
+    const companyValue = document.getElementById("companySelect").value;
+    const schoolValue  = document.getElementById("schoolSelect").value;
+    if (!companyValue || !schoolValue) {
+      alert("企業とスクールを選んでください。");
+      return;
+    }
+    alert(`企業: ${companyValue}\nスクール: ${schoolValue}\nが選択されました(モック)。`);
+  });
 </script>
 </body>
 </html>
