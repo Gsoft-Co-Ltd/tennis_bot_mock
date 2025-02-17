@@ -176,16 +176,6 @@
             placeholder="スクール生の名前で検索"
           />
         </div>
-        <!-- 連絡先検索 -->
-        <div class="col-auto">
-          <label for="searchContactInput" class="form-label mb-0 fw-bold">連絡先検索:</label>
-          <input
-            type="text"
-            id="searchContactInput"
-            class="form-control search-bar"
-            placeholder="電話番号・メール等"
-          />
-        </div>
         <!-- フィルタ項目と絞り込みボタン -->
         <div class="col-auto">
           <div class="d-flex flex-wrap align-items-center gap-2">
@@ -382,10 +372,6 @@
     currentPage = 1;
     renderTable();
   });
-  document.getElementById("searchContactInput").addEventListener("keyup", () => {
-    currentPage = 1;
-    renderTable();
-  });
   document.getElementById("filterNotes").addEventListener("change", () => {
     currentPage = 1;
     renderTable();
@@ -457,7 +443,6 @@
   // ▼▼▼ フィルタリング ▼▼▼
   function filterData(dataArray) {
     const textName    = document.getElementById("searchInput").value.trim().toLowerCase();
-    const textContact = document.getElementById("searchContactInput").value.trim().toLowerCase();
     const checkNotes  = document.getElementById("filterNotes").checked;
     const checkOver   = document.getElementById("filterOverdue").checked;
     const statusVal   = document.getElementById("statusSelect").value;
@@ -467,10 +452,6 @@
       if (!item.name.toLowerCase().includes(textName) &&
           !item.kana.toLowerCase().includes(textName)) {
         return false;
-      }
-      // 連絡先検索 (必要なら)
-      if (textContact) {
-        // 例：item.contactがあれば判定する
       }
       // 申し送り
       if (checkNotes && item.notes !== "有り") return false;
