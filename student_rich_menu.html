@@ -55,6 +55,17 @@
         z-index: 10;
       }
 
+      .navbar .school-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .navbar .school-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
       .navbar .user-actions span.user-name {
         color: #bcd4e6;
         font-weight: bold;
@@ -158,11 +169,14 @@
     <div class="overlay"></div>
     <!-- ヘッダー -->
     <header class="navbar">
-      <span class="material-icons">sports_tennis</span>
+      <div class="school-info">
+        <span class="material-icons">sports_tennis</span>
+        <span class="school-name">ABCスクール</span>
+      </div>
       <div class="user-actions">
         <span class="user-name">山田太郎</span>
         <button id="logout">
-          <i class="fas fa-sign-out-alt"></i> ログアウト
+          <i class="fas fa-right-from-bracket"></i> ログアウト
         </button>
       </div>
     </header>
@@ -171,27 +185,27 @@
       <!-- ダッシュボード -->
       <div class="dashboard-header">
         <h1 id="dashboardTitle">
-          <span class="material-icons">sports_tennis</span
-          >ようこそ、山田太郎さん！
+          <span class="material-icons">sports_tennis</span>
+          ようこそ、山田太郎(ABC0001)さん！
         </h1>
       </div>
 
       <!-- メニュー -->
       <div class="menu-grid">
         <a href="./student_pages/schedule.html" class="menu-item">
-          <i class="fas fa-calendar-alt"></i>
+          <i class="fas fa-calendar"></i>
           <span>スケジュール</span>
         </a>
-        <a href="./student_pages/reserve_attendance.html" class="menu-item">
-          <i class="fas fa-list-alt"></i>
-          <span>予約確認</span>
+        <a href="./student_pages/student_reserve.html" class="menu-item">
+          <i class="fas fa-list"></i>
+          <span>レッスン予約管理</span>
         </a>
-        <a href="./student_pages/reschedule_free_lesson.html" class="menu-item">
-          <i class="fas fa-exchange-alt"></i>
-          <span>振替・フリー予約</span>
+        <a href="./student_pages/event_reserve.html" class="menu-item">
+          <i class="fas fa-right-left"></i>
+          <span>イベント予約管理</span>
         </a>
-        <a href="./student_pages/update_information.html" class="menu-item">
-          <i class="fas fa-user-edit"></i>
+        <a href="./student_pages/student_procedure.html" class="menu-item">
+          <i class="fas fa-user-pen"></i>
           <span>会員情報更新</span>
         </a>
       </div>
