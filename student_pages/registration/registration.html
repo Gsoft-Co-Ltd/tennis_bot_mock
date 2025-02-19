@@ -244,7 +244,17 @@
       </div>
       <div id="genderError" class="error-message"></div>
     </div>      
-
+    <div class="mb-3">
+      <label for="birthdate" class="form-label">生年月日 <span class="text-danger">*</span></label>
+      <input
+        type="date"
+        class="form-control"
+        id="birthdate"
+        placeholder="例：1990-01-01"
+      />
+      <div id="birthdateError" class="error-message"></div>
+    </div>
+    
     <div class="mb-3">
       <label for="postalCode" class="form-label">郵便番号 <span class="text-danger">*</span></label>
       <input
@@ -672,6 +682,7 @@
     setError('lastNameKanaError','');
     setError('firstNameKanaError','');
     setError('genderError','');
+    setError('birthdateError','');
     setError('postalCodeError','');
     setError('addressError','');
     setError('phoneError','');
@@ -716,6 +727,13 @@
     const genderOther = document.getElementById('genderOther');
     if(!genderMale.checked && !genderFemale.checked && !genderOther.checked) {
       setError('genderError', '性別を選択してください');
+      isValid = false;
+    }
+
+    // 生年月日(必須)
+    const bd = document.getElementById('birthdate').value.trim();
+    if(!bd) {
+      setError('birthdateError','生年月日を選択してください');
       isValid = false;
     }
 
@@ -995,6 +1013,9 @@
     if(document.getElementById('genderFemale').checked) genderText = '女性';
     if(document.getElementById('genderOther').checked)  genderText = 'その他';
 
+    // 生年月日
+    const birthdate = document.getElementById('birthdate').value.trim() || '（未入力）';
+
     const pc = document.getElementById('postalCode').value.trim() || '（未入力）';
     const addr = document.getElementById('address').value.trim() || '（未入力）';
     const addr2 = document.getElementById('address2').value.trim() || '';
@@ -1012,6 +1033,7 @@
         <strong>【お名前】</strong> ${ln} ${fn}<br>
         <strong>【フリガナ】</strong> ${lnKana} ${fnKana}<br>
         <strong>【性別】</strong> ${genderText}<br>
+        <strong>【生年月日】</strong> ${birthdate}<br>
         <strong>【郵便番号】</strong> ${pc}<br>
         <strong>【住所】</strong> ${addr} ${addr2}<br>
         <strong>【電話番号】</strong> ${phone}<br>
