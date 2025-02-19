@@ -301,7 +301,7 @@
       classes: [],
       notes: "無し",
       overdue: "無し",
-      status: "active"
+      status: "suspended"
     },
     {
       code: "ABC0003",
@@ -310,7 +310,7 @@
       classes: ["ミディクラス"],
       notes: "有り",
       overdue: "無し",
-      status: "active"
+      status: "withdrawn"
     },
     {
       code: "ABC0004",
@@ -557,7 +557,7 @@
       case "active":
         return '<span class="badge bg-primary">在籍中</span>';
       case "suspended":
-        return '<span class="badge bg-warning text-dark">休会中</span>';
+        return '<span class="badge bg-warning text-dark">休会</span>';
       case "withdrawn":
         return '<span class="badge bg-secondary">退会</span>';
       default:
