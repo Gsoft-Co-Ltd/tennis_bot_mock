@@ -136,23 +136,45 @@
                     readonly
                   />
                 </div>
+                <!-- 氏名(姓・名) -->
                 <div class="mb-3">
-                  <label for="memberName" class="form-label">氏名</label>
+                  <label for="lastName" class="form-label">姓</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="memberName"
-                    value="山田 太郎"
+                    id="lastName"
+                    value="山田"
                     readonly
                   />
                 </div>
                 <div class="mb-3">
-                  <label for="kana" class="form-label">フリガナ</label>
+                  <label for="firstName" class="form-label">名</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="kana"
-                    value="ヤマダ タロウ"
+                    id="firstName"
+                    value="太郎"
+                    readonly
+                  />
+                </div>
+                <!-- フリガナ(セイ・メイ) -->
+                <div class="mb-3">
+                  <label for="lastNameKana" class="form-label">姓(カナ)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="lastNameKana"
+                    value="ヤマダ"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="firstNameKana" class="form-label">名(カナ)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="firstNameKana"
+                    value="タロウ"
                     readonly
                   />
                 </div>
@@ -363,8 +385,6 @@
         ></iframe>
       </div>
     </div>
-
-    <!-- 以下の「店舗移動モーダル」は不要のため削除 -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
