@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>スクール基本情報・コート設定</title>
+  <title>スクール基本情報・設定</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
@@ -28,7 +28,11 @@
       font-weight: bold;
       border-radius: 6px 6px 0 0;
       padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+    /* ※ヘッダーの演出は不要のため変更なし */
     .card-body {
       padding: 15px;
     }
@@ -44,6 +48,13 @@
       display: flex;
       align-items: center;
       margin-bottom: 8px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    /* 定休日の場合、行全体に背景色と軽い透過を適用 */
+    .day-row.closed {
+      background-color: #f0f0f0;
+      opacity: 0.8;
     }
     .day-label {
       width: 70px;
@@ -63,7 +74,7 @@
     .btn-sm {
       font-size: 0.875rem;
     }
-    /* read-only fields styling */
+    /* 読み取り専用フィールド */
     .form-control[readonly],
     .form-check-input:disabled {
       background-color: #e9ecef;
@@ -72,20 +83,20 @@
     .form-check-input:disabled ~ .form-check-label {
       color: #6c757d;
     }
-    /* 読みやすさ向上のための余白 */
-    .list-group-item {
-      font-size: 0.95rem;
-    }
     .schedule-hint {
       font-size: 0.9rem;
+    }
+    /* インライン編集中の行 */
+    .editing-row {
+      background-color: #fff3cd;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- ===================== スクール基本情報カード ===================== -->
+    <!-- スクール基本情報カード -->
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header" id="schoolHeader">
         <span>スクール基本情報</span>
         <div>
           <button type="button" id="editButton" class="btn btn-warning btn-sm me-2" onclick="toggleEdit()">編集</button>
@@ -108,8 +119,8 @@
             <div class="row">
               <div class="col-md-12 mb-3">
                 <div id="weeklySchedule">
-                  <!-- 月曜日 -->
-                  <div class="day-row">
+                  <!-- 各曜日の入力行 -->
+                  <div class="day-row" id="row-mon">
                     <div class="day-label">月曜日</div>
                     <input type="time" id="monStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -119,8 +130,7 @@
                       <label class="form-check-label" for="monClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 火曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-tue">
                     <div class="day-label">火曜日</div>
                     <input type="time" id="tueStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -130,8 +140,7 @@
                       <label class="form-check-label" for="tueClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 水曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-wed">
                     <div class="day-label">水曜日</div>
                     <input type="time" id="wedStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -141,8 +150,7 @@
                       <label class="form-check-label" for="wedClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 木曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-thu">
                     <div class="day-label">木曜日</div>
                     <input type="time" id="thuStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -152,8 +160,7 @@
                       <label class="form-check-label" for="thuClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 金曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-fri">
                     <div class="day-label">金曜日</div>
                     <input type="time" id="friStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -163,8 +170,7 @@
                       <label class="form-check-label" for="friClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 土曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-sat">
                     <div class="day-label">土曜日</div>
                     <input type="time" id="satStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -174,8 +180,7 @@
                       <label class="form-check-label" for="satClosed">定休日</label>
                     </div>
                   </div>
-                  <!-- 日曜日 -->
-                  <div class="day-row">
+                  <div class="day-row" id="row-sun">
                     <div class="day-label">日曜日</div>
                     <input type="time" id="sunStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
@@ -190,97 +195,44 @@
             </div><!-- row -->
           </div>
         </form>
-      </div><!-- card-body -->
-    </div><!-- card(スクール基本情報) -->
-
-    <!-- ===================== レベル設定 & コート設定カード ===================== -->
-    <div class="row">
-      <!-- レベル設定カード -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <span>レベル設定</span>
-          </div>
-          <div class="card-body">
-            <table class="table table-bordered table-sm">
-              <thead>
-                <tr class="table-light">
-                  <th style="width:30%;">レベル名</th>
-                  <th style="width:25%;">種類</th>
-                  <th style="width:15%;">段階</th>
-                  <th style="width:30%;">操作</th>
-                </tr>
-              </thead>
-              <tbody id="levelList"></tbody>
-            </table>
-            <!-- 常に表示されるレベル追加/編集フォーム -->
-            <h6>レベル追加/編集</h6>
-            <div id="levelFormContainer">
-              <div class="row mb-2">
-                <div class="col-md-4">
-                  <label for="levelNameInput" class="form-label">レベル名</label>
-                  <input type="text" id="levelNameInput" class="form-control">
-                </div>
-                <div class="col-md-4">
-                  <label for="categorySelect" class="form-label">種類</label>
-                  <select class="form-select" id="categorySelect">
-                    <option value="">選択</option>
-                    <option value="一般">一般</option>
-                    <option value="キッズジュニア">キッズジュニア</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="sortOrderInput" class="form-label">段階</label>
-                  <input type="number" id="sortOrderInput" class="form-control" value="0">
-                  <input type="hidden" id="editingLevelIndex">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col text-end">
-                  <button class="btn btn-primary btn-sm me-2" id="levelSaveButton" onclick="saveLevelInline()">追加・編集</button>
-                  <button class="btn btn-secondary btn-sm" id="levelCancelButton" onclick="cancelEditLevel()">キャンセル</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+    </div>
 
-      <!-- コート設定カード -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <span>コート設定</span>
-          </div>
-          <div class="card-body">
-            <table class="table table-bordered table-sm">
-              <thead>
-                <tr class="table-light">
-                  <th style="width:70%;">コート名</th>
-                  <th style="width:30%;">操作</th>
-                </tr>
-              </thead>
-              <tbody id="courtList"></tbody>
-            </table>
-            <!-- 常に表示されるコート追加/編集フォーム -->
-            <h6>コート追加/編集</h6>
-            <div id="courtFormContainer">
-              <div class="row mb-2">
-                <div class="col-md-12">
-                  <label for="courtNameInput" class="form-label">コート名</label>
-                  <input type="text" id="courtNameInput" class="form-control">
-                  <input type="hidden" id="editingCourtIndex">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col text-end">
-                  <button class="btn btn-primary btn-sm me-2" id="courtSaveButton" onclick="saveCourtInline()">追加・編集</button>
-                  <button class="btn btn-secondary btn-sm" id="courtCancelButton" onclick="cancelEditCourt()">キャンセル</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- レベル設定カード -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>レベル設定</span>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr class="table-light">
+              <th style="width:30%;">レベル名</th>
+              <th style="width:25%;">種類</th>
+              <th style="width:15%;">段階</th>
+              <th style="width:30%;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="levelList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- コート設定カード -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>コート設定</span>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr class="table-light">
+              <th style="width:70%;">コート名</th>
+              <th style="width:30%;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="courtList"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -288,32 +240,37 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ==================== スクール基本情報 編集・保存 ====================
+    // ---------------------------
+    // スクール基本情報 編集・保存
+    // ---------------------------
     const dayConfigs = [
-      { closedId: "monClosed", startId: "monStart", endId: "monEnd" },
-      { closedId: "tueClosed", startId: "tueStart", endId: "tueEnd" },
-      { closedId: "wedClosed", startId: "wedStart", endId: "wedEnd" },
-      { closedId: "thuClosed", startId: "thuStart", endId: "thuEnd" },
-      { closedId: "friClosed", startId: "friStart", endId: "friEnd" },
-      { closedId: "satClosed", startId: "satStart", endId: "satEnd" },
-      { closedId: "sunClosed", startId: "sunStart", endId: "sunEnd" }
+      { closedId: "monClosed", startId: "monStart", endId: "monEnd", rowId: "row-mon" },
+      { closedId: "tueClosed", startId: "tueStart", endId: "tueEnd", rowId: "row-tue" },
+      { closedId: "wedClosed", startId: "wedStart", endId: "wedEnd", rowId: "row-wed" },
+      { closedId: "thuClosed", startId: "thuStart", endId: "thuEnd", rowId: "row-thu" },
+      { closedId: "friClosed", startId: "friStart", endId: "friEnd", rowId: "row-fri" },
+      { closedId: "satClosed", startId: "satStart", endId: "satEnd", rowId: "row-sat" },
+      { closedId: "sunClosed", startId: "sunStart", endId: "sunEnd", rowId: "row-sun" }
     ];
-    
+
     dayConfigs.forEach(cfg => {
       const closedCb = document.getElementById(cfg.closedId);
       const startInput = document.getElementById(cfg.startId);
       const endInput = document.getElementById(cfg.endId);
+      const rowEl = document.getElementById(cfg.rowId);
       closedCb.addEventListener('change', () => {
         const disabled = closedCb.checked;
         startInput.disabled = disabled;
         endInput.disabled = disabled;
+        rowEl.classList.toggle('closed', disabled);
       });
       if(closedCb.checked) {
         startInput.disabled = true;
         endInput.disabled = true;
+        rowEl.classList.add('closed');
       }
     });
-    
+
     function toggleEdit() {
       const schoolName = document.getElementById("schoolName");
       dayConfigs.forEach(cfg => {
@@ -340,11 +297,11 @@
         document.getElementById("saveButton").style.display = "none";
       }
     }
-    
+
     function saveInfo() {
       const schoolName = document.getElementById("schoolName").value.trim();
       const scheduleData = dayConfigs.map(cfg => ({
-        dayLabel: cfg.closedId,
+        day: cfg.closedId.replace("Closed", ""),
         isClosed: document.getElementById(cfg.closedId).checked,
         startTime: document.getElementById(cfg.startId).value,
         endTime: document.getElementById(cfg.endId).value
@@ -354,8 +311,10 @@
       alert("スクール情報を保存しました。");
       toggleEdit();
     }
-    
-    // ==================== レベル設定 ====================
+
+    // ---------------------------
+    // レベル設定（インライン編集＋新規追加）
+    // ---------------------------
     let levels = [
       { level_name: "初級", category: "一般", sort_order: 0 },
       { level_name: "中級", category: "一般", sort_order: 1 },
@@ -364,38 +323,74 @@
       { level_name: "キッズ中級", category: "キッズジュニア", sort_order: 4 },
       { level_name: "ジュニア上級", category: "キッズジュニア", sort_order: 5 }
     ];
-    
+    let editingLevelIndex = null;
+
     function renderLevelList() {
       const tbody = document.getElementById("levelList");
       tbody.innerHTML = "";
       levels.forEach((lvl, index) => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${lvl.level_name}</td>
-          <td>${lvl.category}</td>
-          <td>${lvl.sort_order}</td>
-          <td>
-            <button class="btn btn-sm btn-warning me-2" onclick="editLevel(${index})">編集</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteLevel(${index})">削除</button>
-          </td>
-        `;
+        if (editingLevelIndex === index) {
+          tr.classList.add("editing-row");
+          tr.innerHTML = `
+            <td><input type="text" class="form-control form-control-sm" id="lvlNameInput${index}" value="${lvl.level_name}"></td>
+            <td>
+              <select class="form-select form-select-sm" id="lvlCatSelect${index}">
+                <option value="">選択</option>
+                <option value="一般"${lvl.category === "一般" ? " selected" : ""}>一般</option>
+                <option value="キッズジュニア"${lvl.category === "キッズジュニア" ? " selected" : ""}>キッズジュニア</option>
+              </select>
+            </td>
+            <td><input type="number" class="form-control form-control-sm" id="lvlSortInput${index}" value="${lvl.sort_order}"></td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" onclick="saveLevel(${index})">保存</button>
+              <button class="btn btn-sm btn-secondary" onclick="cancelLevelEdit()">キャンセル</button>
+            </td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td>${lvl.level_name}</td>
+            <td>${lvl.category}</td>
+            <td>${lvl.sort_order}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" onclick="editLevel(${index})">編集</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteLevel(${index})">削除</button>
+            </td>
+          `;
+        }
         tbody.appendChild(tr);
       });
+      // 新規追加行を常に表示
+      const newTr = document.createElement("tr");
+      newTr.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm" id="levelNewName" placeholder="新規レベル名"></td>
+        <td>
+          <select class="form-select form-select-sm" id="levelNewCategory">
+            <option value="">選択</option>
+            <option value="一般">一般</option>
+            <option value="キッズジュニア">キッズジュニア</option>
+          </select>
+        </td>
+        <td><input type="number" class="form-control form-control-sm" id="levelNewSort" placeholder="段階"></td>
+        <td><button class="btn btn-sm btn-success" onclick="addLevel()">追加</button></td>
+      `;
+      tbody.appendChild(newTr);
     }
-    
-    function resetLevelForm() {
-      document.getElementById("levelNameInput").value = "";
-      document.getElementById("categorySelect").value = "";
-      document.getElementById("sortOrderInput").value = 0;
-      document.getElementById("editingLevelIndex").value = "";
-      document.getElementById("levelSaveButton").textContent = "追加・編集";
+
+    function editLevel(index) {
+      editingLevelIndex = index;
+      renderLevelList();
     }
-    
-    function saveLevelInline() {
-      const idx = document.getElementById("editingLevelIndex").value;
-      const nameVal = document.getElementById("levelNameInput").value.trim();
-      const catVal = document.getElementById("categorySelect").value;
-      const sortVal = parseInt(document.getElementById("sortOrderInput").value, 10);
+
+    function cancelLevelEdit() {
+      editingLevelIndex = null;
+      renderLevelList();
+    }
+
+    function saveLevel(index) {
+      const nameVal = document.getElementById(`lvlNameInput${index}`).value.trim();
+      const catVal = document.getElementById(`lvlCatSelect${index}`).value;
+      const sortVal = parseInt(document.getElementById(`lvlSortInput${index}`).value, 10);
       if (!nameVal) {
         alert("レベル名を入力してください。");
         return;
@@ -404,100 +399,128 @@
         alert("種類を選択してください。");
         return;
       }
-      if (idx === "") {
-        levels.push({ level_name: nameVal, category: catVal, sort_order: sortVal });
-      } else {
-        const i = parseInt(idx, 10);
-        levels[i].level_name = nameVal;
-        levels[i].category = catVal;
-        levels[i].sort_order = sortVal;
-      }
+      levels[index] = { level_name: nameVal, category: catVal, sort_order: sortVal };
+      editingLevelIndex = null;
       renderLevelList();
-      resetLevelForm();
     }
-    
-    function editLevel(index) {
-      const lvl = levels[index];
-      document.getElementById("levelNameInput").value = lvl.level_name;
-      document.getElementById("categorySelect").value = lvl.category;
-      document.getElementById("sortOrderInput").value = lvl.sort_order;
-      document.getElementById("editingLevelIndex").value = index;
-    }
-    
+
     function deleteLevel(index) {
-      if (!confirm("このレベルを削除しますか？")) return;
-      levels.splice(index, 1);
+      if(confirm("このレベルを削除しますか？")) {
+        levels.splice(index, 1);
+        if(editingLevelIndex === index) {
+          editingLevelIndex = null;
+        }
+        renderLevelList();
+      }
+    }
+
+    function addLevel() {
+      const nameVal = document.getElementById("levelNewName").value.trim();
+      const catVal = document.getElementById("levelNewCategory").value;
+      const sortVal = parseInt(document.getElementById("levelNewSort").value, 10);
+      if(!nameVal) {
+        alert("レベル名を入力してください。");
+        return;
+      }
+      if(!catVal) {
+        alert("種類を選択してください。");
+        return;
+      }
+      if(isNaN(sortVal)) {
+        alert("段階を数値で入力してください。");
+        return;
+      }
+      levels.push({ level_name: nameVal, category: catVal, sort_order: sortVal });
       renderLevelList();
-      resetLevelForm();
     }
-    
-    function cancelEditLevel() {
-      resetLevelForm();
-    }
-    
-    // ==================== コート設定 ====================
+
+    // ---------------------------
+    // コート設定（インライン編集＋新規追加）
+    // ---------------------------
     let courts = ["Aコート", "Bコート"];
-    
+    let editingCourtIndex = null;
+
     function renderCourtList() {
       const tbody = document.getElementById("courtList");
       tbody.innerHTML = "";
       courts.forEach((court, index) => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${court}</td>
-          <td>
-            <button class="btn btn-sm btn-warning me-2" onclick="editCourt(${index})">編集</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteCourt(${index})">削除</button>
-          </td>
-        `;
+        if(editingCourtIndex === index) {
+          tr.classList.add("editing-row");
+          tr.innerHTML = `
+            <td><input type="text" class="form-control form-control-sm" id="courtNameInput${index}" value="${court}"></td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" onclick="saveCourt(${index})">保存</button>
+              <button class="btn btn-sm btn-secondary" onclick="cancelCourtEdit()">キャンセル</button>
+            </td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td>${court}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" onclick="editCourt(${index})">編集</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCourt(${index})">削除</button>
+            </td>
+          `;
+        }
         tbody.appendChild(tr);
       });
+      // 新規追加行を常に表示
+      const newTr = document.createElement("tr");
+      newTr.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm" id="courtNewInput" placeholder="新規コート名"></td>
+        <td><button class="btn btn-sm btn-success" onclick="addCourt()">追加</button></td>
+      `;
+      tbody.appendChild(newTr);
     }
-    
-    function resetCourtForm() {
-      document.getElementById("courtNameInput").value = "";
-      document.getElementById("editingCourtIndex").value = "";
-      document.getElementById("courtSaveButton").textContent = "追加・編集";
+
+    function editCourt(index) {
+      editingCourtIndex = index;
+      renderCourtList();
     }
-    
-    function saveCourtInline() {
-      const idx = document.getElementById("editingCourtIndex").value;
-      const nameVal = document.getElementById("courtNameInput").value.trim();
-      if (!nameVal) {
+
+    function cancelCourtEdit() {
+      editingCourtIndex = null;
+      renderCourtList();
+    }
+
+    function saveCourt(index) {
+      const nameVal = document.getElementById(`courtNameInput${index}`).value.trim();
+      if(!nameVal) {
         alert("コート名を入力してください。");
         return;
       }
-      if (idx === "") {
-        courts.push(nameVal);
-      } else {
-        const i = parseInt(idx, 10);
-        courts[i] = nameVal;
-      }
+      courts[index] = nameVal;
+      editingCourtIndex = null;
       renderCourtList();
-      resetCourtForm();
     }
-    
-    function editCourt(index) {
-      document.getElementById("courtNameInput").value = courts[index];
-      document.getElementById("editingCourtIndex").value = index;
-    }
-    
+
     function deleteCourt(index) {
-      if (!confirm("このコートを削除しますか？")) return;
-      courts.splice(index, 1);
+      if(confirm("このコートを削除しますか？")) {
+        courts.splice(index, 1);
+        if(editingCourtIndex === index) {
+          editingCourtIndex = null;
+        }
+        renderCourtList();
+      }
+    }
+
+    function addCourt() {
+      const nameVal = document.getElementById("courtNewInput").value.trim();
+      if(!nameVal) {
+        alert("コート名を入力してください。");
+        return;
+      }
+      courts.push(nameVal);
       renderCourtList();
-      resetCourtForm();
     }
-    
-    function cancelEditCourt() {
-      resetCourtForm();
-    }
-    
+
+    // ---------------------------
+    // 初期化
+    // ---------------------------
     window.addEventListener("DOMContentLoaded", () => {
       renderLevelList();
       renderCourtList();
-      resetLevelForm();
-      resetCourtForm();
     });
   </script>
 </body>

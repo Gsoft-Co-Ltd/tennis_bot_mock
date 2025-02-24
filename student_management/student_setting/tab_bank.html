@@ -22,13 +22,13 @@
 <body>
   <div class="container mt-4">
     <form id="bankForm">
-            <!-- 口座振替利用 -->
-            <div class="mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="active" name="active">
-                <label class="form-check-label" for="active">口座振替有効</label>
-              </div>
-            </div>
+      <!-- 口座振替利用 -->
+      <div class="mb-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="active" name="active">
+          <label class="form-check-label" for="active">口座振替有効</label>
+        </div>
+      </div>
       <!-- 銀行種別選択 -->
       <div class="mb-3">
         <label class="form-label">銀行種別</label>
@@ -49,11 +49,13 @@
             <label for="bankCode" class="form-label required">金融機関コード</label>
             <input type="text" class="form-control" id="bankCode" name="bankCode" pattern="\d{4}" maxlength="4" required>
             <small class="form-text text-muted">※4桁の数字を入力してください。</small>
+            <div class="invalid-feedback d-block">正しい金融機関コードを入力してください。（4桁の数字）</div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="bankName" class="form-label required">引落銀行名</label>
             <input type="text" class="form-control" id="bankName" name="bankName" pattern="^[A-Za-z0-9ｦ-ﾟ]+$" maxlength="15" required>
             <small class="form-text text-muted">※半角英数およびカナのみ、15文字以内で入力可能です。</small>
+            <div class="invalid-feedback d-block">正しい引落銀行名を入力してください。（半角英数およびカナ、15文字以内）</div>
           </div>
         </div>
         <div class="row">
@@ -61,11 +63,13 @@
             <label for="branchCode" class="form-label required">支店コード</label>
             <input type="text" class="form-control" id="branchCode" name="branchCode" pattern="\d{3}" maxlength="3" required>
             <small class="form-text text-muted">※3桁の数字を入力してください。</small>
+            <div class="invalid-feedback d-block">正しい支店コードを入力してください。（3桁の数字）</div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="branchName" class="form-label required">引落支店名</label>
             <input type="text" class="form-control" id="branchName" name="branchName" pattern="^[A-Za-z0-9ｦ-ﾟ]+$" maxlength="15" required>
             <small class="form-text text-muted">※半角英数およびカナのみ、15文字以内で入力可能です。</small>
+            <div class="invalid-feedback d-block">正しい引落支店名を入力してください。（半角英数およびカナ、15文字以内）</div>
           </div>
         </div>
         <div class="row">
@@ -73,6 +77,7 @@
             <label for="accountNumber" class="form-label required">口座番号</label>
             <input type="text" class="form-control" id="accountNumber" name="accountNumber" pattern="\d{7}" maxlength="7" required>
             <small class="form-text text-muted">※7桁の数字を入力してください。</small>
+            <div class="invalid-feedback d-block">正しい口座番号を入力してください。（7桁の数字）</div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="accountType" class="form-label required">口座種別</label>
@@ -81,7 +86,6 @@
               <option value="1">普通</option>
               <option value="2">当座</option>
             </select>
-            <small class="form-text text-muted">※「普通」または「当座」を選択してください。</small>
           </div>
         </div>
       </div>
@@ -93,11 +97,13 @@
             <label for="yuchoSymbol" class="form-label required">記号</label>
             <input type="text" class="form-control" id="yuchoSymbol" name="yuchoSymbol" pattern="\d{5}" maxlength="5" required>
             <small class="form-text text-muted">※5桁の数字を入力してください。</small>
+            <div class="invalid-feedback d-block">正しい記号を入力してください。（5桁の数字）</div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="yuchoAccountNumber" class="form-label required">番号</label>
             <input type="text" class="form-control" id="yuchoAccountNumber" name="yuchoAccountNumber" pattern="\d{1,8}" maxlength="8" required>
             <small class="form-text text-muted">※1～8桁の数字を入力してください。</small>
+            <div class="invalid-feedback d-block">正しい番号を入力してください。（1～8桁の数字）</div>
           </div>
         </div>
       </div>
@@ -107,17 +113,17 @@
         <label for="accountHolder" class="form-label required">預金者名</label>
         <input type="text" class="form-control" id="accountHolder" name="accountHolder" pattern="^[A-Za-z0-9ｦ-ﾟ]+$" maxlength="30" required>
         <small class="form-text text-muted">※半角英数およびカナのみ、30文字以内で入力可能です。</small>
+        <div class="invalid-feedback d-block">正しい預金者名を入力してください。（半角英数およびカナ、30文字以内）</div>
       </div>
 
       <!-- 新規コードフィールド -->
       <div class="mb-3">
         <label for="newCode" class="form-label required">新規コード</label>
         <select id="newCode" name="newCode" class="form-control" required>
-          <option value="0" >継続利用 (0)</option>
-          <option value="1"selected>新規 (1)</option>
+          <option value="0">継続利用 (0)</option>
+          <option value="1" selected>新規 (1)</option>
           <option value="2">変更 (2)</option>
         </select>
-        <small class="form-text text-muted">※新規コード：新規(1) / 口座等の変更(2) / 継続利用(0)</small>
       </div>
 
       <button type="submit" class="btn btn-success">保存</button>
