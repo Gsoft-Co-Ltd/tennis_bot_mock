@@ -4,16 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>スクール基本情報・コート設定</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
       background-color: #f5f7fa;
       font-family: "Noto Sans JP", sans-serif;
-      margin:0;
-      padding:20px;
+      margin: 0;
+      padding: 20px;
     }
     .container {
       margin-top: 20px;
@@ -22,7 +19,7 @@
       margin-bottom: 20px;
       border-radius: 6px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      background:#fff;
+      background: #fff;
     }
     .card-header {
       background-color: #007bff;
@@ -30,15 +27,15 @@
       font-size: 1.1rem;
       font-weight: bold;
       border-radius: 6px 6px 0 0;
-      padding:10px 15px;
+      padding: 10px 15px;
     }
     .card-body {
-      padding:15px;
+      padding: 15px;
     }
     .form-label {
       font-weight: bold;
       color: #333;
-      margin-bottom:4px;
+      margin-bottom: 4px;
     }
     .form-group {
       margin-bottom: 15px;
@@ -48,16 +45,17 @@
       align-items: center;
       margin-bottom: 8px;
     }
-    .day-row label {
+    .day-label {
       width: 70px;
-      margin-right:10px;
-      margin-bottom:0;
     }
     .time-input {
-      width:120px;
+      width: 120px;
     }
     .mx-2 {
-      margin:0 5px;
+      margin: 0 5px;
+    }
+    .ms-3 {
+      margin-left: 1rem;
     }
     .table td {
       vertical-align: middle;
@@ -66,7 +64,7 @@
       font-size: 0.875rem;
     }
     /* read-only fields styling */
-    .form-control[readonly], 
+    .form-control[readonly],
     .form-check-input:disabled {
       background-color: #e9ecef;
       color: #6c757d;
@@ -74,12 +72,12 @@
     .form-check-input:disabled ~ .form-check-label {
       color: #6c757d;
     }
-    /* 見やすくするための余白など */
+    /* 読みやすさ向上のための余白 */
     .list-group-item {
       font-size: 0.95rem;
     }
     .schedule-hint {
-      font-size:0.9rem;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -90,117 +88,103 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>スクール基本情報</span>
         <div>
-          <button
-            type="button"
-            id="editButton"
-            class="btn btn-warning btn-sm me-2"
-            onclick="toggleEdit()"
-          >
-            編集
-          </button>
-          <button
-            type="button"
-            id="saveButton"
-            class="btn btn-success btn-sm"
-            style="display: none"
-            onclick="saveInfo()"
-          >
-            保存
-          </button>
+          <button type="button" id="editButton" class="btn btn-warning btn-sm me-2" onclick="toggleEdit()">編集</button>
+          <button type="button" id="saveButton" class="btn btn-success btn-sm" style="display: none;" onclick="saveInfo()">保存</button>
         </div>
       </div>
-
       <div class="card-body">
         <form id="schoolForm">
-          <!-- スクール名のみ表示（郵便番号/住所削除済み） -->
+          <!-- スクール名 -->
           <div class="form-group">
             <label for="schoolName" class="form-label">スクール名</label>
-            <input
-              type="text"
-              id="schoolName"
-              class="form-control"
-              value="東別院テニススクール"
-              readonly
-            />
+            <input type="text" id="schoolName" class="form-control" value="東別院テニススクール" readonly />
           </div>
-
-          <!-- 曜日別営業時間 + コート一覧の2カラム配置 -->
+          <!-- 曜日別営業時間 -->
           <div class="form-group">
             <label class="form-label">曜日別 営業時間</label>
             <p class="text-muted schedule-hint">
-              定休日にチェックを入れると当日の営業時間入力は無効になります。
+              定休日チェックを入れると、その日の営業時間入力が無効になります。
             </p>
             <div class="row">
-              <!-- 左カラム(曜日別営業時間: 月～日) -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-12 mb-3">
                 <div id="weeklySchedule">
                   <!-- 月曜日 -->
                   <div class="day-row">
-                    <label for="monClosed">月曜日</label>
-                    <input type="checkbox" id="monClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">月曜日</div>
                     <input type="time" id="monStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="monEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="monClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="monClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 火曜日 -->
                   <div class="day-row">
-                    <label for="tueClosed">火曜日</label>
-                    <input type="checkbox" id="tueClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">火曜日</div>
                     <input type="time" id="tueStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="tueEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="tueClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="tueClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 水曜日 -->
                   <div class="day-row">
-                    <label for="wedClosed">水曜日</label>
-                    <input type="checkbox" id="wedClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">水曜日</div>
                     <input type="time" id="wedStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="wedEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="wedClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="wedClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 木曜日 -->
                   <div class="day-row">
-                    <label for="thuClosed">木曜日</label>
-                    <input type="checkbox" id="thuClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">木曜日</div>
                     <input type="time" id="thuStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="thuEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="thuClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="thuClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 金曜日 -->
                   <div class="day-row">
-                    <label for="friClosed">金曜日</label>
-                    <input type="checkbox" id="friClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">金曜日</div>
                     <input type="time" id="friStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="friEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="friClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="friClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 土曜日 -->
                   <div class="day-row">
-                    <label for="satClosed">土曜日</label>
-                    <input type="checkbox" id="satClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">土曜日</div>
                     <input type="time" id="satStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="satEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="satClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="satClosed">定休日</label>
+                    </div>
                   </div>
                   <!-- 日曜日 -->
                   <div class="day-row">
-                    <label for="sunClosed">日曜日</label>
-                    <input type="checkbox" id="sunClosed" class="form-check-input me-2" disabled>
+                    <div class="day-label">日曜日</div>
                     <input type="time" id="sunStart" class="form-control time-input" value="09:00" readonly>
                     <span class="mx-2">～</span>
                     <input type="time" id="sunEnd" class="form-control time-input" value="21:00" readonly>
+                    <div class="form-check ms-3">
+                      <input type="checkbox" id="sunClosed" class="form-check-input" disabled>
+                      <label class="form-check-label" for="sunClosed">定休日</label>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              <!-- 右カラム: コート一覧（編集不可、表示のみ） -->
-              <div class="col-md-6">
-                <h6 class="mb-2">コート一覧</h6>
-                <div class="p-2 border rounded bg-light">
-                  <ul class="list-group">
-                    <li class="list-group-item">Aコート</li>
-                    <li class="list-group-item">Bコート</li>
-                  </ul>
                 </div>
               </div>
             </div><!-- row -->
@@ -209,308 +193,312 @@
       </div><!-- card-body -->
     </div><!-- card(スクール基本情報) -->
 
-    <!-- ===================== レベル設定カード（独立編集） ===================== -->
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>レベル設定</span>
-        <!-- レベル設定はスクール基本情報と独立した編集が可能 -->
-        <div>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            onclick="openAddLevel()"
-          >
-            レベル追加
-          </button>
+    <!-- ===================== レベル設定 & コート設定カード ===================== -->
+    <div class="row">
+      <!-- レベル設定カード -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <span>レベル設定</span>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr class="table-light">
+                  <th style="width:30%;">レベル名</th>
+                  <th style="width:25%;">種類</th>
+                  <th style="width:15%;">段階</th>
+                  <th style="width:30%;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="levelList"></tbody>
+            </table>
+            <!-- 常に表示されるレベル追加/編集フォーム -->
+            <h6>レベル追加/編集</h6>
+            <div id="levelFormContainer">
+              <div class="row mb-2">
+                <div class="col-md-4">
+                  <label for="levelNameInput" class="form-label">レベル名</label>
+                  <input type="text" id="levelNameInput" class="form-control">
+                </div>
+                <div class="col-md-4">
+                  <label for="categorySelect" class="form-label">種類</label>
+                  <select class="form-select" id="categorySelect">
+                    <option value="">選択</option>
+                    <option value="一般">一般</option>
+                    <option value="キッズジュニア">キッズジュニア</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="sortOrderInput" class="form-label">段階</label>
+                  <input type="number" id="sortOrderInput" class="form-control" value="0">
+                  <input type="hidden" id="editingLevelIndex">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col text-end">
+                  <button class="btn btn-primary btn-sm me-2" id="levelSaveButton" onclick="saveLevelInline()">追加・編集</button>
+                  <button class="btn btn-secondary btn-sm" id="levelCancelButton" onclick="cancelEditLevel()">キャンセル</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <table class="table table-bordered table-sm">
-          <thead>
-            <tr class="table-light">
-              <th style="width:30%;">レベル名</th>
-              <th style="width:25%;">種類</th>
-              <th style="width:15%;">表示順</th>
-              <th style="width:30%;">操作</th>
-            </tr>
-          </thead>
-          <tbody id="levelList"></tbody>
-        </table>
-      </div>
-    </div>
 
-    <!-- ===================== レベル追加/編集用モーダル ===================== -->
-    <div
-      class="modal fade"
-      id="levelModal"
-      tabindex="-1"
-      aria-labelledby="levelModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="levelModalLabel">レベル追加</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+      <!-- コート設定カード -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <span>コート設定</span>
           </div>
-          <div class="modal-body">
-            <form>
-              <input type="hidden" id="editingLevelIndex" />
-              <div class="mb-3">
-                <label for="levelNameInput" class="form-label">レベル名</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="levelNameInput"
-                  required
-                />
+          <div class="card-body">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr class="table-light">
+                  <th style="width:70%;">コート名</th>
+                  <th style="width:30%;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="courtList"></tbody>
+            </table>
+            <!-- 常に表示されるコート追加/編集フォーム -->
+            <h6>コート追加/編集</h6>
+            <div id="courtFormContainer">
+              <div class="row mb-2">
+                <div class="col-md-12">
+                  <label for="courtNameInput" class="form-label">コート名</label>
+                  <input type="text" id="courtNameInput" class="form-control">
+                  <input type="hidden" id="editingCourtIndex">
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="categorySelect" class="form-label">種類(category)</label>
-                <select class="form-select" id="categorySelect" required>
-                  <option value="">選択</option>
-                  <option value="general">general</option>
-                  <option value="kidJunior">kidJunior</option>
-                </select>
+              <div class="row">
+                <div class="col text-end">
+                  <button class="btn btn-primary btn-sm me-2" id="courtSaveButton" onclick="saveCourtInline()">追加・編集</button>
+                  <button class="btn btn-secondary btn-sm" id="courtCancelButton" onclick="cancelEditCourt()">キャンセル</button>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="sortOrderInput" class="form-label">表示順</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="sortOrderInput"
-                  required
-                />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm"
-              data-bs-dismiss="modal"
-            >
-              キャンセル
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary btn-sm"
-              onclick="saveLevel()"
-            >
-              保存
-            </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Bootstrap JS -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-    ></script>
-
-    <script>
-      // ==================== (1) スクール基本情報 編集・保存 ====================
-      const dayConfigs = [
-        { closedId: "monClosed", startId: "monStart", endId: "monEnd" },
-        { closedId: "tueClosed", startId: "tueStart", endId: "tueEnd" },
-        { closedId: "wedClosed", startId: "wedStart", endId: "wedEnd" },
-        { closedId: "thuClosed", startId: "thuStart", endId: "thuEnd" },
-        { closedId: "friClosed", startId: "friStart", endId: "friEnd" },
-        { closedId: "satClosed", startId: "satStart", endId: "satEnd" },
-        { closedId: "sunClosed", startId: "sunStart", endId: "sunEnd" },
-      ];
-
-      // イベントリスナ: 定休日チェック時にstart/endを無効化
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ==================== スクール基本情報 編集・保存 ====================
+    const dayConfigs = [
+      { closedId: "monClosed", startId: "monStart", endId: "monEnd" },
+      { closedId: "tueClosed", startId: "tueStart", endId: "tueEnd" },
+      { closedId: "wedClosed", startId: "wedStart", endId: "wedEnd" },
+      { closedId: "thuClosed", startId: "thuStart", endId: "thuEnd" },
+      { closedId: "friClosed", startId: "friStart", endId: "friEnd" },
+      { closedId: "satClosed", startId: "satStart", endId: "satEnd" },
+      { closedId: "sunClosed", startId: "sunStart", endId: "sunEnd" }
+    ];
+    
+    dayConfigs.forEach(cfg => {
+      const closedCb = document.getElementById(cfg.closedId);
+      const startInput = document.getElementById(cfg.startId);
+      const endInput = document.getElementById(cfg.endId);
+      closedCb.addEventListener('change', () => {
+        const disabled = closedCb.checked;
+        startInput.disabled = disabled;
+        endInput.disabled = disabled;
+      });
+      if(closedCb.checked) {
+        startInput.disabled = true;
+        endInput.disabled = true;
+      }
+    });
+    
+    function toggleEdit() {
+      const schoolName = document.getElementById("schoolName");
       dayConfigs.forEach(cfg => {
-        const closedCb = document.getElementById(cfg.closedId);
-        const startInput = document.getElementById(cfg.startId);
-        const endInput = document.getElementById(cfg.endId);
-
-        closedCb.addEventListener('change', ()=>{
-          const disabled = closedCb.checked;
-          startInput.disabled = disabled;
-          endInput.disabled = disabled;
-        });
-
-        // 初期化（チェック状態なら無効化）
-        if(closedCb.checked) {
-          startInput.disabled = true;
-          endInput.disabled = true;
+        const closedEl = document.getElementById(cfg.closedId);
+        closedEl.disabled = !closedEl.disabled;
+        const start = document.getElementById(cfg.startId);
+        const end = document.getElementById(cfg.endId);
+        if (start.hasAttribute("readonly")) {
+          start.removeAttribute("readonly");
+          end.removeAttribute("readonly");
+        } else {
+          start.setAttribute("readonly", "readonly");
+          end.setAttribute("readonly", "readonly");
         }
       });
-
-      // 「編集」ボタン押下 -> フィールドをeditableにする
-      function toggleEdit() {
-        const schoolName = document.getElementById("schoolName");
-
-        // 曜日ごとの営業時間
-        dayConfigs.forEach(cfg => {
-          const closedEl = document.getElementById(cfg.closedId);
-          closedEl.disabled = !closedEl.disabled; // checkbox 有効/無効切替
-
-          const start = document.getElementById(cfg.startId);
-          const end = document.getElementById(cfg.endId);
-          if (start.hasAttribute("readonly")) {
-            start.removeAttribute("readonly");
-            end.removeAttribute("readonly");
-          } else {
-            start.setAttribute("readonly","readonly");
-            end.setAttribute("readonly","readonly");
-          }
-        });
-
-        // 現在 readOnly かどうか判定
-        const isReadOnly = schoolName.hasAttribute("readonly");
-
-        if (isReadOnly) {
-          // 編集モードへ
-          schoolName.removeAttribute("readonly");
-          document.getElementById("editButton").style.display = "none";
-          document.getElementById("saveButton").style.display = "inline-block";
-        } else {
-          // readOnly モードへ
-          schoolName.setAttribute("readonly","readonly");
-          document.getElementById("editButton").style.display = "inline-block";
-          document.getElementById("saveButton").style.display = "none";
-        }
+      const isReadOnly = schoolName.hasAttribute("readonly");
+      if (isReadOnly) {
+        schoolName.removeAttribute("readonly");
+        document.getElementById("editButton").style.display = "none";
+        document.getElementById("saveButton").style.display = "inline-block";
+      } else {
+        schoolName.setAttribute("readonly", "readonly");
+        document.getElementById("editButton").style.display = "inline-block";
+        document.getElementById("saveButton").style.display = "none";
       }
-
-      // 「保存」ボタン押下 -> データを取得してコンソール出力後、readOnlyに戻す
-      function saveInfo() {
-        const schoolName = document.getElementById("schoolName").value.trim();
-
-        // 曜日ごとの設定
-        const scheduleData = dayConfigs.map(cfg => ({
-          dayLabel: cfg.closedId,
-          isClosed: document.getElementById(cfg.closedId).checked,
-          startTime: document.getElementById(cfg.startId).value,
-          endTime: document.getElementById(cfg.endId).value
-        }));
-
-        // コート一覧(表示のみ)
-        const courts = ["Aコート","Bコート"];
-
-        const data = {
-          schoolName,
-          schedule: scheduleData,
-          courts
-        };
-        console.log("スクール情報の保存データ:", data);
-
-        alert("スクール情報を保存しました。");
-        toggleEdit(); // readOnlyに戻す
-      }
-
-      // ==================== (2) レベル設定: 独立して追加/編集/削除 ====================
-      let levels = [
-        { level_name:"初級",       category:"general",   sort_order:0 },
-        { level_name:"中級",       category:"general",   sort_order:1 },
-        { level_name:"上級",       category:"general",   sort_order:2 },
-        { level_name:"キッズ初級", category:"kidJunior", sort_order:3 },
-        { level_name:"キッズ中級", category:"kidJunior", sort_order:4 },
-        { level_name:"ジュニア上級", category:"kidJunior", sort_order:5 }
-      ];
-
-      // レベル一覧を描画
-      function renderLevelList() {
-        const tbody = document.getElementById("levelList");
-        tbody.innerHTML = "";
-
-        levels.forEach((lvl, index) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${lvl.level_name}</td>
-            <td>${lvl.category}</td>
-            <td>${lvl.sort_order}</td>
-            <td>
-              <button class="btn btn-sm btn-warning me-2" onclick="editLevel(${index})">編集</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteLevel(${index})">削除</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      // レベル追加モーダルを開く
-      function openAddLevel() {
-        document.getElementById("levelModalLabel").textContent = "レベル追加";
-        document.getElementById("editingLevelIndex").value = "";
-        document.getElementById("levelNameInput").value = "";
-        document.getElementById("categorySelect").value = "";
-        document.getElementById("sortOrderInput").value = 0;
-
-        const modal = new bootstrap.Modal(document.getElementById("levelModal"));
-        modal.show();
-      }
-
-      // レベル編集モーダルを開く
-      function editLevel(index) {
-        document.getElementById("levelModalLabel").textContent = "レベル編集";
-        document.getElementById("editingLevelIndex").value = index;
-
-        const lvl = levels[index];
-        document.getElementById("levelNameInput").value = lvl.level_name;
-        document.getElementById("categorySelect").value = lvl.category;
-        document.getElementById("sortOrderInput").value = lvl.sort_order;
-
-        const modal = new bootstrap.Modal(document.getElementById("levelModal"));
-        modal.show();
-      }
-
-      // レベル削除
-      function deleteLevel(index) {
-        if(!confirm("このレベルを削除しますか？")) return;
-        levels.splice(index,1);
-        renderLevelList();
-      }
-
-      // レベル追加/編集の保存
-      function saveLevel() {
-        const idx = document.getElementById("editingLevelIndex").value;
-        const nameVal = document.getElementById("levelNameInput").value.trim();
-        const catVal = document.getElementById("categorySelect").value;
-        const sortVal = parseInt(document.getElementById("sortOrderInput").value, 10);
-
-        if(!nameVal) {
-          alert("レベル名を入力してください。");
-          return;
-        }
-        if(!catVal) {
-          alert("種類(category)を選択してください。");
-          return;
-        }
-
-        if(idx === "") {
-          // 新規追加
-          levels.push({
-            level_name: nameVal,
-            category: catVal,
-            sort_order: sortVal
-          });
-        } else {
-          // 既存編集
-          const i = parseInt(idx,10);
-          levels[i].level_name = nameVal;
-          levels[i].category = catVal;
-          levels[i].sort_order = sortVal;
-        }
-
-        renderLevelList();
-        const modalEl = document.getElementById("levelModal");
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-      }
-
-      // ページ読み込み時
-      window.addEventListener("DOMContentLoaded", () => {
-        renderLevelList();
+    }
+    
+    function saveInfo() {
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const scheduleData = dayConfigs.map(cfg => ({
+        dayLabel: cfg.closedId,
+        isClosed: document.getElementById(cfg.closedId).checked,
+        startTime: document.getElementById(cfg.startId).value,
+        endTime: document.getElementById(cfg.endId).value
+      }));
+      const data = { schoolName, schedule: scheduleData };
+      console.log("スクール情報の保存データ:", data);
+      alert("スクール情報を保存しました。");
+      toggleEdit();
+    }
+    
+    // ==================== レベル設定 ====================
+    let levels = [
+      { level_name: "初級", category: "一般", sort_order: 0 },
+      { level_name: "中級", category: "一般", sort_order: 1 },
+      { level_name: "上級", category: "一般", sort_order: 2 },
+      { level_name: "キッズ初級", category: "キッズジュニア", sort_order: 3 },
+      { level_name: "キッズ中級", category: "キッズジュニア", sort_order: 4 },
+      { level_name: "ジュニア上級", category: "キッズジュニア", sort_order: 5 }
+    ];
+    
+    function renderLevelList() {
+      const tbody = document.getElementById("levelList");
+      tbody.innerHTML = "";
+      levels.forEach((lvl, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${lvl.level_name}</td>
+          <td>${lvl.category}</td>
+          <td>${lvl.sort_order}</td>
+          <td>
+            <button class="btn btn-sm btn-warning me-2" onclick="editLevel(${index})">編集</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteLevel(${index})">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
-    </script>
+    }
+    
+    function resetLevelForm() {
+      document.getElementById("levelNameInput").value = "";
+      document.getElementById("categorySelect").value = "";
+      document.getElementById("sortOrderInput").value = 0;
+      document.getElementById("editingLevelIndex").value = "";
+      document.getElementById("levelSaveButton").textContent = "追加・編集";
+    }
+    
+    function saveLevelInline() {
+      const idx = document.getElementById("editingLevelIndex").value;
+      const nameVal = document.getElementById("levelNameInput").value.trim();
+      const catVal = document.getElementById("categorySelect").value;
+      const sortVal = parseInt(document.getElementById("sortOrderInput").value, 10);
+      if (!nameVal) {
+        alert("レベル名を入力してください。");
+        return;
+      }
+      if (!catVal) {
+        alert("種類を選択してください。");
+        return;
+      }
+      if (idx === "") {
+        levels.push({ level_name: nameVal, category: catVal, sort_order: sortVal });
+      } else {
+        const i = parseInt(idx, 10);
+        levels[i].level_name = nameVal;
+        levels[i].category = catVal;
+        levels[i].sort_order = sortVal;
+      }
+      renderLevelList();
+      resetLevelForm();
+    }
+    
+    function editLevel(index) {
+      const lvl = levels[index];
+      document.getElementById("levelNameInput").value = lvl.level_name;
+      document.getElementById("categorySelect").value = lvl.category;
+      document.getElementById("sortOrderInput").value = lvl.sort_order;
+      document.getElementById("editingLevelIndex").value = index;
+    }
+    
+    function deleteLevel(index) {
+      if (!confirm("このレベルを削除しますか？")) return;
+      levels.splice(index, 1);
+      renderLevelList();
+      resetLevelForm();
+    }
+    
+    function cancelEditLevel() {
+      resetLevelForm();
+    }
+    
+    // ==================== コート設定 ====================
+    let courts = ["Aコート", "Bコート"];
+    
+    function renderCourtList() {
+      const tbody = document.getElementById("courtList");
+      tbody.innerHTML = "";
+      courts.forEach((court, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${court}</td>
+          <td>
+            <button class="btn btn-sm btn-warning me-2" onclick="editCourt(${index})">編集</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteCourt(${index})">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    
+    function resetCourtForm() {
+      document.getElementById("courtNameInput").value = "";
+      document.getElementById("editingCourtIndex").value = "";
+      document.getElementById("courtSaveButton").textContent = "追加・編集";
+    }
+    
+    function saveCourtInline() {
+      const idx = document.getElementById("editingCourtIndex").value;
+      const nameVal = document.getElementById("courtNameInput").value.trim();
+      if (!nameVal) {
+        alert("コート名を入力してください。");
+        return;
+      }
+      if (idx === "") {
+        courts.push(nameVal);
+      } else {
+        const i = parseInt(idx, 10);
+        courts[i] = nameVal;
+      }
+      renderCourtList();
+      resetCourtForm();
+    }
+    
+    function editCourt(index) {
+      document.getElementById("courtNameInput").value = courts[index];
+      document.getElementById("editingCourtIndex").value = index;
+    }
+    
+    function deleteCourt(index) {
+      if (!confirm("このコートを削除しますか？")) return;
+      courts.splice(index, 1);
+      renderCourtList();
+      resetCourtForm();
+    }
+    
+    function cancelEditCourt() {
+      resetCourtForm();
+    }
+    
+    window.addEventListener("DOMContentLoaded", () => {
+      renderLevelList();
+      renderCourtList();
+      resetLevelForm();
+      resetCourtForm();
+    });
+  </script>
 </body>
 </html>

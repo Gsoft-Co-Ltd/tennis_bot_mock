@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja"> 
+<html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -119,6 +119,33 @@
       gap: 0.5rem;
       white-space: nowrap;
     }
+
+    /* モーダル内カード風に */
+    .visitor-detail-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .visitor-detail-card .detail-label {
+      font-weight: 600;
+      width: 120px;
+    }
+    .visitor-detail-card .detail-value {
+      color: #333;
+    }
+    .visitor-detail-row {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .visitor-detail-row .detail-label {
+      margin-right: 8px;
+      white-space: nowrap;
+      min-width: 100px; /* 調整 */
+    }
   </style>
 </head>
 <body>
@@ -175,7 +202,7 @@
             placeholder="非スクール生名で検索"
           />
         </div>
-        <!-- 連絡先検索 -->
+        <!-- 電話番号検索 -->
         <div class="col-auto">
           <label for="searchContactInput" class="form-label mb-0 fw-bold">電話番号検索:</label>
           <input
@@ -193,7 +220,7 @@
     </div>
   </div>
 
-  <!-- 全体件数 ＆ 同時表示件数（左寄せ） -->
+  <!-- 全体件数 ＆ 同時表示件数 -->
   <div class="d-flex align-items-center mb-3">
     <div class="me-4">
       <span id="totalCount" class="me-2 fw-bold">全体件数: 0 件</span>
@@ -215,17 +242,17 @@
       <thead>
         <tr>
           <!-- 名前 -->
-          <th style="width:20%">名前</th>
+          <th style="width:15%">名前</th>
           <!-- 区分 -->
-          <th style="width:15%">区分</th>
+          <th style="width:10%">区分</th>
           <!-- 連絡先 -->
-          <th style="width:25%">電話番号</th>
+          <th style="width:15%">電話番号</th>
           <!-- 登録日時 (sortable) -->
-          <th style="width:20%" class="sortable" onclick="handleSort(0)">
+          <th style="width:15%" class="sortable" onclick="handleSort(0)">
             登録日時
           </th>
           <!-- 体験日時 (sortable) -->
-          <th style="width:20%" class="sortable" onclick="handleSort(1)">
+          <th style="width:15%" class="sortable" onclick="handleSort(1)">
             予約日時
           </th>
           <!-- 操作 -->
@@ -246,114 +273,166 @@
   </div>
 </div>
 
+<!-- ▼▼▼ 非スクール生 詳細モーダル ▼▼▼ -->
+<div class="modal fade" id="visitorDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">非スクール生 詳細</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+      </div>
+      <div class="modal-body">
+        <!-- 詳細内容: card風デザイン -->
+        <div class="visitor-detail-card">
+          <div class="visitor-detail-row">
+            <span class="detail-label">氏名:</span>
+            <span id="detailFullName" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">氏名(カナ):</span>
+            <span id="detailFullNameKana" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">タイプ:</span>
+            <span id="detailVisitorType" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">性別:</span>
+            <span id="detailGender" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">誕生日:</span>
+            <span id="detailBirthDate" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">郵便番号:</span>
+            <span id="detailPostalCode" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">住所:</span>
+            <span id="detailAddress" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">電話番号:</span>
+            <span id="detailPhone" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">メールアドレス:</span>
+            <span id="detailEmail" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">加入日:</span>
+            <span id="detailJoinDate" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">保護者名:</span>
+            <span id="detailGuardianName" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">保護者TEL:</span>
+            <span id="detailGuardianPhone" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">軟式経験(年):</span>
+            <span id="detailSoftTennisExp" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">硬式経験(年):</span>
+            <span id="detailHardTennisExp" class="detail-value"></span>
+          </div>
+          <div class="visitor-detail-row">
+            <span class="detail-label">直近の予約:</span>
+            <span id="detailRecentReservation" class="detail-value"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap JS + Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  /*
-    ダミーデータ:
-    - registerAt: "登録日時"
-    - trialAt:    "体験日時"
-    どちらもソート可能。インデックス:
-      0 => registerAt
-      1 => trialAt
-  */
+  /**
+   * ダミーデータ拡張:
+   *  - fullNameKana
+   *  - gender
+   *  - birthDate
+   *  - postalCode
+   *  - address
+   *  - email
+   *  - joinDate (実運用では created_at などで対応)
+   *  - guardianName
+   *  - guardianPhone
+   *  - softTennisExp
+   *  - hardTennisExp
+   *  - recentReservation
+   */
   let nonMembers = [
     {
       id:1,
-      name:"山田 太郎",
+      fullName:"山田 太郎",
+      fullNameKana:"ヤマダ タロウ",
       type:"visitor",
-      contact:"090-1111-2222",
+      gender:"male",
+      birthDate:"1990-04-01",
+      postalCode:"100-0001",
+      address:"東京都千代田区1-2-3",
+      phone:"090-1111-2222",
+      email:"tarou@example.com",
+      joinDate:"2024/01/10 15:22",
+      guardianName:"",
+      guardianPhone:"",
+      softTennisExp:1,
+      hardTennisExp:2,
+      recentReservation:"2024/02/01 10:00(体験)",
       registerAt:"2024/01/10 15:22",
       trialAt:"2024/02/01 10:00"
     },
     {
       id:2,
-      name:"佐藤 花子",
+      fullName:"佐藤 花子",
+      fullNameKana:"サトウ ハナコ",
       type:"trial",
-      contact:"080-1234-5678",
+      gender:"female",
+      birthDate:"1995-06-10",
+      postalCode:"100-0002",
+      address:"東京都千代田区2-3-4",
+      phone:"080-1234-5678",
+      email:"hanako@example.com",
+      joinDate:"2024/02/15 10:00",
+      guardianName:"佐藤 太郎",
+      guardianPhone:"080-9999-8888",
+      softTennisExp:0,
+      hardTennisExp:3,
+      recentReservation:"2024/02/20 09:30(体験)",
       registerAt:"2024/02/15 10:00",
       trialAt:"2024/02/20 09:30"
     },
     {
       id:3,
-      name:"鈴木 優子",
+      fullName:"鈴木 優子",
+      fullNameKana:"スズキ ユウコ",
       type:"visitor",
-      contact:"070-9999-8888",
+      gender:"female",
+      birthDate:"1985-10-02",
+      postalCode:"100-0010",
+      address:"東京都千代田区三番町5-6-7",
+      phone:"070-9999-8888",
+      email:"yuuko.suzuki@example.com",
+      joinDate:"2024/02/20 09:45",
+      guardianName:"",
+      guardianPhone:"",
+      softTennisExp:2,
+      hardTennisExp:2,
+      recentReservation:"2024/03/01 11:00(体験)",
       registerAt:"2024/02/20 09:45",
       trialAt:"2024/03/01 11:00"
     },
-    {
-      id:4,
-      name:"高橋 健介",
-      type:"trial",
-      contact:"052-123-4567",
-      registerAt:"2024/03/01 14:30",
-      trialAt:"2024/03/10 16:00"
-    },
-    {
-      id:5,
-      name:"中村 さゆり",
-      type:"visitor",
-      contact:"052-123-4567",
-      registerAt:"2024/03/10 13:10",
-      trialAt:"2024/03/20 10:15"
-    },
-    {
-      id:6,
-      name:"林 しおり",
-      type:"trial",
-      contact:"090-2222-3333",
-      registerAt:"2024/04/01 19:05",
-      trialAt:"2024/04/05 09:00"
-    },
-    {
-      id:7,
-      name:"加藤 勇",
-      type:"visitor",
-      contact:"090-7777-8888",
-      registerAt:"2024/05/05 09:00",
-      trialAt:"2024/06/01 10:45"
-    },
-    {
-      id:8,
-      name:"森田 希",
-      type:"visitor",
-      contact:"052-123-4567",
-      registerAt:"2024/05/20 08:30",
-      trialAt:"2024/05/25 12:00"
-    },
-    {
-      id:9,
-      name:"青木 一郎",
-      type:"trial",
-      contact:"080-5566-1122",
-      registerAt:"2024/05/22 18:00",
-      trialAt:"2024/06/01 15:30"
-    },
-    {
-      id:10,
-      name:"島田 光",
-      type:"visitor",
-      contact:"090-9898-4545",
-      registerAt:"2024/06/01 12:10",
-      trialAt:"2024/07/01 09:30"
-    },
-    {
-      id:11,
-      name:"和田 結衣",
-      type:"visitor",
-      contact:"052-123-4567",
-      registerAt:"2024/06/10 21:00",
-      trialAt:"2024/07/05 12:00"
-    },
-    {
-      id:12,
-      name:"清水 純子",
-      type:"trial",
-      contact:"070-7777-8888",
-      registerAt:"2024/06/15 09:45",
-      trialAt:"2024/07/10 11:15"
-    }
+    // ...以下、他の人も同様にデータを追加...
   ];
 
   // ページング関連
@@ -362,10 +441,10 @@
 
   // ソート関連(0=>登録日時,1=>体験日時)
   let currentSortColumn = null; // null:ソート無し, 0 or 1
-  let sortDirection = true;     // true:昇順, false:降順
+  let sortDirection = true;     // true=昇順, false=降順
 
   /* --------------------------------
-     フィルタ
+     フィルタ(名前/電話)
   -------------------------------- */
   function filterData() {
     const nameText = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -373,11 +452,11 @@
 
     return nonMembers.filter(item => {
       // 名前検索
-      if (nameText && !item.name.toLowerCase().includes(nameText)) {
+      if (nameText && !item.fullName.toLowerCase().includes(nameText)) {
         return false;
       }
-      // 連絡先検索
-      if (contactText && !item.contact.toLowerCase().includes(contactText)) {
+      // 電話番号検索
+      if (contactText && !item.phone.toLowerCase().includes(contactText)) {
         return false;
       }
       return true;
@@ -419,12 +498,12 @@
   }
 
   /* --------------------------------
-     テーブル表示
+     テーブル描画
   -------------------------------- */
   function renderTable(page=1) {
     let data = filterData();
 
-    // ソート処理
+    // ソート
     if (currentSortColumn !== null) {
       data = sortData(data, currentSortColumn);
     }
@@ -439,13 +518,13 @@
     pageData.forEach(person => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${person.name}</td>
+        <td>${person.fullName}</td>
         <td>${
           person.type === "visitor"
             ? '<span class="tag-visitor">ビジター</span>'
             : '<span class="tag-trial">体験会員</span>'
         }</td>
-        <td>${person.contact || ""}</td>
+        <td>${person.phone || ""}</td>
         <td>${person.registerAt || ""}</td>
         <td>${person.trialAt || ""}</td>
         <td>
@@ -458,8 +537,8 @@
       tableBody.appendChild(tr);
     });
 
+    // ページネーション + 全体件数表示
     renderPagination(data.length, page);
-    // 全体件数表示更新
     document.getElementById("totalCount").textContent = "全体件数: " + data.length + " 件";
   }
 
@@ -488,7 +567,7 @@
     prevLi.appendChild(prevLink);
     pagination.appendChild(prevLi);
 
-    // ページ番号リンク
+    // ページ番号
     for (let i = 1; i <= totalPages; i++) {
       const li = document.createElement("li");
       li.className = "page-item " + (i === page ? "active" : "");
@@ -524,7 +603,7 @@
   }
 
   /* --------------------------------
-     削除操作
+     削除操作(モック)
   -------------------------------- */
   function deletePerson(id) {
     if (confirm("このユーザーを削除しますか？")) {
@@ -534,10 +613,47 @@
   }
 
   /* --------------------------------
-     詳細
+     詳細(ポップアップ表示)
   -------------------------------- */
   function showDetails(id) {
-    alert("ID=" + id + " の詳細画面へ遷移(またはモーダル表示)する想定");
+    // 該当データを検索
+    const person = nonMembers.find(p => p.id === id);
+    if(!person) {
+      alert("該当データが見つかりません");
+      return;
+    }
+
+    // モーダル内要素を埋める
+    document.getElementById("detailFullName").textContent = person.fullName ?? "";
+    document.getElementById("detailFullNameKana").textContent = person.fullNameKana ?? "";
+    document.getElementById("detailVisitorType").textContent =
+      (person.type === "visitor") ? "ビジター" : "体験会員";
+    document.getElementById("detailGender").textContent = translateGender(person.gender);
+    document.getElementById("detailBirthDate").textContent = person.birthDate ?? "";
+    document.getElementById("detailPostalCode").textContent = person.postalCode ?? "";
+    document.getElementById("detailAddress").textContent = person.address ?? "";
+    document.getElementById("detailPhone").textContent = person.phone ?? "";
+    document.getElementById("detailEmail").textContent = person.email ?? "";
+    document.getElementById("detailJoinDate").textContent = person.joinDate ?? "";
+    document.getElementById("detailGuardianName").textContent = person.guardianName ?? "";
+    document.getElementById("detailGuardianPhone").textContent = person.guardianPhone ?? "";
+    document.getElementById("detailSoftTennisExp").textContent = person.softTennisExp ?? "";
+    document.getElementById("detailHardTennisExp").textContent = person.hardTennisExp ?? "";
+    document.getElementById("detailRecentReservation").textContent = person.recentReservation ?? "";
+
+    // モーダル表示
+    const modal = new bootstrap.Modal(document.getElementById("visitorDetailModal"));
+    modal.show();
+  }
+
+  // 性別のラベル付け(例)
+  function translateGender(g){
+    switch(g){
+      case "male": return "男性";
+      case "female": return "女性";
+      case "other": return "その他";
+      default: return "未設定";
+    }
   }
 
   /* --------------------------------
@@ -547,8 +663,10 @@
   -------------------------------- */
   function handleSort(columnIndex) {
     if (currentSortColumn === columnIndex) {
+      // 同じ列クリックで昇順/降順切替
       sortDirection = !sortDirection;
     } else {
+      // 他列クリックでソート列を変更 & 昇順に
       currentSortColumn = columnIndex;
       sortDirection = true;
     }
@@ -566,19 +684,21 @@
   }
 
   /* --------------------------------
-     フィルタボタン + 入力イベント
+     フィルタボタン
   -------------------------------- */
   document.getElementById("filterButton").addEventListener("click", () => {
     currentPage = 1;
     renderTable(currentPage);
   });
+
+  // 入力イベントでも更新
   document.getElementById("searchInput").addEventListener("keyup", () => {
     currentPage = 1;
-    renderTable(currentPage);
+    renderTable();
   });
   document.getElementById("searchContactInput").addEventListener("keyup", () => {
     currentPage = 1;
-    renderTable(currentPage);
+    renderTable();
   });
 
   /* --------------------------------
