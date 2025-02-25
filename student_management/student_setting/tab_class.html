@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>クラス設定（現在＆来期）</title>
   <!-- Bootstrap 5 -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -16,6 +15,16 @@
       margin: 0;
       padding: 20px;
     }
+    h3 {
+      margin-bottom: 20px;
+    }
+    h5 {
+      font-size: 1.2rem;
+      color: #007bff;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 6px;
+      margin-bottom: 15px;
+    }
     .section {
       margin-bottom: 20px;
       padding: 15px;
@@ -23,51 +32,64 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .section h5 {
-      font-size: 1.2rem;
-      color: #007bff;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 6px;
-      margin-bottom: 15px;
-    }
     .form-label {
       font-weight: bold;
       margin-bottom: 6px;
       color: #333;
     }
-    .class-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .class-list li {
-      display: flex;
-      align-items: center;
-      background: #e9ecef;
-      border-radius: 4px;
-      padding: 6px 10px;
-      margin-bottom: 6px;
-    }
-    .class-list li .remove-btn {
-      margin-left: auto;
-    }
     .text-muted {
       font-size: 0.9rem;
+    }
+    .scroll-area {
+      max-height: 350px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .table thead th {
+      background-color: #f2f2f2;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .table-hover tbody tr:hover {
+      background-color: #e9ecef;
+    }
+    .checkbox-column {
+      width: 1%;
+      white-space: nowrap;
+    }
+    .table td, .table th {
+      vertical-align: middle;
+    }
+    .filter-line {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .filter-line label {
+      margin: 0;
+    }
+    .count-label {
+      margin-left: auto;
+      font-weight: bold;
+      color: #007bff;
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- 現在すぐ変更するクラス -->
+  <!-- ▼▼▼ 現在 ▼▼▼ -->
   <div class="section">
-    <h5>現在のクラス設定</h5>
-    <p class="text-muted">
-      すぐに変更したいレベル・クラスがあれば、こちらで追加・削除できます。
-    </p>
+    <h5>今期の設定</h5>
+    <p class="text-muted">レベル・コース・クラスを変更したい場合は選択してください。</p>
 
-    <!-- 現在のレベル -->
     <div class="mb-3">
-      <label for="currentLevel" class="form-label">現在のレベル</label>
+      <label for="currentLevel" class="form-label">今期のレベル</label>
       <select class="form-select" id="currentLevel">
         <option value="初級">初級</option>
         <option value="中級" selected>中級</option>
@@ -75,48 +97,59 @@
       </select>
     </div>
 
-    <!-- クラス追加UI -->
-    <div class="row g-2 align-items-center mb-3">
-      <div class="col-auto">
-        <label for="currentClassDropdown" class="form-label mb-0">クラス追加:</label>
-      </div>
-      <div class="col-auto">
-        <!-- クラス名＋曜日＋時間割＋コートを1つの文字列として扱うサンプル -->
-        <select class="form-select" id="currentClassDropdown">
-          <option value="レギュラーI（月曜 9:00-10:30, コート1）">レギュラーI（月曜 9:00-10:30, コート1）</option>
-          <option value="レギュラーII（火曜 10:00-11:30, コート2）">レギュラーII（火曜 10:00-11:30, コート2）</option>
-          <option value="中級I（水曜 18:00-19:30, コート1）">中級I（水曜 18:00-19:30, コート1）</option>
-          <option value="中級II（木曜 9:00-10:30, コート3）">中級II（木曜 9:00-10:30, コート3）</option>
+    <div class="mb-3">
+      <label for="currentCourse" class="form-label">今期のコース</label>
+      <select class="form-select" id="currentCourse">
+        <option value="平日コース" selected>平日コース</option>
+        <option value="土日コース">土日コース</option>
+        <option value="フリーコース">フリーコース</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">今期のクラス</label>
+    <div class="filter-line">
+      <div class="d-flex align-items-center gap-1">
+        <label for="currentDayFilter" class="form-label mb-0 fw-normal">曜日:</label>
+        <select class="form-select form-select-sm" id="currentDayFilter" style="width:120px;">
+          <option value="">すべて</option>
+          <option value="月曜">月曜</option>
+          <option value="火曜">火曜</option>
+          <option value="水曜">水曜</option>
+          <option value="木曜">木曜</option>
+          <option value="金曜">金曜</option>
+          <option value="土曜">土曜</option>
+          <option value="日曜">日曜</option>
         </select>
       </div>
-      <div class="col-auto">
-        <button class="btn btn-primary" id="addCurrentClassBtn">追加</button>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="currentSelectedOnly" />
+        <label class="form-check-label" for="currentSelectedOnly">選択中のみ</label>
       </div>
+      <div id="currentSelectedCount" class="count-label">総選択件数: 0件</div>
     </div>
 
-    <!-- 現在のクラス一覧 -->
-    <div class="mb-3">
-      <label class="form-label">現在のクラス一覧</label>
-      <ul class="class-list" id="currentClassList">
-        <!-- デモ用初期状態をいくつか入れておく (クラス名 + 曜日 + 時間割 + コート) -->
-        <li>レギュラーI（月曜 9:00-10:30, コート1）
-          <button class="btn btn-sm btn-danger remove-btn">削除</button>
-        </li>
-        <li>レギュラーII（火曜 10:00-11:30, コート2）
-          <button class="btn btn-sm btn-danger remove-btn">削除</button>
-        </li>
-      </ul>
+    <div class="scroll-area">
+      <table class="table table-hover table-bordered mb-0" id="currentClassTable">
+        <thead>
+          <tr>
+            <th class="checkbox-column"></th>
+            <th>クラス名</th>
+            <th>曜日</th>
+            <th>時間帯</th>
+            <th>コート</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-  </div><!-- /現在のクラス設定 -->
+  </div>
+  </div><!-- /現在 -->
 
-  <!-- 来期に変更するクラス -->
+  <!-- ▼▼▼ 来期 ▼▼▼ -->
   <div class="section">
-    <h5>来期のクラス設定</h5>
-    <p class="text-muted">
-      次の期から適用したいレベル・クラスがあれば、こちらで追加・削除できます。
-    </p>
+    <h5>来期の設定</h5>
+    <p class="text-muted">次の期から変更したいレベル・コース・クラスを選択してください。</p>
 
-    <!-- 来期のレベル -->
     <div class="mb-3">
       <label for="nextLevel" class="form-label">来期のレベル</label>
       <select class="form-select" id="nextLevel">
@@ -126,150 +159,273 @@
       </select>
     </div>
 
-    <!-- クラス追加UI -->
-    <div class="row g-2 align-items-center mb-3">
-      <div class="col-auto">
-        <label for="nextClassDropdown" class="form-label mb-0">クラス追加:</label>
-      </div>
-      <div class="col-auto">
-        <select class="form-select" id="nextClassDropdown">
-          <option value="レギュラーI（土曜 10:00-11:30, コート2）">レギュラーI（土曜 10:00-11:30, コート2）</option>
-          <option value="レギュラーII（日曜 16:00-17:30, コート1）">レギュラーII（日曜 16:00-17:30, コート1）</option>
-          <option value="中級I（火曜 19:00-20:30, コート3）">中級I（火曜 19:00-20:30, コート3）</option>
-          <option value="中級II（木曜 9:00-10:30, コート3）">中級II（木曜 9:00-10:30, コート3）</option>
+    <div class="mb-3">
+      <label for="nextCourse" class="form-label">来期のコース</label>
+      <select class="form-select" id="nextCourse">
+        <option value="平日コース">平日コース</option>
+        <option value="土日コース" selected>土日コース</option>
+        <option value="フリーコース">フリーコース</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">来期のクラス</label>
+    <div class="filter-line">
+      <div class="d-flex align-items-center gap-1">
+        <label for="nextDayFilter" class="form-label mb-0 fw-normal">曜日:</label>
+        <select class="form-select form-select-sm" id="nextDayFilter" style="width:120px;">
+          <option value="">すべて</option>
+          <option value="月曜">月曜</option>
+          <option value="火曜">火曜</option>
+          <option value="水曜">水曜</option>
+          <option value="木曜">木曜</option>
+          <option value="金曜">金曜</option>
+          <option value="土曜">土曜</option>
+          <option value="日曜">日曜</option>
         </select>
       </div>
-      <div class="col-auto">
-        <button class="btn btn-primary" id="addNextClassBtn">追加</button>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="nextSelectedOnly" />
+        <label class="form-check-label" for="nextSelectedOnly">選択中のみ</label>
       </div>
+      <div id="nextSelectedCount" class="count-label">総選択件数: 0件</div>
     </div>
 
-    <!-- 来期のクラス一覧 -->
-    <div class="mb-3">
-      <label class="form-label">来期のクラス一覧</label>
-      <ul class="class-list" id="nextClassList">
-        <!-- デモ用初期状態をいくつか入れておく -->
-        <li>中級I（水曜 18:00-19:30, コート1）
-          <button class="btn btn-sm btn-danger remove-btn">削除</button>
-        </li>
-      </ul>
+    <div class="scroll-area">
+      <table class="table table-hover table-bordered mb-0" id="nextClassTable">
+        <thead>
+          <tr>
+            <th class="checkbox-column"></th>
+            <th>クラス名</th>
+            <th>曜日</th>
+            <th>時間帯</th>
+            <th>コート</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-  </div><!-- /来期のクラス設定 -->
+    </div>
+  </div><!-- /来期 -->
 
-  <!-- 保存ボタン -->
   <div class="text-end mt-3">
     <button class="btn btn-success" onclick="saveSettings()">保存</button>
   </div>
-</div><!-- /container -->
+</div>
 
 <script>
-  // 「現在のクラス」一覧データ（デモ）
-  let currentClasses = [
-    "レギュラーI（月曜 9:00-10:30, コート1）",
-    "レギュラーII（火曜 10:00-11:30, コート2）"
+  const currentClassData = [
+    { name: "初級A1",  day: "月曜", time: "9:00-10:30",  court: "コート1" },
+    { name: "初級A2",  day: "月曜", time: "11:00-12:30", court: "コート2" },
+    { name: "初級A3",  day: "月曜", time: "13:00-14:30", court: "コート3" },
+    { name: "初級B1",  day: "火曜", time: "9:00-10:30",  court: "コート1" },
+    { name: "初級B2",  day: "火曜", time: "11:00-12:30", court: "コート2" },
+    { name: "中級C1",  day: "火曜", time: "13:00-14:30", court: "コート4" },
+    { name: "中級C2",  day: "水曜", time: "9:00-10:30",  court: "コート1" },
+    { name: "中級C3",  day: "水曜", time: "15:00-16:30", court: "コート3" },
+    { name: "中級D1",  day: "木曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "中級D2",  day: "木曜", time: "11:00-12:30", court: "コート5" },
+    { name: "上級E1",  day: "木曜", time: "18:00-19:30", court: "コート1" },
+    { name: "上級E2",  day: "金曜", time: "9:00-10:30",  court: "コート3" },
+    { name: "上級E3",  day: "金曜", time: "11:00-12:30", court: "コート4" },
+    { name: "上級F1",  day: "金曜", time: "18:00-19:30", court: "コート1" },
+    { name: "初級G1",  day: "土曜", time: "7:00-8:30",   court: "コート2" },
+    { name: "初級G2",  day: "土曜", time: "9:00-10:30",  court: "コート4" },
+    { name: "中級G3",  day: "土曜", time: "11:00-12:30", court: "コート3" },
+    { name: "上級G4",  day: "土曜", time: "15:00-16:30", court: "コート1" },
+    { name: "初級H1",  day: "日曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "初級H2",  day: "日曜", time: "11:00-12:30", court: "コート3" },
+    { name: "中級H3",  day: "日曜", time: "13:00-14:30", court: "コート4" },
+    { name: "上級H4",  day: "日曜", time: "16:00-17:30", court: "コート1" },
+    { name: "初級I1",  day: "月曜", time: "15:00-16:30", court: "コート2" },
+    { name: "中級I2",  day: "水曜", time: "18:00-19:30", court: "コート4" },
+    { name: "上級I3",  day: "金曜", time: "15:00-16:30", court: "コート2" },
+    { name: "中級J1",  day: "火曜", time: "19:00-20:30", court: "コート3" },
+    { name: "上級J2",  day: "土曜", time: "17:00-18:30", court: "コート4" },
+    { name: "初級K1",  day: "木曜", time: "7:00-8:30",   court: "コート3" },
+    { name: "上級K2",  day: "日曜", time: "18:00-19:30", court: "コート2" },
+    { name: "中級K3",  day: "金曜", time: "20:00-21:30", court: "コート3" }
   ];
-  // 「来期のクラス」一覧データ（デモ）
-  let nextClasses = [
-    "中級I（水曜 18:00-19:30, コート1）"
+  const nextClassData = [
+    { name: "初級Z1",  day: "月曜", time: "9:00-10:30",  court: "コート3" },
+    { name: "初級Z2",  day: "月曜", time: "11:00-12:30", court: "コート5" },
+    { name: "初級Z3",  day: "月曜", time: "13:00-14:30", court: "コート1" },
+    { name: "初級Y1",  day: "火曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "初級Y2",  day: "火曜", time: "11:00-12:30", court: "コート3" },
+    { name: "中級Y3",  day: "火曜", time: "13:00-14:30", court: "コート4" },
+    { name: "中級X1",  day: "水曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "中級X2",  day: "水曜", time: "15:00-16:30", court: "コート5" },
+    { name: "上級W1",  day: "水曜", time: "19:00-20:30", court: "コート3" },
+    { name: "上級W2",  day: "木曜", time: "10:00-11:30", court: "コート2" },
+    { name: "上級W3",  day: "木曜", time: "18:00-19:30", court: "コート4" },
+    { name: "初級V1",  day: "金曜", time: "9:00-10:30",  court: "コート1" },
+    { name: "初級V2",  day: "金曜", time: "11:00-12:30", court: "コート2" },
+    { name: "中級V3",  day: "金曜", time: "15:00-16:30", court: "コート3" },
+    { name: "中級U1",  day: "金曜", time: "19:00-20:30", court: "コート4" },
+    { name: "上級U2",  day: "土曜", time: "7:00-8:30",   court: "コート3" },
+    { name: "上級U3",  day: "土曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "初級T1",  day: "土曜", time: "11:00-12:30", court: "コート1" },
+    { name: "初級T2",  day: "土曜", time: "15:00-16:30", court: "コート4" },
+    { name: "中級T3",  day: "土曜", time: "17:00-18:30", court: "コート5" },
+    { name: "上級S1",  day: "日曜", time: "9:00-10:30",  court: "コート2" },
+    { name: "上級S2",  day: "日曜", time: "11:00-12:30", court: "コート3" },
+    { name: "中級R1",  day: "日曜", time: "13:00-14:30", court: "コート4" },
+    { name: "初級R2",  day: "日曜", time: "15:00-16:30", court: "コート1" },
+    { name: "上級Q1",  day: "月曜", time: "19:00-20:30", court: "コート2" },
+    { name: "初級Q2",  day: "水曜", time: "7:00-8:30",   court: "コート5" },
+    { name: "中級P1",  day: "金曜", time: "20:00-21:30", court: "コート3" },
+    { name: "上級P2",  day: "火曜", time: "18:00-19:30", court: "コート4" },
+    { name: "中級O1",  day: "土曜", time: "18:00-19:30", court: "コート2" },
+    { name: "初級N1",  day: "日曜", time: "17:00-18:30", court: "コート4" }
   ];
 
-  // DOM取得
-  const currentClassListEl = document.getElementById("currentClassList");
-  const nextClassListEl    = document.getElementById("nextClassList");
+  let currentSelectedMap = {};
+  let nextSelectedMap = {};
 
-  // --- 現在のクラス: 追加 ---
-  document.getElementById('addCurrentClassBtn').addEventListener('click', () => {
-    const dropdown = document.getElementById('currentClassDropdown');
-    const selectedClass = dropdown.value;
-    
-    // 重複チェック
-    if (currentClasses.includes(selectedClass)) {
-      alert("「" + selectedClass + "」はすでに追加されています。");
-      return;
-    }
-    // 追加して再描画
-    currentClasses.push(selectedClass);
-    renderCurrentList();
-  });
+  function buildKey(item) {
+    return `${item.name}|${item.day}|${item.time}|${item.court}`;
+  }
 
-  // --- 来期のクラス: 追加 ---
-  document.getElementById('addNextClassBtn').addEventListener('click', () => {
-    const dropdown = document.getElementById('nextClassDropdown');
-    const selectedClass = dropdown.value;
-    
-    // 重複チェック
-    if (nextClasses.includes(selectedClass)) {
-      alert("「" + selectedClass + "」はすでに追加されています。");
-      return;
-    }
-    // 追加して再描画
-    nextClasses.push(selectedClass);
-    renderNextList();
-  });
+  currentClassData.forEach(d => currentSelectedMap[buildKey(d)] = false);
+  nextClassData.forEach(d => nextSelectedMap[buildKey(d)] = false);
 
-  // 現在のクラス一覧を再描画
-  function renderCurrentList() {
-    currentClassListEl.innerHTML = "";
-    currentClasses.forEach((className, idx) => {
-      const li = document.createElement("li");
-      li.textContent = className;
+  const currentTableBody = document.querySelector("#currentClassTable tbody");
+  const nextTableBody    = document.querySelector("#nextClassTable tbody");
 
-      const removeBtn = document.createElement("button");
-      removeBtn.className = "btn btn-sm btn-danger remove-btn";
-      removeBtn.textContent = "削除";
-      removeBtn.addEventListener("click", () => {
-        currentClasses.splice(idx, 1);
-        renderCurrentList();
+  const currentDayFilter = document.getElementById("currentDayFilter");
+  const currentSelectedOnly = document.getElementById("currentSelectedOnly");
+  const currentSelectedCount = document.getElementById("currentSelectedCount");
+
+  const nextDayFilter   = document.getElementById("nextDayFilter");
+  const nextSelectedOnly = document.getElementById("nextSelectedOnly");
+  const nextSelectedCount = document.getElementById("nextSelectedCount");
+
+  function calcCurrentTotalSelected() {
+    return Object.values(currentSelectedMap).filter(v => v).length;
+  }
+  function calcNextTotalSelected() {
+    return Object.values(nextSelectedMap).filter(v => v).length;
+  }
+
+  function renderCurrentTable() {
+    currentTableBody.innerHTML = "";
+    const filterDay = currentDayFilter.value;
+    const onlySelected = currentSelectedOnly.checked;
+
+    currentClassData.forEach(item => {
+      const key = buildKey(item);
+      const isChecked = currentSelectedMap[key];
+
+      if (filterDay && item.day !== filterDay) return;
+      if (onlySelected && !isChecked) return;
+
+      const tr = document.createElement("tr");
+      const tdCheck = document.createElement("td");
+      tdCheck.className = "checkbox-column";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = isChecked;
+      chk.addEventListener("change", () => {
+        currentSelectedMap[key] = chk.checked;
+        updateCurrentCount(); 
+        renderCurrentTable();
       });
+      tdCheck.appendChild(chk);
+      tr.appendChild(tdCheck);
 
-      li.appendChild(removeBtn);
-      currentClassListEl.appendChild(li);
+      ["name","day","time","court"].forEach(prop => {
+        const td = document.createElement("td");
+        td.textContent = item[prop];
+        tr.appendChild(td);
+      });
+      currentTableBody.appendChild(tr);
     });
   }
 
-  // 来期のクラス一覧を再描画
-  function renderNextList() {
-    nextClassListEl.innerHTML = "";
-    nextClasses.forEach((className, idx) => {
-      const li = document.createElement("li");
-      li.textContent = className;
+  function renderNextTable() {
+    nextTableBody.innerHTML = "";
+    const filterDay = nextDayFilter.value;
+    const onlySelected = nextSelectedOnly.checked;
 
-      const removeBtn = document.createElement("button");
-      removeBtn.className = "btn btn-sm btn-danger remove-btn";
-      removeBtn.textContent = "削除";
-      removeBtn.addEventListener("click", () => {
-        nextClasses.splice(idx, 1);
-        renderNextList();
+    nextClassData.forEach(item => {
+      const key = buildKey(item);
+      const isChecked = nextSelectedMap[key];
+
+      if (filterDay && item.day !== filterDay) return;
+      if (onlySelected && !isChecked) return;
+
+      const tr = document.createElement("tr");
+      const tdCheck = document.createElement("td");
+      tdCheck.className = "checkbox-column";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = isChecked;
+      chk.addEventListener("change", () => {
+        nextSelectedMap[key] = chk.checked;
+        updateNextCount();
+        renderNextTable();
       });
+      tdCheck.appendChild(chk);
+      tr.appendChild(tdCheck);
 
-      li.appendChild(removeBtn);
-      nextClassListEl.appendChild(li);
+      ["name","day","time","court"].forEach(prop => {
+        const td = document.createElement("td");
+        td.textContent = item[prop];
+        tr.appendChild(td);
+      });
+      nextTableBody.appendChild(tr);
     });
   }
 
-  // 保存ボタン
+  function updateCurrentCount() {
+    const total = calcCurrentTotalSelected();
+    currentSelectedCount.textContent = `総選択件数: ${total}件`;
+  }
+  function updateNextCount() {
+    const total = calcNextTotalSelected();
+    nextSelectedCount.textContent = `総選択件数: ${total}件`;
+  }
+
+  currentDayFilter.addEventListener("change", renderCurrentTable);
+  currentSelectedOnly.addEventListener("change", renderCurrentTable);
+  nextDayFilter.addEventListener("change", renderNextTable);
+  nextSelectedOnly.addEventListener("change", renderNextTable);
+
   function saveSettings() {
-    // 現在のレベルと来期のレベルを取得
-    const currentLevelVal = document.getElementById("currentLevel").value;
-    const nextLevelVal    = document.getElementById("nextLevel").value;
+    const currentLevel = document.getElementById("currentLevel").value;
+    const currentCourse = document.getElementById("currentCourse").value;
+    const nextLevel = document.getElementById("nextLevel").value;
+    const nextCourse = document.getElementById("nextCourse").value;
 
-    console.log("[現在のレベル]", currentLevelVal);
-    console.log("[現在のクラス]", currentClasses);
-    console.log("[来期のレベル]", nextLevelVal);
-    console.log("[来期のクラス]", nextClasses);
+    const currentSelected = Object.entries(currentSelectedMap)
+      .filter(([_, val]) => val)
+      .map(([k]) => k);
+    const nextSelected = Object.entries(nextSelectedMap)
+      .filter(([_, val]) => val)
+      .map(([k]) => k);
 
-    alert("設定を保存しました。\n\n" +
-          "【現在】\n" +
-          "レベル: " + currentLevelVal + "\n" +
-          "クラス: " + (currentClasses.length ? currentClasses.join(", ") : "（なし）") + "\n\n" +
-          "【来期】\n" +
-          "レベル: " + nextLevelVal + "\n" +
-          "クラス: " + (nextClasses.length ? nextClasses.join(", ") : "（なし）"));
+    alert(
+      "設定を保存しました。\n\n" +
+      "【現在】\n" +
+      "レベル: " + currentLevel + "\n" +
+      "コース: " + currentCourse + "\n" +
+      "クラス: " + (currentSelected.length ? currentSelected.join(", ") : "（なし）") + "\n\n" +
+      "【来期】\n" +
+      "レベル: " + nextLevel + "\n" +
+      "コース: " + nextCourse + "\n" +
+      "クラス: " + (nextSelected.length ? nextSelected.join(", ") : "（なし）")
+    );
   }
+  window.saveSettings = saveSettings;
 
-  // ページ読み込み時にリストを描画
-  renderCurrentList();
-  renderNextList();
+  function init() {
+    renderCurrentTable();
+    updateCurrentCount();
+    renderNextTable();
+    updateNextCount();
+  }
+  init();
 </script>
 </body>
 </html>
