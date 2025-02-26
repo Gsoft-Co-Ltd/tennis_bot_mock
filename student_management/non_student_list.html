@@ -251,7 +251,7 @@
           <th style="width:15%" class="sortable" onclick="handleSort(0)">
             登録日時
           </th>
-          <!-- 体験日時 (sortable) -->
+          <!-- 予約日時 (sortable) -->
           <th style="width:15%" class="sortable" onclick="handleSort(1)">
             予約日時
           </th>
@@ -345,6 +345,29 @@
             <span id="detailRecentReservation" class="detail-value"></span>
           </div>
         </div>
+
+        <!-- ▼▼▼ ここにレッスンイベントIDと予約ボタン類を追加 ▼▼▼ -->
+        <div class="card p-3" style="border: 1px solid #e2e8f0;">
+          <div class="mb-2">
+            <label for="lessonEventIdInput" class="form-label fw-bold">レッスンイベントID</label>
+            <input
+              type="text"
+              id="lessonEventIdInput"
+              class="form-control"
+              placeholder="レッスンイベントIDを入力してください"
+            />
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="handleTrialBooking()">
+              体験予約
+            </button>
+            <button type="button" class="btn btn-success" onclick="handleBooking()">
+              予約
+            </button>
+          </div>
+        </div>
+        <!-- ▲▲▲ 追加部分終了 ▲▲▲ -->
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
@@ -641,6 +664,9 @@
     document.getElementById("detailHardTennisExp").textContent = person.hardTennisExp ?? "";
     document.getElementById("detailRecentReservation").textContent = person.recentReservation ?? "";
 
+    // レッスンイベントIDの入力欄はクリアしておく
+    document.getElementById("lessonEventIdInput").value = "";
+
     // モーダル表示
     const modal = new bootstrap.Modal(document.getElementById("visitorDetailModal"));
     modal.show();
@@ -702,13 +728,6 @@
   });
 
   /* --------------------------------
-     初期表示
-  -------------------------------- */
-  window.onload = () => {
-    renderTable();
-  };
-
-  /* --------------------------------
      企業スクール選択ボタン(モック)
   -------------------------------- */
   document.getElementById("selectButton").addEventListener("click", () => {
@@ -720,6 +739,36 @@
     }
     alert(`企業: ${companyValue}\nスクール: ${schoolValue}\nが選択されました(モック)。`);
   });
+
+  /* --------------------------------
+     体験予約ボタン / 予約ボタン(モック)
+  -------------------------------- */
+  function handleTrialBooking() {
+    const lessonEventId = document.getElementById("lessonEventIdInput").value;
+    if(!lessonEventId.trim()){
+      alert("レッスンイベントIDを入力してください。");
+      return;
+    }
+    // 実際にはAPI呼び出し等で処理
+    alert(`[体験予約] レッスン・イベントID: ${lessonEventId}`);
+  }
+
+  function handleBooking() {
+    const lessonEventId = document.getElementById("lessonEventIdInput").value;
+    if(!lessonEventId.trim()){
+      alert("レッスンイベントIDを入力してください。");
+      return;
+    }
+    // 実際にはAPI呼び出し等で処理
+    alert(`[予約] レッスンイベントID: ${lessonEventId}`);
+  }
+
+  /* --------------------------------
+     初期表示
+  -------------------------------- */
+  window.onload = () => {
+    renderTable();
+  };
 </script>
 </body>
 </html>
