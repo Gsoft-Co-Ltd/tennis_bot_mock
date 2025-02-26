@@ -286,6 +286,7 @@
     { name: "初級N1",  day: "日曜", time: "17:00-18:30", court: "コート4" }
   ];
 
+  // 現在・来期ともにクラス選択状態を管理するマップ
   let currentSelectedMap = {};
   let nextSelectedMap = {};
 
@@ -293,7 +294,7 @@
     return `${item.name}|${item.day}|${item.time}|${item.court}`;
   }
 
-  // 全部falseで初期化
+  // とりあえず全クラスを false で初期化
   currentClassData.forEach(d => currentSelectedMap[buildKey(d)] = false);
   nextClassData.forEach(d => nextSelectedMap[buildKey(d)] = false);
 
@@ -315,6 +316,7 @@
     return Object.values(nextSelectedMap).filter(v => v).length;
   }
 
+  // ▼▼▼ 今期テーブル描画 ▼▼▼
   function renderCurrentTable() {
     currentTableBody.innerHTML = "";
     const filterDay = currentDayFilter.value;
@@ -322,46 +324,59 @@
 
     currentClassData.forEach(item => {
       const key = buildKey(item);
-      const isChecked = currentSelectedMap[key];
+      const isSelected = currentSelectedMap[key];
 
+      // 絞り込み
       if (filterDay && item.day !== filterDay) return;
-      if (onlySelected && !isChecked) return;
+      if (onlySelected && !isSelected) return;
 
       const tr = document.createElement("tr");
 
-      // チェックボックス（リードオンリー）
+      // チェックボックス（読取専用）
       const tdCheck = document.createElement("td");
       tdCheck.className = "checkbox-column";
 
       const chk = document.createElement("input");
       chk.type = "checkbox";
-      chk.checked = isChecked;
-      // リードオンリー = disabledにして編集不可にする
-      chk.disabled = true;
+      chk.checked = isSelected;
+      chk.disabled = true; // リードオンリー
       tdCheck.appendChild(chk);
       tr.appendChild(tdCheck);
 
+      // クラス情報
       ["name","day","time","court"].forEach(prop => {
         const td = document.createElement("td");
         td.textContent = item[prop];
         tr.appendChild(td);
       });
 
-      // 操作ボタン（削除）
+      // 操作ボタン
       const tdOperation = document.createElement("td");
-      const btnDelete = document.createElement("button");
-      btnDelete.className = "btn btn-sm btn-danger";
-      btnDelete.textContent = "削除";
-      btnDelete.addEventListener("click", () => {
-        deleteOneClass(item);
-      });
-      tdOperation.appendChild(btnDelete);
+      const btn = document.createElement("button");
+      btn.className = "btn btn-sm";
+      if (isSelected) {
+        // すでに選択済み => 「削除」ボタン
+        btn.classList.add("btn-danger");
+        btn.textContent = "削除";
+        btn.addEventListener("click", () => {
+          toggleCurrentClass(item, false);
+        });
+      } else {
+        // 未選択 => 「追加」ボタン
+        btn.classList.add("btn-success");
+        btn.textContent = "追加";
+        btn.addEventListener("click", () => {
+          toggleCurrentClass(item, true);
+        });
+      }
+      tdOperation.appendChild(btn);
       tr.appendChild(tdOperation);
 
       currentTableBody.appendChild(tr);
     });
   }
 
+  // ▼▼▼ 来期テーブル描画 ▼▼▼
   function renderNextTable() {
     nextTableBody.innerHTML = "";
     const filterDay = nextDayFilter.value;
@@ -369,46 +384,100 @@
 
     nextClassData.forEach(item => {
       const key = buildKey(item);
-      const isChecked = nextSelectedMap[key];
+      const isSelected = nextSelectedMap[key];
 
+      // 絞り込み
       if (filterDay && item.day !== filterDay) return;
-      if (onlySelected && !isChecked) return;
+      if (onlySelected && !isSelected) return;
 
       const tr = document.createElement("tr");
 
-      // チェックボックス（リードオンリー）
+      // チェックボックス（読取専用）
       const tdCheck = document.createElement("td");
       tdCheck.className = "checkbox-column";
 
       const chk = document.createElement("input");
       chk.type = "checkbox";
-      chk.checked = isChecked;
-      // リードオンリー
-      chk.disabled = true;
+      chk.checked = isSelected;
+      chk.disabled = true; // リードオンリー
       tdCheck.appendChild(chk);
       tr.appendChild(tdCheck);
 
+      // クラス情報
       ["name","day","time","court"].forEach(prop => {
         const td = document.createElement("td");
         td.textContent = item[prop];
         tr.appendChild(td);
       });
 
-      // 操作ボタン（追加）
+      // 操作ボタン
       const tdOperation = document.createElement("td");
-      const btnAdd = document.createElement("button");
-      btnAdd.className = "btn btn-sm btn-success";
-      btnAdd.textContent = "追加";
-      btnAdd.addEventListener("click", () => {
-        addOneClass(item);
-      });
-      tdOperation.appendChild(btnAdd);
+      const btn = document.createElement("button");
+      btn.className = "btn btn-sm";
+      if (isSelected) {
+        // すでに選択済み => 「削除」ボタン
+        btn.classList.add("btn-danger");
+        btn.textContent = "削除";
+        btn.addEventListener("click", () => {
+          toggleNextClass(item, false);
+        });
+      } else {
+        // 未選択 => 「追加」ボタン
+        btn.classList.add("btn-success");
+        btn.textContent = "追加";
+        btn.addEventListener("click", () => {
+          toggleNextClass(item, true);
+        });
+      }
+      tdOperation.appendChild(btn);
       tr.appendChild(tdOperation);
 
       nextTableBody.appendChild(tr);
     });
   }
 
+  // 今期の選択状態を切り替える
+  function toggleCurrentClass(item, shouldSelect) {
+    const key = buildKey(item);
+    currentSelectedMap[key] = shouldSelect;
+
+    // 選択切り替えのたびにAPI呼び出し想定
+    if (shouldSelect) {
+      // 追加API (今期)
+      alert("[今期クラス追加API 呼び出し]\n" + key);
+    } else {
+      // 削除API (今期)
+      alert("[今期クラス削除API 呼び出し]\n" + key);
+    }
+
+    renderCurrentTable();
+    updateCurrentCount();
+  }
+
+  // 来期の選択状態を切り替える
+  function toggleNextClass(item, shouldSelect) {
+    const key = buildKey(item);
+    nextSelectedMap[key] = shouldSelect;
+
+    if (shouldSelect) {
+      // 追加API (来期)
+      alert("[来期クラス追加API 呼び出し]\n" + key);
+    } else {
+      // 削除API (来期)
+      alert("[来期クラス削除API 呼び出し]\n" + key);
+    }
+
+    renderNextTable();
+    updateNextCount();
+  }
+
+  // イベントリスナー
+  currentDayFilter.addEventListener("change", renderCurrentTable);
+  currentSelectedOnly.addEventListener("change", renderCurrentTable);
+  nextDayFilter.addEventListener("change", renderNextTable);
+  nextSelectedOnly.addEventListener("change", renderNextTable);
+
+  // 件数更新
   function updateCurrentCount() {
     const total = calcCurrentTotalSelected();
     currentSelectedCount.textContent = `総選択件数: ${total}件`;
@@ -418,17 +487,12 @@
     nextSelectedCount.textContent = `総選択件数: ${total}件`;
   }
 
-  currentDayFilter.addEventListener("change", renderCurrentTable);
-  currentSelectedOnly.addEventListener("change", renderCurrentTable);
-  nextDayFilter.addEventListener("change", renderNextTable);
-  nextSelectedOnly.addEventListener("change", renderNextTable);
-
   // 今期のレベル・コース更新
   function updateCurrentLevelCourse() {
     const currentLevel = document.getElementById("currentLevel").value;
     const currentCourse = document.getElementById("currentCourse").value;
 
-    // 今期用のレベル・コース更新APIを呼ぶイメージ
+    // ここで今期レベル・コース更新API呼び出しの想定
     alert(
       "[今期レベル・コース更新API]\n\n" +
       "レベル: " + currentLevel + "\n" +
@@ -441,36 +505,12 @@
     const nextLevel = document.getElementById("nextLevel").value;
     const nextCourse = document.getElementById("nextCourse").value;
 
-    // 来期用のレベル・コース更新APIを呼ぶイメージ
+    // ここで来期レベル・コース更新API呼び出しの想定
     alert(
       "[来期レベル・コース更新API]\n\n" +
       "レベル: " + nextLevel + "\n" +
       "コース: " + nextCourse
     );
-  }
-
-  // クラス削除（現在）
-  function deleteOneClass(item) {
-    const key = buildKey(item);
-    // ここで削除APIを呼ぶイメージ
-    alert("[クラス削除API 呼び出し]\n" + "クラス: " + key);
-
-    // フラグだけ false にして再描画＆カウント更新
-    currentSelectedMap[key] = false;
-    renderCurrentTable();
-    updateCurrentCount();
-  }
-
-  // クラス追加（来期）
-  function addOneClass(item) {
-    const key = buildKey(item);
-    // ここで追加APIを呼ぶイメージ
-    alert("[クラス追加API 呼び出し]\n" + "クラス: " + key);
-
-    // フラグを true にして再描画＆カウント更新
-    nextSelectedMap[key] = true;
-    renderNextTable();
-    updateNextCount();
   }
 
   function init() {
