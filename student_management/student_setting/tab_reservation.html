@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>レッスン＋チケット管理 (編集ボタン=黄, 保存ボタン=緑)</title>
+
+  <!-- タイトルは不要とのことなので削除 -->
 
   <!-- Bootstrap CSS -->
   <link
@@ -12,183 +13,294 @@
   />
 
   <style>
+    /* ◆◆ 「申し送り・会員メモ統合」画面と統一感を持たせたベーススタイル ◆◆ */
     body {
-      background-color: #f9f9f9;
       font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
       padding: 20px;
+      background-color: #ffffff;
     }
 
     h5 {
-      font-size: 1.5rem;
-      color: #333;
-      font-weight: bold;
+      font-size: 1rem; 
+      margin-bottom: 8px;
     }
 
-    p {
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #007bff;
-      margin-bottom: 10px;
-    }
-
+    /* テーブル部分のデザイン */
     .table {
+      font-size: 14px;
       background-color: #fff;
       border-collapse: collapse;
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
       margin-bottom: 20px;
     }
-
     .table th {
       background-color: #f0f0f0;
       font-weight: bold;
       color: #555;
-    }
-
-    .table td,
-    .table th {
-      padding: 10px;
+      padding: 8px;
       text-align: center;
     }
-
+    .table td {
+      padding: 8px;
+      text-align: center;
+    }
     .table-bordered {
       border: 1px solid #ddd;
     }
-
-    .table-bordered th,
-    .table-bordered td {
+    .table-bordered th, .table-bordered td {
       border: 1px solid #ddd;
     }
 
-    /* ▼ レッスン状態ごとに色を変えるクラス ▼ */
-    .status-reserved {
-      color: #007bff; /* 青 */
-      font-weight: bold;
+    /* ボタンなどのサイズ感 */
+    .btn {
+      font-size: 0.85rem;
+      padding: 4px 8px;
     }
-    .status-attended {
-      color: #28a745; /* 緑 */
-      font-weight: bold;
-    }
-    .status-reschedule {
-      color: #ffc107; /* 黄色 */
-      font-weight: bold;
-    }
-    .status-absent {
-      color: #dc3545; /* 赤 */
-      font-weight: bold;
+    .form-select-sm, .form-control-sm {
+      font-size: 0.85rem;
+      padding: 4px 8px;
     }
 
-    /* フィルタ欄 */
-    .filter-section {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
+    /* ▼ 予約ステータスのバッジ */
+    .badge-status {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: bold;
+      min-width: 70px;
+      font-size: 0.75rem;
+    }
+    /* レギュラー、予約、振替、欠席予約、欠席、無断欠席、中止、出席 */
+    .status-regular {
+      background-color: #17a2b8; /* 例: Teal系 */
+      color: #fff;
+    }
+    .status-reserved {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .status-substitute {
+      background-color: #ffc107;
+      color: #000;
+    }
+    .status-absence-reserved {
+      background-color: #fd7e14; /* オレンジ系 */
+      color: #fff;
+    }
+    .status-absence {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .status-no-show {
+      background-color: #343a40; /* 無断欠席を濃いグレーに */
+      color: #fff;
+    }
+    .status-cancelled {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    .status-completed {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    /* ▼ スクロールエリアの設定 */
+    .scroll-area {
+      max-height: 400px; /* 必要に応じて調整 */
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <!-- ▼ 年月フィルタ欄（レッスンのみ適用） ▼ -->
-  <div class="filter-section">
-    <label for="yearMonthSelect" class="form-label mb-0">表示する年月</label>
-    <select id="yearMonthSelect" class="form-select form-select-sm" style="width:auto;">
-      <option value="">すべて表示</option>
-      <option value="2024-11">2024年11月</option>
-      <option value="2024-12">2024年12月</option>
-      <option value="2025-01">2025年1月</option>
-    </select>
-  </div>
+  <!-- ▼ 予約一覧 + フィルタ + レッスンID入力 を1つのコンテナにまとめ、スクロール可にする -->
+  <div class="scroll-area">
+        <h5 class="mb-2">予約一覧</h5>
+    <!-- フィルタ + 新規予約ID入力フォーム -->
+    <div class="d-flex flex-wrap align-items-center mb-2" style="gap: 10px;">
+      <div class="d-flex align-items-center" style="gap: 5px;">
+        <label for="yearMonthSelect" class="form-label mb-0" style="font-size:0.9rem;">表示する年月</label>
+        <select id="yearMonthSelect" class="form-select form-select-sm" style="width:auto;">
+          <option value="">すべて</option>
+          <option value="2024-11">2024年11月</option>
+          <option value="2024-12">2024年12月</option>
+          <option value="2025-01">2025年1月</option>
+        </select>
+      </div>
 
-  <!-- ▼ レッスン一覧テーブル ▼ -->
-  <h6 class="section-title mt-4">現在の予約レッスン一覧</h6>
-  <table class="table table-bordered table-sm" id="lessonTable">
+      <div class="d-flex align-items-center" style="gap: 6px;">
+        <label for="lessonEventIdInput" class="form-label mb-0" style="font-size:0.9rem;">レッスン・イベントID</label>
+        <input type="text" id="lessonEventIdInput" class="form-control form-control-sm" style="width:150px;"/>
+        <button id="addReservationBtn" class="btn btn-primary">予約追加</button>
+        <button id="addSubstituteBtn" class="btn btn-warning">振替追加</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered table-sm">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>時間</th>
+          <th>クラス/イベント名</th>
+          <th>ステータス</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="reservationTableBody">
+        <!-- レギュラー -->
+        <tr data-yyyymm="2024-11" data-status="regular">
+          <td>2024-11-01</td>
+          <td>09:00-10:30</td>
+          <td>中級クラス</td>
+          <td>
+            <span class="badge-status status-regular">レギュラー</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn">出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+          </td>
+        </tr>
+
+        <!-- 予約 -->
+        <tr data-yyyymm="2024-11" data-status="reserved">
+          <td>2024-11-15</td>
+          <td>09:00-10:30</td>
+          <td>初級クラス</td>
+          <td>
+            <span class="badge-status status-reserved">予約</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn">出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+          </td>
+        </tr>
+
+        <!-- 振替 -->
+        <tr data-yyyymm="2024-12" data-status="substitute">
+          <td>2024-12-05</td>
+          <td>14:00-15:30</td>
+          <td>特別イベント</td>
+          <td>
+            <span class="badge-status status-substitute">振替</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn">出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+          </td>
+        </tr>
+
+        <!-- 欠席予約 -->
+        <tr data-yyyymm="2024-12" data-status="absence-reserved">
+          <td>2024-12-10</td>
+          <td>10:00-11:30</td>
+          <td>上級クラス</td>
+          <td>
+            <span class="badge-status status-absence-reserved">欠席予約</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn">出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+          </td>
+        </tr>
+
+        <!-- 欠席(ダミーデータ) -->
+        <tr data-yyyymm="2025-01" data-status="absence">
+          <td>2025-01-05</td>
+          <td>10:00-11:30</td>
+          <td>上級クラス</td>
+          <td>
+            <span class="badge-status status-absence">欠席</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn" disabled>出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn" disabled>欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn" disabled>中止</button>
+          </td>
+        </tr>
+
+        <!-- 無断欠席(ダミーデータ) -->
+        <tr data-yyyymm="2025-01" data-status="no-show">
+          <td>2025-01-08</td>
+          <td>09:00-10:30</td>
+          <td>特別クラス</td>
+          <td>
+            <span class="badge-status status-no-show">無断欠席</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn" disabled>出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn" disabled>欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn" disabled>中止</button>
+          </td>
+        </tr>
+
+        <!-- 中止(ダミーデータ) -->
+        <tr data-yyyymm="2025-01" data-status="cancelled">
+          <td>2025-01-12</td>
+          <td>09:00-10:30</td>
+          <td>初級クラス</td>
+          <td>
+            <span class="badge-status status-cancelled">中止</span>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm attendBtn" disabled>出席</button>
+            <button class="btn btn-warning btn-sm absenceBtn" disabled>欠席</button>
+            <button class="btn btn-danger btn-sm cancelBtn" disabled>中止</button>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div> <!-- /scroll-area(予約一覧まとめ) -->
+
+  <!-- ▼ レッスンチケット一覧 (状態カラム非表示：有効のみ想定) -->
+  <h5 class="mb-2">レッスンチケット一覧</h5>
+  <table class="table table-bordered table-sm" id="lessonTicketTable">
     <thead>
       <tr>
-        <th>日付</th>
-        <th>時間</th>
-        <th>クラス/レッスン名</th>
-        <th>状態</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- data-status で現在の状態を管理, data-editing で編集モードフラグ -->
-      <tr data-yyyymm="2024-11" data-status="予約" data-editing="false">
-        <td>2024-11-28</td>
-        <td>09:00-10:30</td>
-        <td>基礎クラス</td>
-        <td>
-          <span class="status-reserved">予約</span>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-warning editBtn">編集</button>
-        </td>
-      </tr>
-      <tr data-yyyymm="2024-12" data-status="振替" data-editing="false">
-        <td>2024-12-15</td>
-        <td>16:00-17:30</td>
-        <td>特別レッスン（バックハンド強化）</td>
-        <td>
-          <span class="status-reschedule">振替</span>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-warning editBtn">編集</button>
-        </td>
-      </tr>
-      <tr data-yyyymm="2024-12" data-status="欠席" data-editing="false">
-        <td>2024-12-18</td>
-        <td>14:00-15:30</td>
-        <td>初心者クラス</td>
-        <td>
-          <span class="status-absent">欠席</span>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-warning editBtn">編集</button>
-        </td>
-      </tr>
-      <tr data-yyyymm="2025-01" data-status="予約" data-editing="false">
-        <td>2025-01-05</td>
-        <td>10:00-11:30</td>
-        <td>上級クラス</td>
-        <td>
-          <span class="status-reserved">予約</span>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-warning editBtn">編集</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- ▼ 振替チケット一覧テーブル ▼ -->
-  <h6 class="section-title mt-4">振替一覧</h6>
-  <table class="table table-bordered table-sm" id="ticketTable">
-    <thead>
-      <tr>
-        <th>発生元</th>
+        <th>発行日</th>
         <th>有効期限</th>
         <th>操作</th>
       </tr>
     </thead>
     <tbody>
+      <!-- 有効(ダミーデータ) -->
       <tr>
-        <td>2024年11月20日（月）/14：00‐15：00/中級        </td>
-        <td>2025-02-20</td>
+        <td>2024-09-01</td>
+        <td>2025-02-01</td>
         <td>
-          <button class="btn btn-sm btn-danger deleteTicketBtn">削除</button>
+          <button class="btn btn-danger btn-sm deleteTicketBtn">削除</button>
         </td>
       </tr>
+    </tbody>
+  </table>
+
+  <!-- ▼ 振替チケット一覧 (状態カラム非表示：有効のみ想定) -->
+  <h5 class="mb-2">振替チケット一覧</h5>
+  <table class="table table-bordered table-sm" id="subTicketTable">
+    <thead>
       <tr>
-        <td>2024年11月26日（日）/15：00‐16：00/中級        </td>
-        <td>2025-03-05</td>
+        <th>発生元レッスン</th>
+        <th>有効期限</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 有効(ダミーデータ) -->
+      <tr>
+        <td>2024-11-10 / 14:00-15:30 / 中級</td>
+        <td>2025-02-10</td>
         <td>
-          <button class="btn btn-sm btn-danger deleteTicketBtn">削除</button>
+          <button class="btn btn-danger btn-sm deleteSubTicketBtn">削除</button>
         </td>
       </tr>
     </tbody>
@@ -197,115 +309,207 @@
   <!-- Bootstrap JS & スクリプト -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    /************************************************************
-     * 1. 年月フィルタ (レッスンのみ対象)
-     ************************************************************/
-    const yearMonthSelect = document.getElementById('yearMonthSelect');
-    const lessonRows = document.querySelectorAll('#lessonTable tbody tr');
+    /****************************************************************
+     * 簡易的なJavaScript
+     ****************************************************************/
+    const yearMonthSelect    = document.getElementById('yearMonthSelect');
+    const reservationTableBody = document.getElementById('reservationTableBody');
+    const addReservationBtn  = document.getElementById('addReservationBtn');
+    const addSubstituteBtn   = document.getElementById('addSubstituteBtn');
+    const lessonEventIdInput = document.getElementById('lessonEventIdInput');
+    const issueTicketBtn     = document.getElementById('issueTicketBtn');
 
+    // ============== 1) 年月フィルタ ==============
     yearMonthSelect.addEventListener('change', () => {
-      const selectedYM = yearMonthSelect.value;
-      if (!selectedYM) {
-        // 未選択ならすべて表示
-        lessonRows.forEach(row => row.style.display = '');
-      } else {
-        lessonRows.forEach(row => {
-          row.style.display = (row.dataset.yyyymm === selectedYM) ? '' : 'none';
-        });
-      }
+      const selectedYM = yearMonthSelect.value; 
+      const rows = reservationTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const rowYM = row.getAttribute('data-yyyymm'); 
+        if (!selectedYM) {
+          // 全表示
+          row.style.display = '';
+        } else {
+          row.style.display = (rowYM === selectedYM) ? '' : 'none';
+        }
+      });
     });
-
-    // 初期表示
+    // 初期フィルタ適用
     (function initFilter(){
       yearMonthSelect.dispatchEvent(new Event('change'));
     })();
 
+    // ============== 2) 出席/欠席/中止 ボタンクリック処理 ==============
+    function setupReservationRow(row) {
+      const attendBtn = row.querySelector('.attendBtn');
+      const absenceBtn = row.querySelector('.absenceBtn');
+      const cancelBtn = row.querySelector('.cancelBtn');
+      const statusSpan = row.querySelector('.badge-status');
 
-    /************************************************************
-     * 2. レッスン一覧: 編集(黄) -> 保存(緑) のトグル
-     ************************************************************/
-    document.querySelectorAll('.editBtn').forEach(button => {
-      button.addEventListener('click', () => {
-        const row = button.closest('tr');
-        const editing = row.dataset.editing === 'true';
-        const statusCell = row.cells[5]; // レッスン状態セル (0,1,2,3,4,5,6)
-        const spanEl = statusCell.querySelector('span');
-        const currentStatus = row.dataset.status;
+      if (attendBtn) {
+        attendBtn.addEventListener('click', () => {
+          if (!confirm('この予約を「出席」にしますか？')) return;
+          // TODO: サーバーAPI呼び出しで "completed" 更新
+          row.dataset.status = 'completed';
+          statusSpan.textContent = '出席';
+          statusSpan.className = 'badge-status status-completed';
+          attendBtn.disabled = true;
+          absenceBtn.disabled = true;
+          cancelBtn.disabled = true;
+        });
+      }
 
-        if (!editing) {
-          // ▼ 編集モードへ
-          row.dataset.editing = 'true';
-          button.textContent = '保存';
-          button.classList.remove('btn-warning');
-          button.classList.add('btn-success');
+      if (absenceBtn) {
+        absenceBtn.addEventListener('click', () => {
+          if (!confirm('この予約を「欠席」にしますか？')) return;
+          // TODO: サーバーAPI呼び出しで "absence" 更新
+          row.dataset.status = 'absence';
+          statusSpan.textContent = '欠席';
+          statusSpan.className = 'badge-status status-absence';
+          attendBtn.disabled = true;
+          absenceBtn.disabled = true;
+          cancelBtn.disabled = true;
+        });
+      }
 
-          // <span>を非表示
-          spanEl.style.display = 'none';
-
-          // <select>を生成し、現在の状態をプリセット
-          const selectEl = document.createElement('select');
-          selectEl.classList.add('form-select','form-select-sm');
-          ['予約','出席','振替','欠席'].forEach(optVal => {
-            const optionEl = document.createElement('option');
-            optionEl.value = optVal;
-            optionEl.textContent = optVal;
-            if (optVal === currentStatus) {
-              optionEl.selected = true;
-            }
-            selectEl.appendChild(optionEl);
-          });
-          statusCell.appendChild(selectEl);
-
-        } else {
-          // ▼ 保存モードへ
-          row.dataset.editing = 'false';
-          button.textContent = '編集';
-          button.classList.remove('btn-success');
-          button.classList.add('btn-warning');
-
-          const selectEl = statusCell.querySelector('select');
-          const newStatus = selectEl.value;
-          selectEl.remove();
-
-          // data-status 更新
-          row.dataset.status = newStatus;
-
-          // <span>のテキストと色クラスを更新して再表示
-          spanEl.textContent = newStatus;
-          spanEl.style.display = '';
-          updateLessonStatusColor(spanEl, newStatus);
-        }
-      });
-    });
-
-    // レッスン状態の色クラス更新
-    function updateLessonStatusColor(spanEl, value) {
-      spanEl.classList.remove(
-        'status-reserved',
-        'status-attended',
-        'status-reschedule',
-        'status-absent'
-      );
-      if (value === '予約') {
-        spanEl.classList.add('status-reserved');
-      } else if (value === '出席') {
-        spanEl.classList.add('status-attended');
-      } else if (value === '振替') {
-        spanEl.classList.add('status-reschedule'); // 振替=黄色
-      } else if (value === '欠席') {
-        spanEl.classList.add('status-absent');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          if (!confirm('この予約を「中止」にしますか？')) return;
+          // TODO: サーバーAPI呼び出しで "cancelled" 更新
+          row.dataset.status = 'cancelled';
+          statusSpan.textContent = '中止';
+          statusSpan.className = 'badge-status status-cancelled';
+          attendBtn.disabled = true;
+          absenceBtn.disabled = true;
+          cancelBtn.disabled = true;
+        });
       }
     }
 
+    // 既存行に対して設定
+    reservationTableBody.querySelectorAll('tr').forEach(tr => {
+      setupReservationRow(tr);
+    });
 
-    /************************************************************
-     * 3. 振替チケット一覧: 削除ボタン
-     ************************************************************/
+    // ============== 3) 新規予約追加（レッスン・イベントID入力） ==============
+    addReservationBtn.addEventListener('click', (e) => {
+      e.preventDefault();  // フォームsubmit防止
+      const lessonEventIdVal = lessonEventIdInput.value.trim();
+      if (!lessonEventIdVal) {
+        alert('レッスン・イベントIDを入力してください。');
+        return;
+      }
+      // ダミー実装
+      const mockDate = '2025-01-15';
+      const mockTimeStart = '10:00';
+      const mockTimeEnd = '11:00';
+
+      const newTr = document.createElement('tr');
+      const yyyymm = mockDate.slice(0, 7);
+      newTr.setAttribute('data-yyyymm', yyyymm);
+      newTr.setAttribute('data-status', 'reserved'); // とりあえず「予約」
+
+      newTr.innerHTML = `
+        <td>${mockDate}</td>
+        <td>${mockTimeStart} - ${mockTimeEnd}</td>
+        <td>ID:${lessonEventIdVal}</td>
+        <td>
+          <span class="badge-status status-reserved">予約</span>
+        </td>
+        <td>
+          <button class="btn btn-success btn-sm attendBtn">出席</button>
+          <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+          <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+        </td>
+      `;
+      reservationTableBody.appendChild(newTr);
+
+      // イベントセット & フィルタ再適用
+      setupReservationRow(newTr);
+      yearMonthSelect.dispatchEvent(new Event('change'));
+
+      // 入力欄クリア
+      lessonEventIdInput.value = '';
+    });
+
+    // ============== 3.1) 振替追加（レッスン・イベントID入力） ==============
+    addSubstituteBtn.addEventListener('click', (e) => {
+      e.preventDefault();  // フォームsubmit防止
+      const lessonEventIdVal = lessonEventIdInput.value.trim();
+      if (!lessonEventIdVal) {
+        alert('振替にするレッスン・イベントIDを入力してください。');
+        return;
+      }
+      // ダミー実装
+      const mockDate = '2025-02-01';
+      const mockTimeStart = '13:00';
+      const mockTimeEnd = '14:00';
+
+      const newTr = document.createElement('tr');
+      const yyyymm = mockDate.slice(0, 7);
+      newTr.setAttribute('data-status', 'substitute'); // 振替
+      newTr.setAttribute('data-yyyymm', yyyymm);
+
+      newTr.innerHTML = `
+        <td>${mockDate}</td>
+        <td>${mockTimeStart} - ${mockTimeEnd}</td>
+        <td>ID:${lessonEventIdVal}</td>
+        <td>
+          <span class="badge-status status-substitute">振替</span>
+        </td>
+        <td>
+          <button class="btn btn-success btn-sm attendBtn">出席</button>
+          <button class="btn btn-warning btn-sm absenceBtn">欠席</button>
+          <button class="btn btn-danger btn-sm cancelBtn">中止</button>
+        </td>
+      `;
+      reservationTableBody.appendChild(newTr);
+
+      // イベントセット & フィルタ再適用
+      setupReservationRow(newTr);
+      yearMonthSelect.dispatchEvent(new Event('change'));
+
+      // 入力欄クリア
+      lessonEventIdInput.value = '';
+    });
+
+    // ============== 4) レッスンチケット(回数券) 発行 & 削除 ==============
+    issueTicketBtn.addEventListener('click', () => {
+      // ダミー実装
+      alert('チケットを発行（モック）');
+      const tBody = document.querySelector('#lessonTicketTable tbody');
+      const newRow = document.createElement('tr');
+
+      // 有効チケットのみ想定（状態カラムは非表示）
+      const nowDate = new Date().toISOString().slice(0, 10);
+      newRow.innerHTML = `
+        <td>${nowDate}</td>
+        <td>2025-12-31</td>
+        <td>
+          <button class="btn btn-danger btn-sm deleteTicketBtn">削除</button>
+        </td>
+      `;
+      tBody.appendChild(newRow);
+
+      // 削除ボタン
+      newRow.querySelector('.deleteTicketBtn').addEventListener('click', () => {
+        if (!confirm('このチケットを削除しますか？')) return;
+        newRow.remove();
+      });
+    });
+
+    // 既存のチケット削除ボタン(常に押せる)
     document.querySelectorAll('.deleteTicketBtn').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!confirm('このチケットを削除しますか？')) return;
-        const row = btn.closest('tr');
-        row.remove();
+        btn.closest('tr').remove();
+      });
+    });
+
+    // 振替チケット削除
+    document.querySelectorAll('.deleteSubTicketBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(!confirm('この振替チケットを削除しますか？')) return;
+        btn.closest('tr').remove();
       });
     });
   </script>
