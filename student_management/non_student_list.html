@@ -317,11 +317,7 @@
             <span id="detailPhone" class="detail-value"></span>
           </div>
           <div class="visitor-detail-row">
-            <span class="detail-label">メールアドレス:</span>
-            <span id="detailEmail" class="detail-value"></span>
-          </div>
-          <div class="visitor-detail-row">
-            <span class="detail-label">加入日:</span>
+            <span class="detail-label">登録日:</span>
             <span id="detailJoinDate" class="detail-value"></span>
           </div>
           <div class="visitor-detail-row">
@@ -405,13 +401,12 @@
       postalCode:"100-0001",
       address:"東京都千代田区1-2-3",
       phone:"090-1111-2222",
-      email:"tarou@example.com",
       joinDate:"2024/01/10 15:22",
       guardianName:"",
       guardianPhone:"",
       softTennisExp:1,
       hardTennisExp:2,
-      recentReservation:"2024/02/01 10:00(体験)",
+      recentReservation:"2024/02/01 10:00",
       registerAt:"2024/01/10 15:22",
       trialAt:"2024/02/01 10:00"
     },
@@ -425,13 +420,12 @@
       postalCode:"100-0002",
       address:"東京都千代田区2-3-4",
       phone:"080-1234-5678",
-      email:"hanako@example.com",
       joinDate:"2024/02/15 10:00",
       guardianName:"佐藤 太郎",
       guardianPhone:"080-9999-8888",
       softTennisExp:0,
       hardTennisExp:3,
-      recentReservation:"2024/02/20 09:30(体験)",
+      recentReservation:"2024/02/20 09:30",
       registerAt:"2024/02/15 10:00",
       trialAt:"2024/02/20 09:30"
     },
@@ -445,17 +439,15 @@
       postalCode:"100-0010",
       address:"東京都千代田区三番町5-6-7",
       phone:"070-9999-8888",
-      email:"yuuko.suzuki@example.com",
       joinDate:"2024/02/20 09:45",
       guardianName:"",
       guardianPhone:"",
       softTennisExp:2,
       hardTennisExp:2,
-      recentReservation:"2024/03/01 11:00(体験)",
+      recentReservation:"2024/03/01 11:00",
       registerAt:"2024/02/20 09:45",
       trialAt:"2024/03/01 11:00"
     },
-    // ...以下、他の人も同様にデータを追加...
   ];
 
   // ページング関連
@@ -656,7 +648,6 @@
     document.getElementById("detailPostalCode").textContent = person.postalCode ?? "";
     document.getElementById("detailAddress").textContent = person.address ?? "";
     document.getElementById("detailPhone").textContent = person.phone ?? "";
-    document.getElementById("detailEmail").textContent = person.email ?? "";
     document.getElementById("detailJoinDate").textContent = person.joinDate ?? "";
     document.getElementById("detailGuardianName").textContent = person.guardianName ?? "";
     document.getElementById("detailGuardianPhone").textContent = person.guardianPhone ?? "";
