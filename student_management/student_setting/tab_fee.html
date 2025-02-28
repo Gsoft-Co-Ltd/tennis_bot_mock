@@ -3,151 +3,334 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>請求管理</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
-      background-color: #ffffff;
       font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
       padding: 20px;
+      background-color: #ffffff;
+    }
+    .table {
+      font-size: 14px;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #555;
+      padding: 8px;
+      text-align: center;
+    }
+    .table td {
+      padding: 8px;
+      text-align: center;
+    }
+    .table-bordered {
+      border: 1px solid #ddd;
+    }
+    .table-bordered th,
+    .table-bordered td {
+      border: 1px solid #ddd;
+    }
+    .btn {
+      font-size: 0.85rem;
+      padding: 4px 8px;
+    }
+    .form-select-sm,
+    .form-control-sm {
+      font-size: 0.85rem;
+      padding: 4px 8px;
     }
     .section-title {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #333;
       border-left: 4px solid #0d6efd;
       padding-left: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    .read-only-field {
-      padding: 8px 10px;
-      background-color: #eee;
+    .summary-box {
+      background-color: #f8f9fa;
       border-radius: 4px;
-      margin-bottom: 10px;
-    }
-    .options-discounts-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .checkbox-column {
-      flex: 1 1 200px;
-      min-width: 200px;
-    }
-    .checkbox-column h6 {
-      margin-bottom: 8px;
-    }
-    .form-check {
-      margin-bottom: 5px;
-    }
-    .table-container {
+      padding: 15px;
       margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
-
-<!-- 請求情報 -->
-<div class="section-title">請求情報</div>
-<div class="table-container">
-  <table class="table table-bordered">
-    <thead class="table-light">
-      <tr>
-        <th>項目</th>
-        <th>金額</th>
-        <th>割引</th>
-        <th>合計</th>
-        <th>アクション</th>
-      </tr>
-    </thead>
-    <tbody id="billingTable">
-      <tr>
-        <td>月額基本料金</td>
-        <td>10,000円</td>
-        <td>-</td>
-        <td>10,000円</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>振替手数料</td>
-        <td>500円</td>
-        <td>-</td>
-        <td>500円</td>
-        <td><button class="btn btn-danger btn-sm">削除</button></td>
-      </tr>
-      <tr>
-        <td>プラスワン予約手数料</td>
-        <td>1,500円</td>
-        <td>-</td>
-        <td>1,500円</td>
-        <td><button class="btn btn-danger btn-sm">削除</button></td>
-      </tr>
-      <tr>
-        <td>ロッカー利用料</td>
-        <td>2,000円</td>
-        <td>-</td>
-        <td>2,000円</td>
-        <td><button class="btn btn-danger btn-sm">削除</button></td>
-      </tr>
-    </tbody>
-  </table>
+<!-- ▼ 対象学期ラベル -->
+<div class="mb-3">
+  <span class="fw-bold" id="termLabel">対象学期：2025年 4期</span>
 </div>
+<div class="mb-3">
+  <span class="fw-bold text-danger" id="accountCheckLabel">現在、このスクール生は振替の適用外です。</span>
+</div>
+<!-- ▼ 基本料金 -->
+<div class="section-title">基本料金</div>
+<table class="table table-bordered table-sm align-middle">
+  <thead>
+    <tr>
+      <th>コース名</th>
+      <th>クラス数</th>
+      <th>フリークラス</th>
+      <th>料金(計)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="courseName"></td>
+      <td id="classCount"></td>
+      <td id="freeClassLabel"></td>
+      <td><span id="basicFeeAmount"></span> 円</td>
+    </tr>
+  </tbody>
+</table>
 
-<!-- 割引適用 -->
-<div class="section-title">割引適用</div>
-<form id="discountForm" onsubmit="return false;">
-  <div class="options-discounts-container">
-    <div class="checkbox-column">
-      <h6>割引</h6>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="discFamily" onclick="updateTotal()">
-        <label class="form-check-label" for="discFamily">家族割（-500円）</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="discMulti" onclick="updateTotal()">
-        <label class="form-check-label" for="discMulti">複数割（10%オフ）</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="discAge" onclick="updateTotal()">
-        <label class="form-check-label" for="discAge">シニア割（-800円）</label>
+<!-- ▼ オプション -->
+<div class="section-title">オプション</div>
+<div class="d-flex align-items-center mb-2" style="gap:8px;">
+  <select id="optionSelect" class="form-select form-select-sm" style="width:auto;"></select>
+  <button class="btn btn-primary btn-sm" onclick="addOption()">オプション追加</button>
+</div>
+<table class="table table-bordered table-sm align-middle" id="optionTable">
+  <thead>
+    <tr>
+      <th>オプション名</th>
+      <th>金額</th>
+      <th>削除</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- ▼ 割引 -->
+<div class="section-title">割引</div>
+<div class="d-flex align-items-center mb-2" style="gap:8px;">
+  <select id="discountSelect" class="form-select form-select-sm" style="width:auto;"></select>
+  <button class="btn btn-primary btn-sm" onclick="addDiscount()">割引追加</button>
+</div>
+<table class="table table-bordered table-sm align-middle" id="discountTable">
+  <thead>
+    <tr>
+      <th>割引名</th>
+      <th>タイプ</th>
+      <th>割引値</th>
+      <th>削除</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- ▼ 合計金額など -->
+<div class="summary-box">
+  <div class="row">
+    <div class="col-4 text-end fw-bold">小計</div>
+    <div class="col-8">
+      <input type="text" id="subTotal" class="form-control form-control-sm" readonly>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4 text-end fw-bold">定額割引合計</div>
+    <div class="col-8">
+      <input type="text" id="totalFixedDiscount" class="form-control form-control-sm" readonly>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4 text-end fw-bold">定率割引合計(%)</div>
+    <div class="col-8">
+      <input type="text" id="totalRateDiscount" class="form-control form-control-sm" readonly>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-4 text-end fw-bold">最終合計(税込)</div>
+    <div class="col-8">
+      <div class="input-group input-group-sm">
+        <input type="text" id="finalTotal" class="form-control" readonly>
+        <span class="input-group-text">円</span>
       </div>
     </div>
   </div>
-</form>
-
-<!-- 合計金額の表示 -->
-<div class="mt-3">
-  <label class="form-label">合計金額</label>
-  <div class="input-group" style="max-width:250px;">
-    <input type="text" id="totalAmount" class="form-control" readonly>
-    <span class="input-group-text">円 / 月</span>
-  </div>
-</div>
-
-<!-- アクションボタン -->
-<div class="mt-3">
-  <button class="btn btn-primary" onclick="saveBilling()">保存</button>
 </div>
 
 <script>
-  function updateTotal() {
-    let total = 10000 + 500 + 1500 + 2000;
-    let discount = 0;
-    let rate = 1.0;
+  // ----- ダミー初期データ -----
+  let courseName   = "平日昼コース";
+  let courseFee    = 10000;
+  let classCount   = 2;
+  let isFreeClass  = false; // trueならYes、falseならNo
 
-    if(document.getElementById('discFamily').checked) discount += 500;
-    if(document.getElementById('discMulti').checked) rate *= 0.90;
-    if(document.getElementById('discAge').checked) discount += 800;
+  // クラス数に応じた複数割の定額表
+  let multiClassDiscountMap = { 2: 500, 3: 1000, 4: 1500 };
 
-    total = (total - discount) * rate;
-    total = Math.round(total);
-    document.getElementById('totalAmount').value = total.toLocaleString();
+  // ▼ オプション候補 (プラスワン予約→ラケットレンタル等に変更)
+  const optionCandidates = [
+    { id: 1, name: "ロッカー利用",       price: 2000 },
+    { id: 2, name: "ラケットレンタル",   price: 1500 }
+  ];
+  let optionList = [];
+
+  // ▼ 割引候補 (複数割は type="複数割")
+  const discountCandidates = [
+    { id: 1, name: "家族割",   discountType: "固定金額割引（円）", value: 500 },
+    { id: 2, name: "シニア割", discountType: "固定金額割引（円）", value: 800 },
+    { id: 3, name: "複数割",   discountType: "複数クラス受講割（円）", value: 0 },
+    { id: 4, name: "10％OFF",  discountType: "パーセンテージ割引（％）",  value: 10 }
+  ];
+  let discountList = [];
+
+  // ---------------------------
+  // ページロード時の初期化
+  // ---------------------------
+  window.onload = () => {
+    initBasicFee();
+    initOptionSelect();
+    initDiscountSelect();
+    renderOptionTable();
+    renderDiscountTable();
+    updateTotal();
+  };
+
+  function initBasicFee() {
+    document.getElementById('courseName').textContent = courseName;
+    document.getElementById('classCount').textContent = classCount;
+    document.getElementById('freeClassLabel').textContent = isFreeClass ? "Yes" : "No";
+    let fee = isFreeClass ? courseFee : courseFee * classCount;
+    document.getElementById('basicFeeAmount').textContent = fee.toLocaleString();
   }
 
-  function saveBilling() {
-    alert("請求情報を保存しました（モック）");
+  // ----- オプション -----
+  function initOptionSelect() {
+    const sel = document.getElementById('optionSelect');
+    optionCandidates.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt.id;
+      // 金額表記は不要、name のみ
+      o.textContent = opt.name;
+      sel.appendChild(o);
+    });
+  }
+  function addOption() {
+    const val = Number(document.getElementById('optionSelect').value);
+    const findItem = optionCandidates.find(o => o.id === val);
+    if(!findItem) return;
+    optionList.push({ ...findItem });
+    renderOptionTable();
+    updateTotal();
+  }
+  function removeOption(id) {
+    optionList = optionList.filter(o => o.id !== id);
+    renderOptionTable();
+    updateTotal();
+  }
+  function renderOptionTable() {
+    const tbody = document.getElementById('optionTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    optionList.forEach(opt => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${opt.name}</td>
+        <td>${opt.price.toLocaleString()}円</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeOption(${opt.id})">削除</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ----- 割引 -----
+  function initDiscountSelect() {
+    const sel = document.getElementById('discountSelect');
+    discountCandidates.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      // 金額表記等は不要
+      opt.textContent = d.name;
+      sel.appendChild(opt);
+    });
+  }
+  function addDiscount() {
+    const val = Number(document.getElementById('discountSelect').value);
+    const findItem = discountCandidates.find(d => d.id === val);
+    if(!findItem) return;
+    discountList.push({ ...findItem });
+    renderDiscountTable();
+    updateTotal();
+  }
+  function removeDiscount(id) {
+    discountList = discountList.filter(d => d.id !== id);
+    renderDiscountTable();
+    updateTotal();
+  }
+  function renderDiscountTable() {
+    const tbody = document.getElementById('discountTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    discountList.forEach(disc => {
+      // 割引値表示
+      let valText = disc.discountType === 'rate'
+        ? `${disc.value}%`
+        : `${disc.value}円`;
+      if(disc.discountType === "複数割") {
+        // 「複数割」は、classCountに応じて動的金額を後で上書きするので暫定0円表示でもOK
+        valText = disc.value + "円";
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${disc.name}</td>
+        <td>${disc.discountType}</td>
+        <td>${valText}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeDiscount(${disc.id})">削除</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ----- 計算 -----
+  function updateTotal() {
+    let basicFee = isFreeClass ? courseFee : courseFee * classCount;
+    let optionSum = optionList.reduce((a, c) => a + c.price, 0);
+    let subTotal = basicFee + optionSum;
+
+    // 複数割はクラス数に応じた定額割引として動的に上書き
+    let multiItem = discountList.find(d => d.discountType === "複数割");
+    if(multiItem) {
+      let multiVal = multiClassDiscountMap[classCount] || 0;
+      multiItem.value = multiVal;
+    }
+
+    // 定額割引
+    let totalFixed = discountList
+      .filter(d => d.discountType === 'fixed' || d.discountType === '複数割')
+      .reduce((acc, cur) => acc + cur.value, 0);
+
+    // 定率割引
+    let totalRate = discountList
+      .filter(d => d.discountType === 'rate')
+      .reduce((acc, cur) => acc + cur.value, 0);
+
+    document.getElementById('subTotal').value = subTotal.toLocaleString();
+    document.getElementById('totalFixedDiscount').value = totalFixed.toLocaleString();
+    document.getElementById('totalRateDiscount').value = totalRate;
+
+    let afterFixed = subTotal - totalFixed;
+    if (afterFixed < 0) afterFixed = 0;
+
+    let afterRate = afterFixed * (1 - totalRate / 100);
+    if (afterRate < 0) afterRate = 0;
+
+    document.getElementById('finalTotal').value = Math.round(afterRate).toLocaleString();
   }
 </script>
-
 </body>
 </html>
