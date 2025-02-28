@@ -182,7 +182,8 @@
   ];
   let optionList = [];
 
-  // ▼ 割引候補 (複数割は type="複数割")
+  // ▼ 割引候補
+  // discountType は表示用の文字列と実際の処理で用いる文字列が同一になるようにしています
   const discountCandidates = [
     { id: 1, name: "家族割",   discountType: "固定金額割引（円）", value: 500 },
     { id: 2, name: "シニア割", discountType: "固定金額割引（円）", value: 800 },
@@ -217,7 +218,6 @@
     optionCandidates.forEach(opt => {
       const o = document.createElement('option');
       o.value = opt.id;
-      // 金額表記は不要、name のみ
       o.textContent = opt.name;
       sel.appendChild(o);
     });
@@ -255,7 +255,6 @@
     discountCandidates.forEach(d => {
       const opt = document.createElement('option');
       opt.value = d.id;
-      // 金額表記等は不要
       opt.textContent = d.name;
       sel.appendChild(opt);
     });
@@ -277,12 +276,12 @@
     const tbody = document.getElementById('discountTable').querySelector('tbody');
     tbody.innerHTML = '';
     discountList.forEach(disc => {
-      // 割引値表示
-      let valText = disc.discountType === 'rate'
+      // 割引値表示：パーセンテージの場合は % 表示、その他は 円 表示
+      let valText = disc.discountType === 'パーセンテージ割引（％）'
         ? `${disc.value}%`
         : `${disc.value}円`;
-      if(disc.discountType === "複数割") {
-        // 「複数割」は、classCountに応じて動的金額を後で上書きするので暫定0円表示でもOK
+      if(disc.discountType === "複数クラス受講割（円）") {
+        // 複数割は、クラス数に応じた金額を後で上書きするので暫定0円表示でもOK
         valText = disc.value + "円";
       }
       const tr = document.createElement('tr');
@@ -303,7 +302,7 @@
     let subTotal = basicFee + optionSum;
 
     // 複数割はクラス数に応じた定額割引として動的に上書き
-    let multiItem = discountList.find(d => d.discountType === "複数割");
+    let multiItem = discountList.find(d => d.discountType === "複数クラス受講割（円）");
     if(multiItem) {
       let multiVal = multiClassDiscountMap[classCount] || 0;
       multiItem.value = multiVal;
@@ -311,12 +310,12 @@
 
     // 定額割引
     let totalFixed = discountList
-      .filter(d => d.discountType === 'fixed' || d.discountType === '複数割')
+      .filter(d => d.discountType === '固定金額割引（円）' || d.discountType === '複数クラス受講割（円）')
       .reduce((acc, cur) => acc + cur.value, 0);
 
     // 定率割引
     let totalRate = discountList
-      .filter(d => d.discountType === 'rate')
+      .filter(d => d.discountType === 'パーセンテージ割引（％）')
       .reduce((acc, cur) => acc + cur.value, 0);
 
     document.getElementById('subTotal').value = subTotal.toLocaleString();
