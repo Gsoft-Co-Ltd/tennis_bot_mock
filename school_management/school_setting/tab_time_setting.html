@@ -1,393 +1,427 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>設定ページ（Excel/CSVインポート方式）</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  
+  <!-- Bootstrap -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
     rel="stylesheet"
   />
   <style>
     body {
-      background-color: #f5f7fa;
       font-family: Arial, sans-serif;
-      margin: 0; 
+      font-size: 14px;
+      line-height: 1.4;
+      background-color: #ffffff;
+      margin: 0;
       padding: 20px;
     }
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    h5 {
-      margin-bottom: 1rem;
-    }
-    .form-label {
+    .section-title {
+      font-size: 1rem;
       font-weight: bold;
+      color: #333;
+      border-left: 4px solid #0d6efd;
+      padding-left: 8px;
+      margin-bottom: 12px;
+    }
+    .table {
+      font-size: 14px;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #555;
+      padding: 8px;
+      text-align: center;
+      white-space: nowrap;
     }
     .table td {
+      padding: 8px;
+      text-align: center;
       vertical-align: middle;
+      white-space: nowrap;
     }
-    .btn-sm {
-      font-size: 0.875rem;
+    .table-bordered {
+      border: 1px solid #ddd;
     }
-    .form-text {
-      font-size: 0.9rem;
-      color: #666;
+    .table-bordered th,
+    .table-bordered td {
+      border: 1px solid #ddd;
     }
-    .mb-3 {
-      margin-bottom:1rem !important;
-    }
-    .mb-4 {
-      margin-bottom:1.5rem !important;
-    }
-    .table-container {
-      margin-top: 1rem;
-    }
-    table thead th {
-      background: #eee;
+    .no-data {
+      color: #999;
+      font-style: italic;
+      padding: 0.5rem;
+      text-align: left;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  
-  <!-- ====== (1) 時間割設定 ====== -->
-  <section class="mb-4">
-    <h5>時間割設定</h5>
-    <p class="form-text">
-      「曜日」「時間割名」「開始時間」「終了時間」の順でデータを入力した
-      ExcelやCSVファイルをアップロードしてください。
-    </p>
-    <div class="d-flex gap-2 mb-3">
-      <input type="file" id="excelFileInputTime" accept=".xlsx, .xls, .csv" class="form-control form-control-sm" style="max-width: 300px;">
-      <button class="btn btn-success btn-sm" id="importButtonTime">インポート</button>
+  <!-- 年度セレクト＆反映ボタン -->
+  <div class="mb-3 d-flex align-items-center" style="gap:0.5rem;">
+    <label for="termYearSelect" class="mb-0">年度:</label>
+    <select id="termYearSelect" class="form-select form-select-sm" style="width:auto;">
+      <!-- JSでoption作成。全て(すべて)の選択肢は無し。 -->
+    </select>
+    <button id="applyButton" class="btn btn-primary btn-sm">選択</button>
+  </div>
+
+  <!-- ====== (1) 期設定 ====== -->
+  <div class="mb-4">
+    <div class="section-title">期設定</div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm mb-0" id="termTable">
+        <thead>
+          <tr>
+            <th>期</th>
+            <th>開始日</th>
+            <th>終了日</th>
+            <th>コース変更締切日</th>
+            <th>請求日</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JSで描画 -->
+        </tbody>
+      </table>
+      <div id="termNoData" class="no-data d-none">
+        該当する期データがありません。
+      </div>
     </div>
-    <div class="table-container">
-      <table class="table table-bordered table-sm" id="timeTable">
+  </div>
+
+  <!-- ====== (2) 臨時休業日設定 ====== -->
+  <div class="mb-4">
+    <div class="section-title">臨時休業</div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm mb-0" id="closureTable">
+        <thead>
+          <tr>
+            <th>休業日</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JSで描画 -->
+        </tbody>
+      </table>
+      <div id="closureNoData" class="no-data d-none">
+        該当する休業日はありません。
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== (3) 時間割設定 ====== -->
+  <div>
+    <div class="section-title">時間割</div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm mb-0" id="timeTable">
         <thead>
           <tr>
             <th>曜日</th>
-            <th>時間割名</th>
+            <th>時間割(アルファベット1文字)</th>
             <th>開始時間</th>
             <th>終了時間</th>
-            <th style="width:80px;">操作</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        </tbody>
       </table>
+      <div id="timeNoData" class="no-data d-none">
+        登録された時間割はありません。
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ====== (2) 臨時休業日設定 ====== -->
-  <section class="mb-4">
-    <h5>臨時休業日設定</h5>
-    <p class="form-text">
-      「休業開始日」「休業終了日」（日単位に展開されます）を列に持つCSVを想定。
-    </p>
-    <div class="d-flex gap-2 mb-3">
-      <input type="file" id="excelFileInputClosure" accept=".xlsx, .xls, .csv" class="form-control form-control-sm" style="max-width: 300px;">
-      <button class="btn btn-success btn-sm" id="importButtonClosure">インポート</button>
-    </div>
-    <div class="table-container">
-      <table class="table table-bordered table-sm" id="closureTable">
-        <thead>
-          <tr>
-            <th>日付</th>
-            <th style="width:80px;">操作</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+  <!-- Bootstrap JS (オプション) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- ====== (3) 期設定 ====== -->
-  <section>
-    <h5>期設定</h5>
-    <p class="form-text">
-      「期名」「開始日」「終了日」の順でデータを入力したCSV等をアップロードしてください。<br>
-      下記の「年度」でフィルタが可能です。
-    </p>
-    <div class="d-flex gap-2 mb-3">
-      <input type="file" id="excelFileInputTerm" accept=".xlsx, .xls, .csv" class="form-control form-control-sm" style="max-width: 300px;">
-      <button class="btn btn-success btn-sm" id="importButtonTerm">インポート</button>
-    </div>
-    <div class="mb-2 d-flex align-items-center">
-      <label for="termYearSelect" class="me-2">年度フィルタ:</label>
-      <select id="termYearSelect" class="form-select form-select-sm" style="width:auto;">
-        <!-- JSでoption作成 -->
-      </select>
-    </div>
-    <div class="table-container">
-      <table class="table table-bordered table-sm" id="termTable">
-        <thead>
-          <tr>
-            <th>期名</th>
-            <th>開始日</th>
-            <th>終了日</th>
-            <th style="width:80px;">操作</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+  <script>
+    // ======================
+    //  ダミーデータ 
+    // ======================
 
-</div>
+    const termData = [
+      // --- 2025年: 7期 ---
+      {
+        name: "2025年1期", 
+        startDate: "2025-01-01", 
+        endDate: "2025-01-31",
+        course_change_deadline_date: "2024-12-25",
+        billing_date: "2025-01-05"
+      },
+      {
+        name: "2025年2期", 
+        startDate: "2025-02-01", 
+        endDate: "2025-02-28",
+        course_change_deadline_date: "2025-01-25",
+        billing_date: "2025-02-05"
+      },
+      {
+        name: "2025年3期", 
+        startDate: "2025-03-01", 
+        endDate: "2025-03-31",
+        course_change_deadline_date: "2025-02-22",
+        billing_date: "2025-03-05"
+      },
+      {
+        name: "2025年4期", 
+        startDate: "2025-04-01", 
+        endDate: "2025-04-30",
+        course_change_deadline_date: "2025-03-25",
+        billing_date: "2025-04-05"
+      },
+      {
+        name: "2025年5期", 
+        startDate: "2025-05-01", 
+        endDate: "2025-05-31",
+        course_change_deadline_date: "2025-04-25",
+        billing_date: "2025-05-05"
+      },
+      {
+        name: "2025年6期", 
+        startDate: "2025-06-01", 
+        endDate: "2025-06-30",
+        course_change_deadline_date: "2025-05-25",
+        billing_date: "2025-06-05"
+      },
+      {
+        name: "2025年7期", 
+        startDate: "2025-07-01", 
+        endDate: "2025-07-31",
+        course_change_deadline_date: "2025-06-25",
+        billing_date: "2025-07-05"
+      },
 
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- CSV読み込み(簡易)。ExcelファイルはSheetJSなどを推奨 -->
-<script>
-  // ======================
-  //  初期データ (サンプル)
-  // ======================
-  let timeTableData = [
-    { dayOfWeek: "mon", label: "朝クラス", startTime: "09:00", endTime: "10:30" },
-    { dayOfWeek: "wed", label: "夜クラス", startTime: "19:00", endTime: "20:30" },
-    { dayOfWeek: "fri", label: "昼クラス", startTime: "12:00", endTime: "13:30" }
-  ];
-
-  // 休業日は「日付」の配列として保持。
-  // 例: 5/3～5/5なら "2025-05-03", "2025-05-04", "2025-05-05" を追加
-  let closureData = [
-    "2025-05-03","2025-05-04","2025-05-05", // GW連休
-    "2025-08-12" // 台風
-  ];
-
-  let termData = [
-    { name: "夏期2025", startDate: "2025-07-01", endDate: "2025-09-30" },
-    { name: "秋期2025", startDate: "2025-10-01", endDate: "2025-12-31" },
-    { name: "冬期2026", startDate: "2026-01-01", endDate: "2026-03-31" }
-  ];
-
-  // ======================
-  //  画面起動時
-  // ======================
-  window.onload = () => {
-    renderTimeList();
-    renderClosureList();
-    populateTermYearSelect();
-    renderTermList();
-  };
-
-  // ======================
-  //  (1) 時間割
-  // ======================
-  document.getElementById("importButtonTime").addEventListener("click", () => {
-    const fileInput = document.getElementById("excelFileInputTime");
-    if(!fileInput.files.length) {
-      alert("時間割ファイルを選択してください。");
-      return;
-    }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const text = e.target.result;
-      const lines = text.split("\n").map(line=>line.trim()).filter(line=>line);
-      for(let i=1; i<lines.length; i++){ // 1行目はヘッダ想定
-        const cols = lines[i].split(",");
-        if(cols.length < 4) continue; 
-        timeTableData.push({
-          dayOfWeek: cols[0].trim(),
-          label: cols[1].trim(),
-          startTime: cols[2].trim(),
-          endTime: cols[3].trim()
-        });
+      // --- 2026年: 6期 ---
+      {
+        name: "2026年1期", 
+        startDate: "2026-01-01", 
+        endDate: "2026-01-31",
+        course_change_deadline_date: "2025-12-25",
+        billing_date: "2026-01-05"
+      },
+      {
+        name: "2026年2期", 
+        startDate: "2026-02-01", 
+        endDate: "2026-02-28",
+        course_change_deadline_date: "2026-01-25",
+        billing_date: "2026-02-05"
+      },
+      {
+        name: "2026年3期", 
+        startDate: "2026-03-01", 
+        endDate: "2026-03-31",
+        course_change_deadline_date: "2026-02-25",
+        billing_date: "2026-03-05"
+      },
+      {
+        name: "2026年4期", 
+        startDate: "2026-04-01", 
+        endDate: "2026-04-30",
+        course_change_deadline_date: "2026-03-25",
+        billing_date: "2026-04-05"
+      },
+      {
+        name: "2026年5期", 
+        startDate: "2026-05-01", 
+        endDate: "2026-05-31",
+        course_change_deadline_date: "2026-04-25",
+        billing_date: "2026-05-05"
+      },
+      {
+        name: "2026年6期", 
+        startDate: "2026-06-01", 
+        endDate: "2026-06-30",
+        course_change_deadline_date: "2026-05-25",
+        billing_date: "2026-06-05"
       }
-      renderTimeList();
-      alert("時間割のインポートが完了しました。");
-    };
-    reader.readAsText(file);
-  });
+    ];
 
-  function renderTimeList(){
-    const tbody = document.querySelector("#timeTable tbody");
-    tbody.innerHTML = "";
-    timeTableData.forEach((row,idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.dayOfWeek}</td>
-        <td>${row.label}</td>
-        <td>${row.startTime}</td>
-        <td>${row.endTime}</td>
-        <td>
-          <button class="btn btn-danger btn-sm" onclick="deleteTimeRow(${idx})">削除</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-  function deleteTimeRow(index){
-    timeTableData.splice(index,1);
-    renderTimeList();
-  }
+    // (2) 臨時休業日データ: 12日分 (2025年に6日, 2026年に6日)
+    const closureData = [
+      // --- 2025年 ---
+      "2025-01-15",
+      "2025-02-10",
+      "2025-03-18",
+      "2025-05-03",
+      "2025-05-04",
+      "2025-05-05",
+      // --- 2026年 ---
+      "2026-01-20",
+      "2026-02-05",
+      "2026-02-06",
+      "2026-04-14",
+      "2026-05-12",
+      "2026-06-25"
+    ];
 
+    // (3) 時間割データ (7日分, 日本語曜日・アルファベット1文字)
+    const timeTableData = [
+      { dayOfWeek: "月", label: "A", startTime: "09:00", endTime: "10:30" },
+      { dayOfWeek: "火", label: "B", startTime: "10:00", endTime: "11:30" },
+      { dayOfWeek: "水", label: "C", startTime: "11:00", endTime: "12:30" },
+      { dayOfWeek: "木", label: "D", startTime: "13:00", endTime: "14:30" },
+      { dayOfWeek: "金", label: "E", startTime: "15:00", endTime: "16:30" },
+      { dayOfWeek: "土", label: "F", startTime: "17:00", endTime: "18:30" },
+      { dayOfWeek: "日", label: "G", startTime: "19:00", endTime: "20:30" }
+    ];
 
-  // ======================
-  //  (2) 臨時休業日
-  // ======================
-  document.getElementById("importButtonClosure").addEventListener("click", () => {
-    const fileInput = document.getElementById("excelFileInputClosure");
-    if(!fileInput.files.length) {
-      alert("臨時休業日ファイルを選択してください。");
-      return;
-    }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const text = e.target.result;
-      const lines = text.split("\n").map(line=>line.trim()).filter(line=>line);
-      for(let i=1; i<lines.length; i++){
-        const cols = lines[i].split(",");
-        if(cols.length < 2) continue; 
-        const startDate = cols[0].trim();
-        const endDate   = cols[1].trim() || startDate; // 終了日が無ければ開始日のみ
-        // 日単位に展開
-        const expanded = expandDateRange(startDate, endDate);
-        closureData.push(...expanded);
-      }
-      renderClosureList();
-      alert("臨時休業日のインポートが完了しました。");
-    };
-    reader.readAsText(file);
-  });
+    // 画面ロード時に初期描画
+    window.addEventListener('DOMContentLoaded', () => {
+      setupYearSelect();
+      renderTimeSlots();
 
-  // 休業開始日～終了日を日単位で配列化
-  function expandDateRange(startStr, endStr){
-    const result = [];
-    const start = new Date(startStr);
-    const end   = new Date(endStr);
-    if(isNaN(start.getTime())) return []; 
-    if(isNaN(end.getTime())) return [];
-    let cur = new Date(start);
-    while(cur <= end){
-      const y = cur.getFullYear();
-      const m = ("0"+(cur.getMonth()+1)).slice(-2);
-      const d = ("0"+cur.getDate()).slice(-2);
-      result.push(`${y}-${m}-${d}`);
-      cur.setDate(cur.getDate()+1);
-    }
-    return result;
-  }
-
-  function renderClosureList(){
-    const tbody = document.querySelector("#closureTable tbody");
-    tbody.innerHTML = "";
-    closureData.forEach((dateStr, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${dateStr}</td>
-        <td>
-          <button class="btn btn-danger btn-sm" onclick="deleteClosureRow(${idx})">削除</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-  function deleteClosureRow(index){
-    closureData.splice(index,1);
-    renderClosureList();
-  }
-
-  // ======================
-  //  (3) 期設定
-  // ======================
-  document.getElementById("importButtonTerm").addEventListener("click", () => {
-    const fileInput = document.getElementById("excelFileInputTerm");
-    if(!fileInput.files.length) {
-      alert("期設定ファイルを選択してください。");
-      return;
-    }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const text = e.target.result;
-      const lines = text.split("\n").map(line=>line.trim()).filter(line=>line);
-      for(let i=1; i<lines.length; i++){
-        const cols = lines[i].split(",");
-        if(cols.length < 3) continue; 
-        termData.push({
-          name: cols[0].trim(),
-          startDate: cols[1].trim(),
-          endDate: cols[2].trim()
-        });
-      }
-      // 年度リストの再生成
-      populateTermYearSelect();
-      renderTermList();
-      alert("期のインポートが完了しました。");
-    };
-    reader.readAsText(file);
-  });
-
-  // 期を表示する年度フィルタを作る
-  function populateTermYearSelect(){
-    // 重複含む全年度を抽出
-    const years = termData.map(t => {
-      // 開始日の年をとりあえず基準に
-      const sd = new Date(t.startDate);
-      if(!isNaN(sd.getTime())) return sd.getFullYear();
-      // parse失敗 -> 9999など
-      return 9999;
-    });
-    // 重複排除してソート
-    const uniqueYears = [...new Set(years)].sort((a,b)=>a-b);
-    const select = document.getElementById("termYearSelect");
-    // 初期化
-    select.innerHTML = `<option value="">全て</option>`;
-    uniqueYears.forEach(y => {
-      if(y===9999) return; // 無効
-      const opt = document.createElement("option");
-      opt.value = y;
-      opt.textContent = y + "年";
-      select.appendChild(opt);
-    });
-    // 変更イベント
-    select.onchange = ()=> renderTermList();
-  }
-
-  function renderTermList(){
-    const selectedYear = document.getElementById("termYearSelect").value;
-    const tbody = document.querySelector("#termTable tbody");
-    tbody.innerHTML = "";
-
-    // フィルタされたリスト
-    let filtered = termData;
-    if(selectedYear){
-      filtered = termData.filter(t=>{
-        const sd = new Date(t.startDate);
-        return !isNaN(sd) && sd.getFullYear()===parseInt(selectedYear,10);
+      // 「反映」ボタンの動作
+      const applyBtn = document.getElementById('applyButton');
+      applyBtn.addEventListener('click', () => {
+        renderTerms();
+        renderClosures();
       });
+
+      // ページロード直後も一度「反映」処理をしておく（初期表示）
+      document.getElementById('applyButton').click();
+    });
+
+    // =====================================================
+    //   デフォルトは現在年
+    // =====================================================
+    function setupYearSelect(){
+      // termData, closureDataの開始日を全て集めて年度に
+      let yearSet = new Set();
+
+      // 期データから収集
+      termData.forEach(t => {
+        const sd = new Date(t.startDate);
+        if(!isNaN(sd)) {
+          yearSet.add(sd.getFullYear());
+        }
+      });
+
+      // 臨時休業日からも収集
+      closureData.forEach(str => {
+        const d = new Date(str);
+        if(!isNaN(d)) {
+          yearSet.add(d.getFullYear());
+        }
+      });
+
+      // ソートし、<select>にoption生成
+      const sortedYears = Array.from(yearSet).sort((a,b)=> a - b);
+      const yearSelect = document.getElementById('termYearSelect');
+      yearSelect.innerHTML = ""; // 全ての選択肢をクリア
+
+      let currentYear = new Date().getFullYear();
+      let defaultIndex = 0;
+
+      sortedYears.forEach((y,idx) => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + "年";
+        yearSelect.appendChild(opt);
+        // 現在の年が見つかったら、そのインデックスをデフォルトに
+        if(y === currentYear) {
+          defaultIndex = idx;
+        }
+      });
+
+      // デフォルト選択を現在年に
+      if(sortedYears.length > 0) {
+        yearSelect.selectedIndex = defaultIndex;
+      }
     }
 
-    filtered.forEach((row, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.name}</td>
-        <td>${row.startDate}</td>
-        <td>${row.endDate}</td>
-        <td>
-          <button class="btn btn-danger btn-sm" onclick="deleteTermRow('${row.name}','${row.startDate}','${row.endDate}')">削除</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-  function deleteTermRow(name, startDate, endDate){
-    // 一致する要素を1件削除
-    const idx = termData.findIndex(t=>t.name===name && t.startDate===startDate && t.endDate===endDate);
-    if(idx >= 0) termData.splice(idx,1);
-    renderTermList();
-  }
+    // ======================
+    //  (1) 期データ: 表示
+    // ======================
+    function renderTerms() {
+      const selectedYear = parseInt(document.getElementById('termYearSelect').value, 10);
+      const tableBody = document.querySelector('#termTable tbody');
+      const noData = document.getElementById('termNoData');
 
-</script>
+      // フィルタ
+      let filtered = termData.filter(t => {
+        const sd = new Date(t.startDate);
+        return !isNaN(sd) && sd.getFullYear() === selectedYear;
+      });
+
+      tableBody.innerHTML = '';
+      if(filtered.length === 0) {
+        noData.classList.remove('d-none');
+      } else {
+        noData.classList.add('d-none');
+        filtered.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.name}</td>
+            <td>${t.startDate}</td>
+            <td>${t.endDate}</td>
+            <td>${t.course_change_deadline_date}</td>
+            <td>${t.billing_date}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      }
+    }
+
+    // ======================
+    //  (2) 臨時休業: 表示
+    // ======================
+    function renderClosures() {
+      const selectedYear = parseInt(document.getElementById('termYearSelect').value, 10);
+      const tableBody = document.querySelector('#closureTable tbody');
+      const noData = document.getElementById('closureNoData');
+
+      let filtered = closureData.filter(dateStr => {
+        const d = new Date(dateStr);
+        return !isNaN(d) && d.getFullYear() === selectedYear;
+      });
+
+      tableBody.innerHTML = '';
+      if(filtered.length === 0) {
+        noData.classList.remove('d-none');
+      } else {
+        noData.classList.add('d-none');
+        filtered.forEach(dateStr => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${dateStr}</td>`;
+          tableBody.appendChild(tr);
+        });
+      }
+    }
+
+    // ======================
+    //  (3) 時間割: 表示 (年でフィルタしない)
+    // ======================
+    function renderTimeSlots() {
+      const tableBody = document.querySelector('#timeTable tbody');
+      const noData = document.getElementById('timeNoData');
+
+      tableBody.innerHTML = '';
+      if(timeTableData.length === 0) {
+        noData.classList.remove('d-none');
+      } else {
+        noData.classList.add('d-none');
+        timeTableData.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.dayOfWeek}</td>
+            <td>${item.label}</td>
+            <td>${item.startTime}</td>
+            <td>${item.endTime}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      }
+    }
+
+  </script>
 </body>
 </html>
