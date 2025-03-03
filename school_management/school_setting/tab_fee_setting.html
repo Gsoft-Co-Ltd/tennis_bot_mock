@@ -51,7 +51,7 @@
     </div>
     <form id="feeForm">
       <div class="form-group">
-        <label for="admissionFee" class="form-label">入会金（税抜）</label>
+        <label for="admissionFee" class="form-label">入会金</label>
         <input
           type="text"
           id="admissionFee"
@@ -61,7 +61,7 @@
         <span>円</span>
       </div>
       <div class="form-group">
-        <label for="annualFee" class="form-label">年会費（税抜）</label>
+        <label for="annualFee" class="form-label">年会費</label>
         <input
           type="text"
           id="annualFee"
@@ -71,7 +71,7 @@
         <span>円</span>
       </div>
       <div class="form-group">
-        <label for="suspendFee" class="form-label">休会費（税抜/1期あたり）</label>
+        <label for="suspendFee" class="form-label">休会費（1期あたり）</label>
         <input
           type="text"
           id="suspendFee"
@@ -81,12 +81,22 @@
         <span>円</span>
       </div>
       <div class="form-group">
-        <label for="trial" class="form-label">体験レッスン費（1回あたり）</label>
+        <label for="trial" class="form-label">体験レッスン費（1回）</label>
         <input
           type="text"
           id="trial"
           class="form-control"
           value="1500"
+        />
+        <span>円</span>
+      </div>
+      <div class="form-group">
+        <label for="trialkd" class="form-label">キッズジュニア体験レッスン費（1回）</label>
+        <input
+          type="text"
+          id="trialkd"
+          class="form-control"
+          value="1000"
         />
         <span>円</span>
       </div>
@@ -100,13 +110,15 @@
       const annualVal = parseInt(document.getElementById("annualFee").value, 10);
       const suspendVal = parseInt(document.getElementById("suspendFee").value, 10);
       const trialVal = parseInt(document.getElementById("trial").value, 10);
+      const trialkdVal = parseInt(document.getElementById("trialkd").value, 10);
 
       // ここではコンソールに出力するモック実装
       console.log("保存データ:", {
         admissionFee: admissionVal,
         annualFee: annualVal,
         suspendFee: suspendVal,
-        trial: trialVal
+        trial: trialVal,
+      　trialkd:trialkdVal
       });
 
       alert("設定を保存しました(モック)");
