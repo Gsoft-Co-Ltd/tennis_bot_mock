@@ -4,10 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>入会金・年会費・休会費設定</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
     body {
       background-color: #f5f7fa;
@@ -24,10 +21,10 @@
     .form-label {
       font-weight: bold;
       color: #333;
-      width: 300px; 
+      width: 300px;
     }
     .form-control {
-      width: 200px; 
+      width: 200px;
     }
     .btn-group {
       display: flex;
@@ -36,94 +33,66 @@
   </style>
 </head>
 <body>
-
   <div class="container mt-3">
     <div class="mb-3 d-flex justify-content-end" style="margin-right: 10%;">
-      <!-- 保存ボタン -->
-      <button
-        type="button"
-        id="saveButton"
-        class="btn btn-success btn-sm"
-        onclick="saveInfo()"
-      >
-        保存
-      </button>
+      <button type="button" id="editButton" class="btn btn-warning btn-sm" onclick="toggleEditMode()">編集</button>
+      <button type="button" id="saveButton" class="btn btn-success btn-sm" onclick="saveInfo()" style="display: none;">保存</button>
     </div>
     <form id="feeForm">
       <div class="form-group">
         <label for="admissionFee" class="form-label">入会金</label>
-        <input
-          type="text"
-          id="admissionFee"
-          class="form-control"
-          value="3000"
-        />
+        <input type="text" id="admissionFee" class="form-control" value="3000" disabled />
         <span>円</span>
       </div>
       <div class="form-group">
         <label for="annualFee" class="form-label">年会費</label>
-        <input
-          type="text"
-          id="annualFee"
-          class="form-control"
-          value="2000"
-        />
+        <input type="text" id="annualFee" class="form-control" value="2000" disabled />
         <span>円</span>
       </div>
       <div class="form-group">
         <label for="suspendFee" class="form-label">休会費（1期あたり）</label>
-        <input
-          type="text"
-          id="suspendFee"
-          class="form-control"
-          value="1000"
-        />
+        <input type="text" id="suspendFee" class="form-control" value="1000" disabled />
         <span>円</span>
       </div>
       <div class="form-group">
         <label for="trial" class="form-label">体験レッスン費（1回）</label>
-        <input
-          type="text"
-          id="trial"
-          class="form-control"
-          value="1500"
-        />
+        <input type="text" id="trial" class="form-control" value="1500" disabled />
         <span>円</span>
       </div>
       <div class="form-group">
         <label for="trialkd" class="form-label">キッズジュニア体験レッスン費（1回）</label>
-        <input
-          type="text"
-          id="trialkd"
-          class="form-control"
-          value="1000"
-        />
+        <input type="text" id="trialkd" class="form-control" value="1000" disabled />
         <span>円</span>
       </div>
     </form>
   </div>
-
+  
   <script>
-    // 「保存」ボタンを押したときの処理
+    function toggleEditMode() {
+      const inputs = document.querySelectorAll(".form-control");
+      inputs.forEach(input => input.disabled = false);
+      document.getElementById("editButton").style.display = "none";
+      document.getElementById("saveButton").style.display = "block";
+    }
+
     function saveInfo() {
-      const admissionVal = parseInt(document.getElementById("admissionFee").value, 10);
-      const annualVal = parseInt(document.getElementById("annualFee").value, 10);
-      const suspendVal = parseInt(document.getElementById("suspendFee").value, 10);
-      const trialVal = parseInt(document.getElementById("trial").value, 10);
-      const trialkdVal = parseInt(document.getElementById("trialkd").value, 10);
-
-      // ここではコンソールに出力するモック実装
-      console.log("保存データ:", {
-        admissionFee: admissionVal,
-        annualFee: annualVal,
-        suspendFee: suspendVal,
-        trial: trialVal,
-      　trialkd:trialkdVal
-      });
-
-      alert("設定を保存しました(モック)");
+      if (confirm("設定を保存しますか？")) {
+        const data = {
+          admissionFee: document.getElementById("admissionFee").value,
+          annualFee: document.getElementById("annualFee").value,
+          suspendFee: document.getElementById("suspendFee").value,
+          trial: document.getElementById("trial").value,
+          trialkd: document.getElementById("trialkd").value
+        };
+        console.log("保存データ:", data);
+        alert("設定を保存しました");
+        
+        const inputs = document.querySelectorAll(".form-control");
+        inputs.forEach(input => input.disabled = true);
+        document.getElementById("editButton").style.display = "block";
+        document.getElementById("saveButton").style.display = "none";
+      }
     }
   </script>
-
 </body>
 </html>
