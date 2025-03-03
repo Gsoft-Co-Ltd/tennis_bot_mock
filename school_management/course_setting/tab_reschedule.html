@@ -1,424 +1,448 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>振替設定</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  
   <style>
     body {
-      background-color: #f5f7fa;
       font-family: Arial, sans-serif;
-      padding-bottom:50px;
+      font-size: 14px;
+      line-height: 1.4;
+      padding: 20px;
+      background-color: #ffffff;
     }
-    .section-description {
-      font-size: 0.9rem;
-      color: #666;
+    .section-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #333;
+      border-left: 4px solid #0d6efd;
+      padding-left: 8px;
+      margin-bottom: 12px;
     }
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .expire-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .expire-group .d-flex {
-      gap:5px;
-    }
-    .expire-group input {
-      width: 80px;
-    }
-    #customFeesTable {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    #customFeesTable table {
-      width:100%;
+    /* テーブル系 */
+    .table {
+      font-size: 14px;
+      background-color: #fff;
       border-collapse: collapse;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
     }
-    #customFeesTable th, #customFeesTable td {
-      border: 1px solid #ddd;
-      padding:8px;
-      white-space: nowrap;
+    .table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #555;
+      padding: 8px;
+      text-align: center;
     }
-    #customFeesTable th {
-      background-color: #f2f2f2;
-      position: sticky;
-      top:0;
-      z-index:10;
+    .table td {
+      padding: 8px;
+      text-align: center;
     }
-    .small-note {
-      font-size:0.8rem;
-      color:#555;
+    /* フォーム関連 */
+    .form-label {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .notice {
+      color: #6c757d;
+      font-size: 0.85rem;
+      margin-left: 8px;
+    }
+    hr {
+      margin: 24px 0;
     }
   </style>
 </head>
 <body>
-<div class="container mt-4">
-  <p class="section-description mb-4">
-    ここでは、スクールごとの振替ルールおよびカスタム手数料を設定します。<br/>
-    ・振替受講可能レッスンは、レベルが同じか、または下位レベルへ行けるが上位には行けません。<br/>
-    ・どれだけ下位レベルへ行けるかは下記で設定可能です。<br/>
-    ・時間帯制限はありません。<br/>
-    ・振替有効期限、家族間振替共有可否、期内・期外手数料、コース変更時の差額や特別手数料も設定できます。
-  </p>
 
-  <!-- 基本設定カード -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5>基本設定</h5>
-
+  <!-- 振替・キャンセルポリシー設定 -->
+  <div class="mb-4">
+    <div class="section-title">振替・キャンセルポリシー設定</div>
+    <form id="policy-form">
+      <!-- レベル制限 -->
       <div class="mb-3">
-        <label class="form-label">レベル制限</label>
-        <select id="levelRestriction" class="form-select">
-          <option value="same">同じレベルのみ</option>
-          <option value="down">下位レベルへ行ける</option>
+        <label for="levelRestriction" class="form-label">レベル制限</label>
+        <select 
+          class="form-select form-select-sm" 
+          id="levelRestriction" 
+          name="levelRestriction"
+        >
+          <option value="same">same (同レベルのみ)</option>
+          <option value="down" selected>down (下レベルOK)</option>
+          <option value="both">both (上・下OK)</option>
         </select>
-        <div class="small-note mt-1">
-          「下位レベルへ行ける」を選択した場合、どれだけ下位レベルを許容するか指定できます。
-        </div>
       </div>
 
-      <div class="mb-3" id="maxLowerLevelDiffGroup" style="display:none;">
-        <label for="maxLowerLevelDiff" class="form-label">下位レベル許容段数</label>
-        <input type="number" id="maxLowerLevelDiff" class="form-control" placeholder="例: 2" />
-        <div class="small-note mt-1">
-          下位レベルへの許容段数を指定します。<br/>
-          例:「2」なら2段階下のレベルまでOK。
-        </div>
-      </div>
-
+      <!-- 下レベル許容範囲 -->
       <div class="mb-3">
-        <label class="form-label">振替可能期限</label>
-        <div class="input-group mb-2">
-          <input type="number" class="form-control" placeholder="例: 7" id="rescheduleDaysBefore" />
-          <span class="input-group-text">日前まで振替可能</span>
+        <label for="maxLowerLevelDiff" class="form-label">レベル許容範囲</label>
+        <input
+          type="number"
+          class="form-control form-control-sm"
+          id="maxLowerLevelDiff"
+          name="maxLowerLevelDiff"
+          min="0"
+          value="1"
+          style="width: 200px;"
+        />
+      </div>
+
+      <!-- 学期内/学期外振替費 -->
+      <div class="mb-3 row">
+        <div class="col-sm-6">
+          <label for="baseInTermFee" class="form-label">学期内振替費</label>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            id="baseInTermFee"
+            name="baseInTermFee"
+            value="0"
+          />
         </div>
-        <div class="input-group">
-          <input type="number" class="form-control" placeholder="例: 24" id="rescheduleHoursBefore" />
-          <span class="input-group-text">時間前まで振替可能</span>
-        </div>
-        <div class="small-note mt-1">
-          レッスン開始前何日前・何時間前まで振替受付を行うか設定します。
+        <div class="col-sm-6">
+          <label for="baseOutTermFee" class="form-label">学期外振替費</label>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            id="baseOutTermFee"
+            name="baseOutTermFee"
+            value="500"
+          />
         </div>
       </div>
 
-      <hr />
+      <hr/>
 
+      <!-- 振替チケット有効期限 -->
       <div class="mb-3">
-        <label class="form-label">期内・期外基本手数料</label>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="inTermFee" class="form-label">期内料金（税抜）</label>
-            <input type="number" id="inTermFee" class="form-control" placeholder="例: 0" />
-          </div>
-          <div class="col-md-6">
-            <label for="outTermFee" class="form-label">期外料金（税抜）</label>
-            <input type="number" id="outTermFee" class="form-control" placeholder="例: 300" />
-          </div>
-        </div>
-        <div class="small-note mt-1">
-          期内・期外で基本の振替手数料を設定します。<br/>
-          例:期内0円、期外300円など
+        <label class="form-label">振替チケット有効期限</label>
+        <div class="d-flex align-items-center" style="gap:8px;">
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="expire_years"
+            value="1"
+            style="width:80px;"
+          />
+          <span>年</span>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="expire_months"
+            value="0"
+            style="width:80px;"
+          />
+          <span>ヶ月</span>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="expire_days"
+            value="0"
+            style="width:80px;"
+          />
+          <span>日</span>
         </div>
       </div>
 
-      <hr />
-
+      <!-- スクール都合キャンセル時のチケット延長 -->
       <div class="mb-3">
-        <label class="form-label">振替有効期限</label>
-        <div class="d-flex gap-2 flex-wrap">
-          <div class="d-flex align-items-center">
-            <input type="number" id="expireDays" class="form-control" placeholder="日">
-            <span>日</span>
-          </div>
-          <div class="d-flex align-items-center">
-            <input type="number" id="expireMonths" class="form-control" placeholder="月">
-            <span>ヶ月</span>
-          </div>
-          <div class="d-flex align-items-center">
-            <input type="number" id="expireYears" class="form-control" placeholder="年">
-            <span>年</span>
-          </div>
-        </div>
-        <div class="small-note mt-1">
-          振替が発生した日からどれくらいの期間有効か設定します。<br/>
-          期間を組み合わせて指定可能です。(例:1年または2ヶ月など)
+        <label class="form-label">スクール都合キャンセル時の有効期限</label>
+        <div class="d-flex align-items-center" style="gap:8px;">
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="school_cancel_expire_years"
+            value="3"
+            style="width:80px;"
+          />
+          <span>年</span>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="school_cancel_expire_months"
+            value="0"
+            style="width:80px;"
+          />
+          <span>ヶ月</span>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="school_cancel_expire_days"
+            value="0"
+            style="width:80px;"
+          />
+          <span>日</span>
         </div>
       </div>
 
-      <hr />
-
+      <!-- イベントを振替で受講可 (チェックボックス) -->
       <div class="mb-3">
-        <label class="form-label">家族内振替共有</label>
-        <div class="checkbox-group">
-          <input type="checkbox" id="familyShare" />
-          <label for="familyShare" style="font-weight: normal">家族内振替共有を許可する</label>
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="eventSubstituteAllowed"
+          name="eventSubstituteAllowed"
+          value="true"
+          checked
+        />
+        <label for="eventSubstituteAllowed" class="form-check-label ms-1">
+          イベントを振替で受講可
+        </label>
+      </div>
+
+      <hr/>
+
+      <!-- 予約・キャンセル締切 -->
+      <div class="mb-3 row">
+        <div class="col-sm-4">
+          <label for="reserveMinutesBefore" class="form-label">
+            予約締切 (レッスン開始何分前まで)
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            id="reserveMinutesBefore"
+            name="reserveMinutesBefore"
+            value="60"
+          />
         </div>
-        <div class="small-note mt-1">
-          家族間で振替の譲渡が可能となります。<br/>
-          但し、フリークラスからの譲渡不可など例外は下記カスタムルールで定義してください。
+        <div class="col-sm-4">
+          <label for="reserveTimeRestriction" class="form-label">
+            時間制限の有無
+          </label>
+          <select 
+            class="form-select form-select-sm" 
+            id="reserveTimeRestriction" 
+            name="reserveTimeRestriction"
+          >
+            <option value="true">true (開始○分前で締切)</option>
+            <option value="false" selected>false (レッスン終了まで予約可)</option>
+          </select>
+        </div>
+        <div class="col-sm-4">
+          <label for="cancelLimitMinutesBefore" class="form-label">
+            キャンセル締切 (何分前まで)
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            id="cancelLimitMinutesBefore"
+            name="cancelLimitMinutesBefore"
+            value="120"
+          />
         </div>
       </div>
-    </div>
+
+      <!-- 保存ボタン -->
+      <div>
+        <button type="submit" class="btn btn-primary btn-sm">保存</button>
+      </div>
+    </form>
   </div>
 
-  <!-- カスタム料金設定 -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5>カスタム振替ルール設定</h5>
-      <p class="section-description">
-        コース間の振替時に発生する追加差額や、家族間振替時のみ適用される特別手数料などを定義します。<br/>
-        元コース・振替先コースを指定し、期内・期外差額を設定、家族間振替適用可否も指定可能。
-      </p>
+  <hr/>
 
-      <!-- 検索・フィルタ & 一括追加UI -->
-      <div class="row g-2 align-items-end mb-3">
-        <div class="col-md-3">
-          <label class="form-label">元コースフィルタ</label>
-          <input type="text" class="form-control" id="filterFromCourse" placeholder="例: ジュニア" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">振替先コースフィルタ</label>
-          <input type="text" class="form-control" id="filterToCourse" placeholder="例: 大人" />
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">期内差額</label>
-          <input type="number" class="form-control" id="bulkInTermDiff" placeholder="例:500" />
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">期外差額</label>
-          <input type="number" class="form-control" id="bulkOutTermDiff" placeholder="例:1000" />
-        </div>
-        <div class="col-md-2">
-          <button type="button" class="btn btn-secondary w-100" onclick="addBulkCustomFee()">
-            一括追加
-          </button>
-        </div>
-      </div>
-      <div class="small-note mb-3">
-        フィルタ入力後「一括追加」ボタンで、該当するコースペア全てにまとめてカスタムルールを追加。(本モックでは1件のみ例示)
+  <!-- コース間振替費用設定 -->
+  <div>
+    <div class="section-title">コース間振替費用設定</div>
+    <p class="text-secondary" style="font-size:0.85rem;">
+      学期内/学期外の差額をコース組み合わせ単位で設定します。<br/>
+      振替先コースは「すべて」を選択すると、全コースに共通の差額設定として扱います。
+    </p>
+
+    <!-- 入力フォーム (ドロップダウン2つ + 差額ラベル付き) -->
+    <div class="mb-3 d-flex align-items-center flex-wrap" style="gap:12px;">
+      <!-- 振替元コース -->
+      <div>
+        <label for="fromCourseSelect" class="form-label mb-1">
+          振替元コース
+        </label>
+        <select 
+          id="fromCourseSelect" 
+          class="form-select form-select-sm" 
+          style="width:auto;"
+        >
+          <option value="平日昼コース">平日昼コース</option>
+          <option value="土日コース">土日コース</option>
+          <option value="フリークラス">フリークラス</option>
+        </select>
       </div>
 
-      <!-- カスタムルール一覧テーブル -->
-      <div id="customFeesTable" class="mb-2">
-        <table>
-          <thead>
-            <tr>
-              <th>元コース</th>
-              <th>振替先コース</th>
-              <th>期内差額</th>
-              <th>期外差額</th>
-              <th>家族間適用</th>
-              <th>削除</th>
-            </tr>
-          </thead>
-          <tbody id="customFeesBody">
-          </tbody>
-        </table>
+      <span class="align-self-end">→</span>
+
+      <!-- 振替先コース -->
+      <div>
+        <label for="toCourseSelect" class="form-label mb-1">
+          振替先コース
+        </label>
+        <select 
+          id="toCourseSelect" 
+          class="form-select form-select-sm" 
+          style="width:auto;"
+        >
+          <option value="all">すべて</option>
+          <option value="平日昼コース">平日昼コース</option>
+          <option value="土日コース" selected>土日コース</option>
+          <option value="フリークラス">フリークラス</option>
+        </select>
       </div>
 
-      <div class="mt-3">
-        <button class="btn btn-secondary" onclick="addSingleCustomRule()">個別ルール追加</button>
-        <span class="small-note ms-2">
-          個別追加で1件ずつ詳細設定可能
-        </span>
+      <!-- 学期内差額 -->
+      <div>
+        <label for="inTermDiffInput" class="form-label mb-1">学期内差額</label>
+        <input
+          id="inTermDiffInput"
+          type="number"
+          class="form-control form-control-sm"
+          style="width:100px;"
+          value=""
+        />
       </div>
-    </div>
-  </div>
 
-  <!-- 設定保存・プレビュー -->
-  <div class="card">
-    <div class="card-body">
-      <h5>現在の設定</h5>
-      <div id="currentSettings" class="alert alert-info">設定されていません</div>
-      <button type="button" class="btn btn-primary" onclick="saveSettings()">設定を保存し表示更新</button>
-    </div>
-  </div>
-</div>
+      <!-- 学期外差額 -->
+      <div>
+        <label for="outTermDiffInput" class="form-label mb-1">学期外差額</label>
+        <input
+          id="outTermDiffInput"
+          type="number"
+          class="form-control form-control-sm"
+          style="width:100px;"
+          value=""
+        />
+      </div>
 
-<!-- モーダル: 個別ルール追加 -->
-<div class="modal fade" id="singleAddModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">個別ルール追加</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">元コース</label>
-          <input type="text" class="form-control" id="singleFromCourse" placeholder="例: ジュニア1～4" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">振替先コース</label>
-          <input type="text" class="form-control" id="singleToCourse" placeholder="例: 大人" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">期内差額（税抜）</label>
-          <input type="number" class="form-control" id="singleInTerm" placeholder="例:990" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">期外差額（税抜）</label>
-          <input type="number" class="form-control" id="singleOutTerm" placeholder="例:1321" />
-        </div>
-        <div class="mb-3 form-check">
-          <input class="form-check-input" type="checkbox" id="singleFamilyApply">
-          <label class="form-check-label" for="singleFamilyApply">家族間振替時にも適用</label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-        <button type="button" class="btn btn-primary" onclick="confirmSingleAdd()">追加</button>
+      <!-- 追加ボタン -->
+      <div class="align-self-end">
+        <button class="btn btn-primary btn-sm" onclick="addSubstitutionFee()">
+          追加
+        </button>
       </div>
     </div>
+
+    <!-- テーブル表示 -->
+    <table class="table table-bordered table-sm align-middle">
+      <thead>
+        <tr>
+          <th>振替元コース</th>
+          <th>振替先コース</th>
+          <th>学期内差額</th>
+          <th>学期外差額</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="customFeeBody">
+        <!-- ダミーデータはJSで初期表示 -->
+      </tbody>
+    </table>
+
   </div>
-</div>
 
-<script>
-  const customFeesList = [];
+  <!-- Bootstrap JS (必要ならモーダル等で使用) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
 
-  function addSingleCustomRule() {
-    const modal = new bootstrap.Modal(document.getElementById('singleAddModal'));
-    modal.show();
-  }
+  <script>
+    // ---------------------------------------
+    // ダミーデータ: 初期表示用
+    // ---------------------------------------
+    const substitutionFeeData = [
+      {
+        fromCourse: "平日昼コース",
+        toCourse: "土日コース",
+        inTerm: 0,
+        outTerm: 500
+      },
+      {
+        fromCourse: "土日コース",
+        toCourse: "フリークラス",
+        inTerm: 300,
+        outTerm: 800
+      }
+    ];
 
-  function confirmSingleAdd() {
-    const fromC = document.getElementById('singleFromCourse').value;
-    const toC = document.getElementById('singleToCourse').value;
-    const inDiff = document.getElementById('singleInTerm').value;
-    const outDiff = document.getElementById('singleOutTerm').value;
-    const familyApply = document.getElementById('singleFamilyApply').checked;
-
-    customFeesList.push({fromCourse: fromC, toCourse: toC, inTermDifference: inDiff, outTermDifference: outDiff, familyApply:familyApply});
-    renderCustomFeesTable();
-
-    document.getElementById('singleFromCourse').value = '';
-    document.getElementById('singleToCourse').value = '';
-    document.getElementById('singleInTerm').value = '';
-    document.getElementById('singleOutTerm').value = '';
-    document.getElementById('singleFamilyApply').checked = false;
-    bootstrap.Modal.getInstance(document.getElementById('singleAddModal')).hide();
-  }
-
-  function addBulkCustomFee() {
-    const fromFilter = document.getElementById('filterFromCourse').value;
-    const toFilter = document.getElementById('filterToCourse').value;
-    const bulkIn = document.getElementById('bulkInTermDiff').value;
-    const bulkOut = document.getElementById('bulkOutTermDiff').value;
-
-    // 仮実装: フィルタに関係なく1件追加する例
-    customFeesList.push({fromCourse: fromFilter||'任意', toCourse: toFilter||'任意', inTermDifference: bulkIn, outTermDifference: bulkOut, familyApply:false});
-    renderCustomFeesTable();
-
-    document.getElementById('filterFromCourse').value = '';
-    document.getElementById('filterToCourse').value = '';
-    document.getElementById('bulkInTermDiff').value = '';
-    document.getElementById('bulkOutTermDiff').value = '';
-  }
-
-  function renderCustomFeesTable() {
-    const tbody = document.getElementById('customFeesBody');
-    tbody.innerHTML = '';
-    customFeesList.forEach((rule, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${rule.fromCourse || 'すべて'}</td>
-        <td>${rule.toCourse || 'すべて'}</td>
-        <td>${rule.inTermDifference || '0'}</td>
-        <td>${rule.outTermDifference || '0'}</td>
-        <td>${rule.familyApply?'適用':'-'}</td>
-        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeCustomFeeRule(${index})">削除</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function removeCustomFeeRule(index) {
-    customFeesList.splice(index,1);
-    renderCustomFeesTable();
-  }
-
-  function saveSettings() {
-    const levelRestriction = document.getElementById("levelRestriction").value;
-    const daysBefore = document.getElementById("rescheduleDaysBefore").value;
-    const hoursBefore = document.getElementById("rescheduleHoursBefore").value;
-    const inTermFee = document.getElementById("inTermFee").value;
-    const outTermFee = document.getElementById("outTermFee").value;
-    const expireDays = document.getElementById("expireDays").value;
-    const expireMonths = document.getElementById("expireMonths").value;
-    const expireYears = document.getElementById("expireYears").value;
-    const familyShare = document.getElementById("familyShare").checked;
-    const maxLower = document.getElementById("maxLowerLevelDiff").value;
-
-    const settings = {
-      levelRestriction,
-      maxLowerLevelDiff:maxLower,
-      rescheduleDaysBefore: daysBefore,
-      rescheduleHoursBefore: hoursBefore,
-      inTermFee,
-      outTermFee,
-      expireDays,
-      expireMonths,
-      expireYears,
-      familyShare,
-      customFees: customFeesList,
+    // ---------------------------------------
+    // ページロード時に初期表示
+    // ---------------------------------------
+    window.onload = () => {
+      renderSubstitutionFeeTable();
     };
 
-    console.log(settings);
+    // ---------------------------------------
+    // テーブル描画
+    // ---------------------------------------
+    function renderSubstitutionFeeTable() {
+      const tbody = document.getElementById("customFeeBody");
+      tbody.innerHTML = "";
 
-    let text = "レベル制限: ";
-    switch (levelRestriction) {
-      case "same": text += "同レベルのみ"; break;
-      case "down":
-        text += "下位レベルへ行ける";
-        if(maxLower) text+=` (下位レベル許容: ${maxLower}段階まで)`;
-        break;
-    }
-
-    if (daysBefore) text += `, ${daysBefore}日前まで振替可`;
-    if (hoursBefore) text += `, ${hoursBefore}時間前まで振替可`;
-
-    text += `\n期内料金: ¥${inTermFee || "未設定"} / 期外料金: ¥${outTermFee || "未設定"}`;
-
-    let expireText = [];
-    if (expireDays) expireText.push(`${expireDays}日`);
-    if (expireMonths) expireText.push(`${expireMonths}ヶ月`);
-    if (expireYears) expireText.push(`${expireYears}年`);
-    text += `\n有効期限: ${expireText.length > 0 ? expireText.join(' ') : '未設定'}`;
-    text += familyShare ? "\n家族内振替共有: 可" : "\n家族内振替共有: 不可";
-
-    if (customFeesList.length > 0) {
-      text += "\nカスタム料金(期内/期外,家族間適用):";
-      customFeesList.forEach((fee, index) => {
-        text += `\n  ${index + 1}. ${fee.fromCourse || 'すべて'} → ${fee.toCourse || 'すべて'}: 期内¥${fee.inTermDifference || '0'} / 期外¥${fee.outTermDifference || '0'}${fee.familyApply?'(家族間適用)':''}`;
+      substitutionFeeData.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.fromCourse}</td>
+          <td>${row.toCourse}</td>
+          <td>${row.inTerm}</td>
+          <td>${row.outTerm}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteFee(${index})">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
-    } else {
-      text += "\nカスタム料金: なし";
     }
 
-    document.getElementById("currentSettings").textContent = text;
-    alert("設定が保存されました！");
-  }
+    // ---------------------------------------
+    // 「追加」ボタンクリック時の処理
+    // ---------------------------------------
+    function addSubstitutionFee() {
+      const from = document.getElementById("fromCourseSelect").value;
+      const to = document.getElementById("toCourseSelect").value;
+      const inTermStr = document.getElementById("inTermDiffInput").value.trim();
+      const outTermStr = document.getElementById("outTermDiffInput").value.trim();
 
-  document.getElementById('levelRestriction').addEventListener('change',function(){
-    const val=this.value;
-    const group=document.getElementById('maxLowerLevelDiffGroup');
-    if(val==='down'){
-      group.style.display='';
-    } else {
-      group.style.display='none';
-      document.getElementById('maxLowerLevelDiff').value='';
+      const inTermVal = inTermStr === "" ? 0 : Number(inTermStr);
+      const outTermVal = outTermStr === "" ? 0 : Number(outTermStr);
+
+      // データ追加
+      substitutionFeeData.push({
+        fromCourse: from,
+        toCourse: to,
+        inTerm: inTermVal,
+        outTerm: outTermVal
+      });
+
+      // フォームをクリア
+      document.getElementById("inTermDiffInput").value = "";
+      document.getElementById("outTermDiffInput").value = "";
+      // テーブル再描画
+      renderSubstitutionFeeTable();
     }
-  });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    // ---------------------------------------
+    // ダミー: 削除ボタンクリック
+    // ---------------------------------------
+    function deleteFee(index) {
+      // 画面上は行削除（実際は論理削除でもOK）
+      substitutionFeeData.splice(index, 1);
+      renderSubstitutionFeeTable();
+    }
+
+    // ---------------------------------------
+    // 振替ポリシーフォームの送信
+    // ---------------------------------------
+    document.getElementById('policy-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert("振替ポリシーを保存しました。（ダミー）\nチェックボックスや数値項目などはサーバーに送信してください。");
+      // TODO: fetch/axiosでサーバーAPIに送信する実装
+    });
+  </script>
+
 </body>
 </html>
