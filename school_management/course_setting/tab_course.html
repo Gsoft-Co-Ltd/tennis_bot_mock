@@ -1,450 +1,627 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>コース一覧</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-      body {
-        background-color: #f5f7fa;
-        font-family: Arial, sans-serif;
-      }
-      .container {
-        margin-top: 20px;
-      }
-      .modal-header {
-        background-color: #007bff;
-        color: white;
-      }
-      .form-check-label {
-        margin-left: 4px;
-      }
-      .section-title {
-        margin-top: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <!-- コース追加ボタン -->
-      <button
-        type="button"
-        class="btn btn-primary mb-3"
-        data-bs-toggle="modal"
-        data-bs-target="#addCourseModal"
-      >
-        コースを追加
-      </button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  
+  <style>
+    /* ベーススタイル（他画面との統一感） */
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      padding: 20px;
+      background-color: #ffffff;
+    }
 
-      <!-- コース一覧テーブル -->
-      <table class="table table-bordered table-sm">
-        <thead class="table-primary">
-          <tr>
-            <th>コースID</th>
-            <th>コース名</th>
-            <th>レベル</th>
-            <th>説明</th>
-            <th>月額料金（税抜）</th>
-            <th>利用可能曜日</th>
-            <th>利用可能時間帯</th>
-            <th>チケット配布周期</th>
-            <th>配布枚数</th>
-            <th>有効期間(日)</th>
-            <th>有効期数</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="courseList">
-          <!-- サンプル行 -->
-          <tr>
-            <td>C001</td>
-            <td>フリーレッスンコース</td>
-            <td>なし</td>
-            <td>毎日1回無料で受講可能</td>
-            <td>¥17,000</td>
-            <td>月,火,水,木,金,土,日</td>
-            <td>09:00~22:00</td>
-            <td>日</td>
-            <td>1枚</td>
-            <td>1</td>
-            <td>1</td>
-            <td>
-              <button class="btn btn-warning btn-sm">編集</button>
-              <button class="btn btn-danger btn-sm">削除</button>
-            </td>
-          </tr>
-          <tr>
-            <td>C002</td>
-            <td>基礎週一コース</td>
-            <td>初級,中級</td>
-            <td>毎週2回受講可能</td>
-            <td>¥10,000</td>
-            <td>月,火,水,木,金,土,日</td>
-            <td>09:00~22:00</td>
-            <td>日</td>
-            <td>2枚</td>
-            <td>7</td>
-            <td>1</td>
-            <td>
-              <button class="btn btn-warning btn-sm">編集</button>
-              <button class="btn btn-danger btn-sm">削除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    .section-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #333;
+      border-left: 4px solid #0d6efd;
+      padding-left: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* テーブル系 */
+    .table {
+      font-size: 14px;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #555;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .table td {
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    /* フォーム関連 */
+    .form-label {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .notice {
+      color: #6c757d;
+      font-size: 0.85rem;
+      margin-left: 8px;
+    }
+    hr {
+      margin: 24px 0;
+    }
+
+    /* コース一覧固有のスタイル */
+    .multi-select-levels {
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      padding: 6px;
+    }
+    .multi-select-levels label {
+      display: block;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    /* 折りたたみ */
+    .toggle-availability-btn {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      cursor: pointer;
+      color: #0d6efd;
+      text-decoration: underline;
+    }
+    .availability-table {
+      display: none;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 8px;
+      background-color: #fff;
+    }
+    .availability-table table {
+      width: 100%;
+      border: none;
+    }
+    .availability-table th,
+    .availability-table td {
+      border: none !important;
+      padding: 4px 6px;
+    }
+    .availability-table input[type="time"] {
+      width: 110px;
+    }
+    .availability-table input[type="checkbox"] {
+      margin-right: 4px;
+    }
+
+    .table-operations {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <!-- コース一覧セクション -->
+  <div class="mb-4">
+    <div class="section-title">コース一覧</div>
+    <p class="text-secondary" style="font-size:0.85rem;">
+      コースの新規追加・編集・削除を行います。<br/>
+      受講可能日時はモーダル内で「すべて」を含む全曜日について設定できます。
+    </p>
+
+    <!-- 新規コース追加ボタン -->
+    <div class="mb-3">
+      <button class="btn btn-primary btn-sm" onclick="showCreateCourseModal()">+ 新規コース</button>
     </div>
 
-    <!-- コース追加モーダル -->
-    <div
-      class="modal fade"
-      id="addCourseModal"
-      tabindex="-1"
-      aria-labelledby="addCourseModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addCourseModalLabel">コースを追加</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="閉じる"
-            ></button>
+    <!-- テーブル: 「No」「受講可能時間」列は表示しない -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle" id="courseTable">
+        <thead>
+          <tr>
+            <th>コース名</th>
+            <th>基本料金</th>
+            <th>プラスワン費</th>
+            <th>フリークラス</th>
+            <th>対象レベル</th>
+            <th style="width:140px;">操作</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div><!-- /コース一覧 -->
+
+  <!-- ========== コース登録/編集モーダル ========== -->
+  <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="courseModalLabel">コース登録/編集</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body">
+          <!-- フォーム: コース名・基本料金・プラスワン費・フリークラス・説明など -->
+          <div class="row g-2 mb-2">
+            <div class="col-md-6">
+              <label for="courseNameInput" class="form-label">コース名</label>
+              <input type="text" class="form-control form-control-sm" id="courseNameInput" />
+            </div>
+            <div class="col-md-3">
+              <label for="basePriceInput" class="form-label">基本料金</label>
+              <input type="number" class="form-control form-control-sm" id="basePriceInput" />
+            </div>
+            <div class="col-md-3">
+              <label for="plusOneFeeInput" class="form-label">プラスワン費</label>
+              <input type="number" class="form-control form-control-sm" id="plusOneFeeInput" />
+            </div>
           </div>
-          <div class="modal-body">
-            <form id="addCourseForm">
-              <div class="card mb-3">
-                <div class="card-body">
-                  <h5 class="card-title">基本情報</h5>
-                  <div class="mb-3">
-                    <label for="courseId" class="form-label">コースID</label>
-                    <input
-                      type="text"
-                      id="courseId"
-                      class="form-control"
-                      placeholder="例: C003"
-                      required
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label for="courseName" class="form-label">コース名</label>
-                    <input
-                      type="text"
-                      id="courseName"
-                      class="form-control"
-                      placeholder="コース名を入力"
-                      required
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">レベル（複数選択可）</label>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="courseLevels"
-                        value="なし"
-                        id="levelNone"
-                      />
-                      <label class="form-check-label" for="levelNone"
-                        >なし</label
-                      >
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="courseLevels"
-                        value="初心者"
-                        id="levelBeginner"
-                      />
-                      <label class="form-check-label" for="levelBeginner"
-                        >初心者</label
-                      >
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="courseLevels"
-                        value="中級者"
-                        id="levelIntermediate"
-                      />
-                      <label class="form-check-label" for="levelIntermediate"
-                        >中級者</label
-                      >
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="courseLevels"
-                        value="上級者"
-                        id="levelAdvanced"
-                      />
-                      <label class="form-check-label" for="levelAdvanced"
-                        >上級者</label
-                      >
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="courseDescription" class="form-label"
-                      >説明</label
-                    >
-                    <textarea
-                      id="courseDescription"
-                      class="form-control"
-                      rows="3"
-                      placeholder="コースの説明を入力してください"
-                      required
-                    ></textarea>
-                  </div>
-                  <div class="mb-3">
-                    <label for="coursePrice" class="form-label"
-                      >料金（税抜）</label
-                    >
-                    <input
-                      type="number"
-                      id="coursePrice"
-                      class="form-control"
-                      placeholder="例: 9500"
-                      required
-                    />
-                  </div>
-                </div>
+
+          <div class="row g-2 mb-2">
+            <div class="col-md-3 d-flex align-items-center gap-2">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="freeClassCheck"
+                />
+                <label 
+                  class="form-check-label" 
+                  for="freeClassCheck"
+                >フリークラス</label>
               </div>
-
-              <div class="card mb-3">
-                <div class="card-body">
-                  <h5 class="card-title">利用可能日時設定</h5>
-                  <div class="mb-3">
-                    <label class="form-label">利用可能曜日（複数選択可）</label
-                    ><br />
-                    <!-- 全て初期チェック済み -->
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="月"
-                        id="dayMon"
-                        checked
-                      />
-                      <label class="form-check-label" for="dayMon">月</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="火"
-                        id="dayTue"
-                        checked
-                      />
-                      <label class="form-check-label" for="dayTue">火</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="水"
-                        id="dayWed"
-                        checked
-                      />
-                      <label class="form-check-label" for="dayWed">水</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="木"
-                        id="dayThu"
-                        checked
-                      />
-                      <label class="form-check-label" for="dayThu">木</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="金"
-                        id="dayFri"
-                        checked
-                      />
-                      <label class="form-check-label" for="dayFri">金</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="土"
-                        id="daySat"
-                        checked
-                      />
-                      <label class="form-check-label" for="daySat">土</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="availableDays"
-                        value="日"
-                        id="daySun"
-                        checked
-                      />
-                      <label class="form-check-label" for="daySun">日</label>
-                    </div>
-                  </div>
-
-                  <!-- 開始・終了時刻を一行で -->
-                  <div class="mb-3">
-                    <label class="form-label">利用可能時間帯</label><br>
-                    <input type="time" id="startTime" required /> ~
-                    <input type="time" id="endTime" required />
-                  </div>
-                </div>
-              </div>
-
-              <div class="card mb-3">
-                <div class="card-body">
-                  <h5 class="card-title">チケット配布設定</h5>
-                  <div class="row mb-3">
-                    <div class="col-md-4">
-                      <label for="ticketCycle" class="form-label"
-                        >配布周期</label
-                      >
-                      <select id="ticketCycle" class="form-select" required>
-                        <option value="日">日</option>
-                        <option value="週">週</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4">
-                      <label for="ticketCount" class="form-label"
-                        >配布枚数</label
-                      >
-                      <input
-                        type="number"
-                        id="ticketCount"
-                        class="form-control"
-                        placeholder="例: 1"
-                        required
-                      />
-                    </div>
-                    <div class="col-md-4">
-                      <label for="ticketValidity" class="form-label"
-                        >有効期間（日）</label
-                      >
-                      <input
-                        type="number"
-                        id="ticketValidity"
-                        class="form-control"
-                        placeholder="例: 1"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6">
-                      <label for="ticketTerms" class="form-label"
-                        >有効期数</label
-                      >
-                      <input
-                        type="number"
-                        id="ticketTerms"
-                        class="form-control"
-                        placeholder="例: 1"
-                        required
-                      />
-                      <small class="text-muted"
-                        >1期分有効＝当期内で失効、2期分有効＝来期まで持ち越し可能
-                        など</small
-                      >
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary w-100">保存</button>
-            </form>
+            </div>
+            <div class="col-md-9">
+              <label for="descriptionInput" class="form-label">説明</label>
+              <textarea 
+                class="form-control form-control-sm" 
+                id="descriptionInput" 
+                rows="2"
+              ></textarea>
+            </div>
           </div>
+
+          <!-- 対象レベル(チェックボックス) -->
+          <div class="mb-3">
+            <label class="form-label">対象レベル</label>
+            <div class="multi-select-levels" id="levelCheckboxes">
+              <!-- JSで生成 -->
+            </div>
+          </div>
+
+          <!-- 受講可能日時(折りたたみ) -->
+          <div>
+            <div 
+              class="toggle-availability-btn" 
+              onclick="toggleAvailabilityTable()"
+            >
+              ▼ 受講可能日時を設定
+            </div>
+            <div class="availability-table" id="availabilityTable">
+              <table class="table table-borderless table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:100px;">曜日</th>
+                    <th style="width:120px;">開始</th>
+                    <th style="width:120px;">終了</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="availabilityTbody">
+                  <!-- JSで生成 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /modal-body -->
+
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary btn-sm" 
+            data-bs-dismiss="modal"
+          >
+            キャンセル
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary btn-sm" 
+            onclick="saveCourse()"
+          >
+            保存
+          </button>
         </div>
       </div>
     </div>
+  </div>
+  <!-- ========== /コースモーダル ========== -->
 
-    <script>
-      const courseList = document.getElementById("courseList");
-      const addCourseForm = document.getElementById("addCourseForm");
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
 
-      addCourseForm.addEventListener("submit", function (event) {
-        event.preventDefault();
+  <script>
+    /*
+      ダミーデータ:
+      - levelMaster: レベル一覧(初級,中級,上級,etc.)
+      - dayOfWeekMaster: 曜日 + "すべて" 
+      - courseData: コース一覧 (一覧には受講可能時間を表示しない)
+    */
+    const levelMaster = [
+      { id: 1, label: "初級" },
+      { id: 2, label: "中級" },
+      { id: 3, label: "上級" },
+      { id: 4, label: "キッズ" }
+    ];
 
-        // 入力値を取得
-        const courseId = document.getElementById("courseId").value;
-        const courseName = document.getElementById("courseName").value;
-        const levelCheckboxes = document.querySelectorAll('input[name="courseLevels"]:checked');
-        const courseLevels = Array.from(levelCheckboxes).map((cb) => cb.value);
-        const courseDescription = document.getElementById("courseDescription").value;
-        const coursePrice = document.getElementById("coursePrice").value;
+    const dayOfWeekMaster = [
+      { value: "all", label: "すべて" },
+      { value: "mon", label: "月曜" },
+      { value: "tue", label: "火曜" },
+      { value: "wed", label: "水曜" },
+      { value: "thu", label: "木曜" },
+      { value: "fri", label: "金曜" },
+      { value: "sat", label: "土曜" },
+      { value: "sun", label: "日曜" }
+    ];
 
-        const dayCheckboxes = document.querySelectorAll('input[name="availableDays"]:checked');
-        const availableDays = Array.from(dayCheckboxes).map((cb) => cb.value);
+    // ダミーコースデータ
+    let courseData = [
+      {
+        id: 1,
+        name: "平日昼コース",
+        basePrice: 10000,
+        plusOneFee: 2000,
+        isFree: false,
+        description: "平日昼に受講可能なプラン",
+        levelIds: [1,2],
+        availability: [
+          { day_of_week:"all", start:"09:00", end:"17:00", enabled:true }
+        ]
+      },
+      {
+        id: 2,
+        name: "土日コース",
+        basePrice: 12000,
+        plusOneFee: 1000,
+        isFree: false,
+        description: "週末に通いたい方向け",
+        levelIds: [1,3],
+        availability: [
+          { day_of_week:"sat", start:"09:00", end:"12:00", enabled:true },
+          { day_of_week:"sun", start:"10:00", end:"14:00", enabled:true }
+        ]
+      },
+      {
+        id: 3,
+        name: "フリー利用コース",
+        basePrice: 15000,
+        plusOneFee: 0,
+        isFree: true,
+        description: "いつでも好きなときに利用できます。",
+        levelIds: [2,3],
+        availability: [
+          { day_of_week:"mon", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"tue", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"wed", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"thu", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"fri", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"sat", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"sun", start:"08:00", end:"22:00", enabled:true },
+          { day_of_week:"all", start:"00:00", end:"00:00", enabled:false }
+        ]
+      }
+    ];
 
-        const startTime = document.getElementById("startTime").value;
-        const endTime = document.getElementById("endTime").value;
+    let editingCourseId = null;
+    let availabilityTableVisible = false;
+    const courseModal = new bootstrap.Modal(document.getElementById("courseModal"), {});
 
-        const ticketCycle = document.getElementById("ticketCycle").value;
-        const ticketCount = document.getElementById("ticketCount").value;
-        const ticketValidity = document.getElementById("ticketValidity").value;
-        const ticketTerms = document.getElementById("ticketTerms").value;
-
-        // レベル表示
-        const levelDisplay = courseLevels.join(",") || "なし";
-
-        // 曜日表示
-        const daysDisplay = availableDays.join(",") || "指定なし";
-
-        // 時間帯表示
-        const timesDisplay = `${startTime} - ${endTime}`;
-
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-          <td>${courseId}</td>
-          <td>${courseName}</td>
-          <td>${levelDisplay}</td>
-          <td>${courseDescription}</td>
-          <td>¥${parseInt(coursePrice).toLocaleString()}</td>
-          <td>${daysDisplay}</td>
-          <td>${timesDisplay}</td>
-          <td>${ticketCycle}</td>
-          <td>${ticketCount}枚</td>
-          <td>${ticketValidity}</td>
-          <td>${ticketTerms}</td>
-          <td>
-            <button class="btn btn-warning btn-sm">編集</button>
-            <button class="btn btn-danger btn-sm">削除</button>
-          </td>
-        `;
-
-        courseList.appendChild(newRow);
-
-        // フォームをリセット
-        addCourseForm.reset();
-
-        // モーダルを閉じる
-        const modal = bootstrap.Modal.getInstance(document.getElementById("addCourseModal"));
-        modal.hide();
+    // ------------------------------------------
+    // ページ初期処理
+    // ------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      // レベルチェックボックス生成
+      const levelBoxArea = document.getElementById("levelCheckboxes");
+      levelMaster.forEach(lv => {
+        const lbl = document.createElement("label");
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.value = lv.id;
+        lbl.appendChild(chk);
+        lbl.appendChild(document.createTextNode(" " + lv.label));
+        levelBoxArea.appendChild(lbl);
       });
-    </script>
-  </body>
+      renderCourseTable();
+    });
+
+    // ------------------------------------------
+    // コース一覧テーブル描画
+    // ------------------------------------------
+    function renderCourseTable() {
+      const tbody = document.querySelector("#courseTable tbody");
+      tbody.innerHTML = "";
+
+      courseData.forEach(c => {
+        const tr = document.createElement("tr");
+        
+        // コース名
+        const tdName = document.createElement("td");
+        tdName.textContent = c.name;
+        tr.appendChild(tdName);
+
+        // 基本料金
+        const tdBase = document.createElement("td");
+        tdBase.textContent = `¥${c.basePrice.toLocaleString()}`;
+        tr.appendChild(tdBase);
+
+        // プラスワン費
+        const tdPlus = document.createElement("td");
+        tdPlus.textContent = c.plusOneFee ? `¥${c.plusOneFee.toLocaleString()}` : "-";
+        tr.appendChild(tdPlus);
+
+        // フリークラス
+        const tdFree = document.createElement("td");
+        tdFree.textContent = c.isFree ? "はい" : "いいえ";
+        tr.appendChild(tdFree);
+
+        // 対象レベル
+        const tdLevels = document.createElement("td");
+        const levelLabels = c.levelIds.map(id => {
+          const lv = levelMaster.find(x => x.id === id);
+          return lv ? lv.label : "";
+        });
+        tdLevels.textContent = levelLabels.join(", ");
+        tr.appendChild(tdLevels);
+
+        // 操作
+        const tdOps = document.createElement("td");
+        tdOps.className = "table-operations";
+
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "btn btn-sm btn-success";
+        btnEdit.textContent = "編集";
+        btnEdit.onclick = () => showEditCourseModal(c.id);
+
+        const btnDelete = document.createElement("button");
+        btnDelete.className = "btn btn-sm btn-danger";
+        btnDelete.textContent = "削除";
+        btnDelete.onclick = () => deleteCourse(c.id);
+
+        tdOps.appendChild(btnEdit);
+        tdOps.appendChild(btnDelete);
+        tr.appendChild(tdOps);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ------------------------------------------
+    // 新規コースモーダル
+    // ------------------------------------------
+    function showCreateCourseModal() {
+      editingCourseId = null;
+      document.getElementById("courseModalLabel").textContent = "新規コース登録";
+      clearCourseModal();
+      courseModal.show();
+    }
+
+    // ------------------------------------------
+    // 既存コース編集モーダル
+    // ------------------------------------------
+    function showEditCourseModal(courseId) {
+      editingCourseId = courseId;
+      const c = courseData.find(x => x.id === courseId);
+      if (!c) return;
+
+      document.getElementById("courseModalLabel").textContent = "コース編集";
+      clearCourseModal();
+
+      // 値セット
+      document.getElementById("courseNameInput").value  = c.name;
+      document.getElementById("basePriceInput").value   = c.basePrice;
+      document.getElementById("plusOneFeeInput").value  = c.plusOneFee;
+      document.getElementById("freeClassCheck").checked = c.isFree;
+      document.getElementById("descriptionInput").value = c.description || "";
+
+      // レベルチェック
+      const levelBoxArea = document.getElementById("levelCheckboxes");
+      const checkboxes = levelBoxArea.querySelectorAll("input[type=checkbox]");
+      checkboxes.forEach(chk => {
+        if (c.levelIds.includes(parseInt(chk.value))) {
+          chk.checked = true;
+        }
+      });
+
+      // 受講可能日時
+      fillAvailabilityTable(c.availability);
+
+      courseModal.show();
+    }
+
+    // ------------------------------------------
+    // モーダル保存ボタン
+    // ------------------------------------------
+    function saveCourse() {
+      const name       = document.getElementById("courseNameInput").value.trim();
+      const basePrice  = parseInt(document.getElementById("basePriceInput").value.trim() || "0");
+      const plusOneFee = parseInt(document.getElementById("plusOneFeeInput").value.trim() || "0");
+      const isFree     = document.getElementById("freeClassCheck").checked;
+      const desc       = document.getElementById("descriptionInput").value.trim();
+
+      // レベル
+      const levelBoxArea = document.getElementById("levelCheckboxes");
+      const checkboxes = levelBoxArea.querySelectorAll("input[type=checkbox]");
+      let selectedLevels = [];
+      checkboxes.forEach(chk => {
+        if (chk.checked) {
+          selectedLevels.push(parseInt(chk.value));
+        }
+      });
+
+      // Availabilityテーブルから取得
+      const rows = document.getElementById("availabilityTbody").querySelectorAll("tr");
+      let newAvailability = [];
+      rows.forEach(row => {
+        const dayVal = row.getAttribute("data-day");
+        const chk = row.querySelector("input[type=checkbox]");
+        const start = row.querySelector(".start-time").value;
+        const end   = row.querySelector(".end-time").value;
+        newAvailability.push({
+          day_of_week: dayVal,
+          start,
+          end,
+          enabled: chk.checked
+        });
+      });
+
+      // 簡易バリデーション
+      if (!name) {
+        alert("コース名を入力してください。");
+        return;
+      }
+
+      if (editingCourseId === null) {
+        // 新規
+        const newId = courseData.length ? Math.max(...courseData.map(x => x.id)) + 1 : 1;
+        courseData.push({
+          id: newId,
+          name,
+          basePrice,
+          plusOneFee,
+          isFree,
+          description: desc,
+          levelIds: selectedLevels,
+          availability: newAvailability
+        });
+      } else {
+        // 更新
+        const c = courseData.find(x => x.id === editingCourseId);
+        if (c) {
+          c.name         = name;
+          c.basePrice    = basePrice;
+          c.plusOneFee   = plusOneFee;
+          c.isFree       = isFree;
+          c.description  = desc;
+          c.levelIds     = selectedLevels;
+          c.availability = newAvailability;
+        }
+      }
+
+      courseModal.hide();
+      renderCourseTable();
+    }
+
+    // ------------------------------------------
+    // 削除
+    // ------------------------------------------
+    function deleteCourse(courseId) {
+      if (!confirm("このコースを削除しますか？")) return;
+      const idx = courseData.findIndex(x => x.id === courseId);
+      if (idx >= 0) {
+        courseData.splice(idx, 1);
+      }
+      renderCourseTable();
+    }
+
+    // ------------------------------------------
+    // 折りたたみ切り替え
+    // ------------------------------------------
+    function toggleAvailabilityTable() {
+      const tableArea = document.getElementById("availabilityTable");
+      availabilityTableVisible = !availabilityTableVisible;
+      tableArea.style.display = availabilityTableVisible ? "block" : "none";
+
+      const btn = document.querySelector(".toggle-availability-btn");
+      btn.textContent = (availabilityTableVisible ? "▲" : "▼") + " 受講可能日時を設定";
+    }
+
+    // ------------------------------------------
+    // Availabilityテーブルを埋める
+    // ------------------------------------------
+    function fillAvailabilityTable(rows) {
+      const tbody = document.getElementById("availabilityTbody");
+      tbody.innerHTML = "";
+
+      dayOfWeekMaster.forEach(d => {
+        const existing = rows ? rows.find(x => x.day_of_week === d.value) : null;
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-day", d.value);
+
+        const tdDay = document.createElement("td");
+        tdDay.textContent = d.label;
+
+        const tdStart = document.createElement("td");
+        const inpStart = document.createElement("input");
+        inpStart.type = "time";
+        inpStart.className = "start-time form-control form-control-sm";
+        inpStart.value = existing ? existing.start : "00:00";
+        tdStart.appendChild(inpStart);
+
+        const tdEnd = document.createElement("td");
+        const inpEnd = document.createElement("input");
+        inpEnd.type = "time";
+        inpEnd.className = "end-time form-control form-control-sm";
+        inpEnd.value = existing ? existing.end : "00:00";
+        tdEnd.appendChild(inpEnd);
+
+        const tdChk = document.createElement("td");
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = existing ? !!existing.enabled : false;
+        tdChk.appendChild(chk);
+
+        tr.appendChild(tdDay);
+        tr.appendChild(tdStart);
+        tr.appendChild(tdEnd);
+        tr.appendChild(tdChk);
+        tbody.appendChild(tr);
+      });
+
+      availabilityTableVisible = false;
+      document.getElementById("availabilityTable").style.display = "none";
+      document.querySelector(".toggle-availability-btn").textContent = "▼ 受講可能日時を設定";
+    }
+
+    // ------------------------------------------
+    // モーダル初期化
+    // ------------------------------------------
+    function clearCourseModal() {
+      document.getElementById("courseNameInput").value  = "";
+      document.getElementById("basePriceInput").value   = "";
+      document.getElementById("plusOneFeeInput").value  = "";
+      document.getElementById("freeClassCheck").checked = false;
+      document.getElementById("descriptionInput").value = "";
+
+      const checkboxes = document.getElementById("levelCheckboxes")
+                          .querySelectorAll("input[type=checkbox]");
+      checkboxes.forEach(chk => { chk.checked = false; });
+
+      fillAvailabilityTable([]);
+    }
+  </script>
+</body>
 </html>
