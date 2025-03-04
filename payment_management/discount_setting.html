@@ -33,8 +33,7 @@
       border: none;
     }
     .card-header {
-      /* 他画面と統一したいなら白ベースに */
-      background: #fff;
+      background: #fff; /* 白ベース */
       color: #000;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
@@ -62,8 +61,7 @@
     table tbody tr:nth-child(odd) {
       background-color: #f9f9f9;
     }
-
-    /* ボタン色: 編集=黄, 保存=緑, キャンセル=グレー, 削除=赤 */
+    /* ボタン色: 編集(黄), 保存(緑), キャンセル(グレー), 削除(赤) */
     .btn-edit {
       background-color: #ffc107;
       color: #212529;
@@ -72,14 +70,6 @@
       background-color: #e0a800;
       color: #212529;
     }
-    .btn-delete {
-      background: #dc3545;
-      color: #fff;
-    }
-    .btn-delete:hover {
-      background: #c82333;
-    }
-    /* "保存" は緑系 */
     .btn-save {
       background-color: #28a745;
       color: #fff;
@@ -88,7 +78,13 @@
       background-color: #218838;
       color: #fff;
     }
-    /* キャンセルはグレー系 */
+    .btn-delete {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn-delete:hover {
+      background: #c82333;
+    }
     .form-check {
       display: flex;
       align-items: center;
@@ -165,7 +161,7 @@
     { name: "特別レッスン割引", type: "固定金額割引", value: "1000円", continuous: "はい" }
   ];
 
-  // 初期読み込み
+  // 初期処理
   window.onload = () => {
     loadSampleDiscounts();
   };
@@ -202,8 +198,11 @@
     document.getElementById("discountForm").reset();
   });
 
+  // テーブルに行を追加
   function addDiscountToTable(name, type, value, continuous) {
     const row = document.createElement("tr");
+    row.setAttribute("data-editing", "false"); // 最初は編集モードOFF
+
     row.innerHTML = `
       <td class="td-name">${name}</td>
       <td class="td-type">${type}</td>
@@ -229,12 +228,19 @@
     // 編集ボタン
     const editBtn = row.querySelector(".edit-discount");
     editBtn.addEventListener("click", () => {
+      // もしすでに編集中なら何もしない
+      if (row.dataset.editing === "true") {
+        console.log("この行は既に編集モードです。");
+        return;
+      }
       enableEditMode(row);
     });
   }
 
   // 編集モード
   function enableEditMode(row) {
+    row.dataset.editing = "true"; // 編集モードON
+
     const tdName = row.querySelector(".td-name");
     const tdType = row.querySelector(".td-type");
     const tdValue = row.querySelector(".td-value");
@@ -246,10 +252,10 @@
     // 元の値を保持
     const originalName = tdName.textContent;
     const originalType = tdType.textContent;
-    const originalVal = tdValue.textContent.replace("%", "").replace("円", "");
+    const originalVal  = tdValue.textContent.replace("%", "").replace("円", "");
     const originalCont = (tdCont.textContent === "はい");
 
-    // フォーム化
+    // セルをフォーム化
     tdName.innerHTML = `<input type="text" class="form-control form-control-sm" value="${originalName}" />`;
     tdType.innerHTML = `
       <select class="form-select form-select-sm">
@@ -259,7 +265,7 @@
       </select>
     `;
     tdValue.innerHTML = `<input type="number" class="form-control form-control-sm" value="${originalVal}" />`;
-    tdCont.innerHTML = `
+    tdCont.innerHTML  = `
       <div class="form-check">
         <input type="checkbox" class="form-check-input" id="contCheck" ${originalCont?"checked":""}>
         <label for="contCheck" class="form-check-label">継続</label>
@@ -271,7 +277,7 @@
     editBtn.classList.remove("btn-edit");
     editBtn.classList.add("btn-save");
 
-    // 削除ボタンは編集モード中は非表示
+    // 削除ボタンは非表示
     deleteBtn.style.display = "none";
 
     // キャンセルボタン追加
@@ -283,7 +289,10 @@
 
     // 保存ボタンクリック
     editBtn.onclick = () => {
-      saveChanges(row, originalType);
+      saveChanges(row, {
+        originalType,
+        originalVal
+      });
     };
 
     // キャンセルボタンクリック
@@ -298,76 +307,92 @@
   }
 
   // 保存処理
-  function saveChanges(row, oldType) {
+  function saveChanges(row, original) {
     const tdName = row.querySelector(".td-name");
     const tdType = row.querySelector(".td-type");
-    const tdValue = row.querySelector(".td-value");
-    const tdCont  = row.querySelector(".td-continuous");
+    const tdValue= row.querySelector(".td-value");
+    const tdCont = row.querySelector(".td-continuous");
 
     const editBtn  = row.querySelector(".edit-discount");
     const deleteBtn= row.querySelector(".delete-discount");
     const cancelBtn= editBtn.parentElement.querySelector(".btn-secondary");
 
-    const newName = tdName.querySelector("input").value.trim();
-    const newType = tdType.querySelector("select").value;
-    const newVal  = tdValue.querySelector("input").value.trim();
-    const check   = row.querySelector("#contCheck").checked;
+    // 新しい値
+    const newName   = tdName.querySelector("input").value.trim();
+    const newType   = tdType.querySelector("select").value;
+    const newVal    = tdValue.querySelector("input").value.trim();
+    const newCont   = row.querySelector("#contCheck").checked;
 
     if (!newName || !newVal) {
       alert("割引名と割引値は必須です。");
       return;
     }
 
-    // 表示用に変換
-    let displayVal = (newType==="パーセンテージ割引") ? `${newVal}%` : `${newVal}円`;
+    // 表示用
+    let displayVal  = (newType==="パーセンテージ割引") ? `${newVal}%` : `${newVal}円`;
 
-    // 更新
+    // セル更新
     tdName.textContent = newName;
     tdType.textContent = newType;
-    tdValue.textContent = displayVal;
-    tdCont.textContent  = check ? "はい" : "いいえ";
+    tdValue.textContent= displayVal;
+    tdCont.textContent = newCont ? "はい" : "いいえ";
 
     // ボタンを編集に戻す
     editBtn.textContent = "編集";
     editBtn.classList.remove("btn-save");
     editBtn.classList.add("btn-edit");
-    editBtn.onclick = () => enableEditMode(row);
+    editBtn.onclick = () => {
+      // チェック: もしすでに編集中なら無視
+      if (row.dataset.editing === "true") return;
+      enableEditMode(row);
+    };
 
-    // 削除ボタンを復活
+    // 削除ボタン復活
     deleteBtn.style.display = "inline-block";
 
     // キャンセルボタン削除
     if (cancelBtn) cancelBtn.remove();
+
+    // 編集モードOFF
+    row.dataset.editing = "false";
   }
 
   // キャンセル処理
   function cancelEdit(row, original) {
     const tdName = row.querySelector(".td-name");
     const tdType = row.querySelector(".td-type");
-    const tdValue = row.querySelector(".td-value");
-    const tdCont  = row.querySelector(".td-continuous");
+    const tdValue= row.querySelector(".td-value");
+    const tdCont = row.querySelector(".td-continuous");
 
     const editBtn  = row.querySelector(".edit-discount");
     const deleteBtn= row.querySelector(".delete-discount");
     const cancelBtn= editBtn.parentElement.querySelector(".btn-secondary");
 
-    // 元の表示に戻す
-    tdName.textContent = original.name;
-    tdType.textContent = original.type;
-    tdValue.textContent = (original.type==="パーセンテージ割引") ? `${original.val}%` : `${original.val}円`;
-    tdCont.textContent  = original.cont ? "はい" : "いいえ";
+    // 元の表示復帰
+    tdName.textContent   = original.name;
+    tdType.textContent   = original.type;
+    tdValue.textContent  = (original.type==="パーセンテージ割引")
+      ? `${original.val}%`
+      : `${original.val}円`;
+    tdCont.textContent   = original.cont ? "はい" : "いいえ";
 
-    // ボタンを編集に戻す
+    // ボタンを「編集」に戻す
     editBtn.textContent = "編集";
     editBtn.classList.remove("btn-save");
     editBtn.classList.add("btn-edit");
-    editBtn.onclick = () => enableEditMode(row);
+    editBtn.onclick = () => {
+      if (row.dataset.editing === "true") return;
+      enableEditMode(row);
+    };
 
     // 削除ボタン復活
     deleteBtn.style.display = "inline-block";
 
-    // キャンセルボタンを削除
+    // キャンセルボタン削除
     if (cancelBtn) cancelBtn.remove();
+
+    // 編集モードOFF
+    row.dataset.editing = "false";
   }
 </script>
 </body>
