@@ -33,7 +33,7 @@
     }
     .form-inline-container .btn {
       font-size: 0.9rem;
-      padding: 6px 12px;
+      padding: 6px 12px; /* ボタンの高さを調整 */
     }
   </style>
 </head>
@@ -51,23 +51,27 @@
             <div class="form-inline-container">
               <label for="companySelect" class="form-label">企業</label>
               <select id="companySelect" class="form-select form-select-sm">
+                <!-- 実際にはDBの mst_companies から取得して表示する -->
                 <option value="1" selected>株式会社A</option>
                 <option value="2">株式会社B</option>
                 <option value="3">株式会社C</option>
               </select>
             </div>
           </div>
+
           <!-- スクール選択 -->
           <div class="col-auto">
             <div class="form-inline-container">
               <label for="schoolSelect" class="form-label">スクール</label>
               <select id="schoolSelect" class="form-select form-select-sm">
+                <!-- 実際には mst_schools から取得して表示する -->
                 <option value="10" selected>東京スクール</option>
                 <option value="20">大阪スクール</option>
                 <option value="30">福岡スクール</option>
               </select>
             </div>
           </div>
+
           <!-- 選択ボタン -->
           <div class="col-auto">
             <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
@@ -96,6 +100,7 @@
     <table class="table table-striped table-hover" id="eventTable">
       <thead>
         <tr>
+          <th scope="col">ID</th> <!-- Eから始まる連番 -->
           <th scope="col">日付</th>
           <th scope="col">イベント名</th>
           <th scope="col">コート</th>
@@ -108,19 +113,21 @@
         </tr>
       </thead>
       <tbody>
-        <!-- サンプルデータ: data-id="イベントID" や data-month="YYYY-MM" -->
-        <tr 
-          data-id="101" 
-          data-month="2024-12"
+        <!-- サンプルデータ: data-xxx 属性で内部キーや各種情報を保持 -->
+        <tr
+          data-internal-id="101"         
+          data-event-code="E111"        
           data-date="2024-12-25"
           data-name="年末特別レッスン"
-          data-court="102"
+          data-court="コートB"          
           data-fee="1000"
           data-start="12:00"
           data-end="14:00"
           data-capacity="15"
           data-desc="年末に集中ラリー練習"
+          data-month="2024-12"          
         >
+          <td>E111</td> <!-- event_code -->
           <td>2024-12-25</td>
           <td>年末特別レッスン</td>
           <td>コートB</td>
@@ -135,17 +142,19 @@
           </td>
         </tr>
         <tr
-          data-id="102"
-          data-month="2025-01"
+          data-internal-id="102"
+          data-event-code="E112"
           data-date="2025-01-05"
           data-name="お正月イベント"
-          data-court="103"
+          data-court="コートC"
           data-fee="1500"
           data-start="10:00"
           data-end="12:00"
           data-capacity="10"
           data-desc="新年初打ちの特別レッスン"
+          data-month="2025-01"
         >
+          <td>E112</td>
           <td>2025-01-05</td>
           <td>お正月イベント</td>
           <td>コートC</td>
@@ -163,7 +172,7 @@
     </table>
   </div>
 
-  <!-- ▼▼▼ イベント追加・編集モーダル（同じフォームを使う） ▼▼▼ -->
+  <!-- ▼▼▼ イベント追加・編集モーダル（同じフォームを使い回し） ▼▼▼ -->
   <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <form class="modal-content" id="eventForm">
@@ -173,8 +182,8 @@
         </div>
 
         <div class="modal-body">
-          <!-- hidden: 編集時はイベントIDをここに入れる -->
-          <input type="hidden" name="eventId" id="eventId" value="">
+          <!-- hidden: 内部ID（BIGSERIAL） -->
+          <input type="hidden" id="eventId" name="eventId" value="">
 
           <div class="mb-3">
             <label for="eventDate" class="form-label">開催日</label>
@@ -188,7 +197,7 @@
             <label for="courtId" class="form-label">コート</label>
             <select id="courtId" name="courtId" class="form-select" required>
               <option value="">-- 選択してください --</option>
-              <!-- 実際にはmst_courtsテーブルから動的に生成など -->
+              <!-- 本来はmst_courtsを参照して動的に生成など -->
               <option value="101">コートA</option>
               <option value="102">コートB</option>
               <option value="103">コートC</option>
@@ -225,16 +234,16 @@
       </form>
     </div>
   </div>
-  <!-- ▼▼▼ モーダルここまで ▼▼▼ -->
+  <!-- モーダルここまで -->
 
   <!-- BootstrapバンドルJS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // ======= 月ごとのフィルタリング =======
       const monthFilter = document.getElementById('monthFilter');
       const rows = document.querySelectorAll('#eventTable tbody tr');
 
-      // === 月ごとのフィルタリング ===
       function filterEvents() {
         const selectedMonth = monthFilter.value;
         rows.forEach(row => {
@@ -248,26 +257,26 @@
       monthFilter.addEventListener('change', filterEvents);
       filterEvents(); // 初期表示
 
-      // === 企業・スクール選択 ===
+      // ======= 企業・スクール選択 =======
       document.getElementById('selectButton').addEventListener('click', () => {
         const companyId = document.getElementById('companySelect').value;
         const schoolId  = document.getElementById('schoolSelect').value;
-        if(!companyId || !schoolId) {
+        if (!companyId || !schoolId) {
           alert("企業とスクールを選んでください。");
           return;
         }
-        // 実際にはサーバーやAPIを呼び出して再描画など
         alert(`企業ID:${companyId} / スクールID:${schoolId} が選択されました(モック)`);
+        // 実際にはAjax等でイベント一覧を再取得などを行う
       });
 
-      // === イベントモーダルを操作する要素 ===
+      // ======= イベントモーダル関連 =======
       const eventModalElem = document.getElementById('eventModal');
       const eventModal = new bootstrap.Modal(eventModalElem);
       const eventForm = document.getElementById('eventForm');
       const modalTitle = document.getElementById('eventModalTitle');
       const saveEventBtn = document.getElementById('saveEventBtn');
 
-      // === フィールド参照 ===
+      // ======= フォーム要素参照 =======
       const eventIdField = document.getElementById('eventId');
       const eventDateField = document.getElementById('eventDate');
       const eventNameField = document.getElementById('eventName');
@@ -278,13 +287,12 @@
       const capacityField = document.getElementById('capacity');
       const descField = document.getElementById('eventDescription');
 
-      // === 「イベント追加」ボタン → 新規作成モードでモーダルを開く ===
+      // ======= 「イベント追加」ボタン（新規モード） =======
       document.getElementById('openAddModalBtn').addEventListener('click', () => {
-        // タイトルやボタンを「追加」用に
         modalTitle.textContent = "イベント追加";
         saveEventBtn.textContent = "追加";
 
-        // フィールドをクリア
+        // hiddenフィールド含めフォームをリセット
         eventIdField.value = "";
         eventDateField.value = "";
         eventNameField.value = "";
@@ -298,76 +306,67 @@
         eventModal.show();
       });
 
-      // === 「編集」ボタン → 編集モードでモーダルを開く ===
-      document.querySelectorAll('.edit-button').forEach(editBtn => {
-        editBtn.addEventListener('click', (e) => {
-          // 押下した行の情報を取得
+      // ======= 「編集」ボタン（編集モード） =======
+      document.querySelectorAll('.edit-button').forEach(btn => {
+        btn.addEventListener('click', e => {
           const row = e.target.closest('tr');
-          const eventId = row.getAttribute('data-id');
-          const dateVal = row.getAttribute('data-date');
-          const nameVal = row.getAttribute('data-name');
-          const courtVal = row.getAttribute('data-court');
-          const feeVal = row.getAttribute('data-fee');
-          const startVal = row.getAttribute('data-start');
-          const endVal = row.getAttribute('data-end');
-          const capVal = row.getAttribute('data-capacity');
-          const descVal = row.getAttribute('data-desc') || "";
+          // 行データ取得
+          const internalId = row.getAttribute('data-internal-id');
+          const dateVal    = row.getAttribute('data-date');
+          const nameVal    = row.getAttribute('data-name');
+          const courtVal   = row.getAttribute('data-court');
+          const feeVal     = row.getAttribute('data-fee');
+          const startVal   = row.getAttribute('data-start');
+          const endVal     = row.getAttribute('data-end');
+          const capVal     = row.getAttribute('data-capacity');
+          const descVal    = row.getAttribute('data-desc') || "";
 
-          // タイトルやボタンを「更新」用に
           modalTitle.textContent = "イベント編集";
           saveEventBtn.textContent = "更新";
 
-          // フィールドに既存値をセット
-          eventIdField.value = eventId;
-          eventDateField.value = dateVal;
-          eventNameField.value = nameVal;
-          courtIdField.value = courtVal;
+          // フィールドにセット
+          eventIdField.value       = internalId;
+          eventDateField.value     = dateVal;
+          eventNameField.value     = nameVal;
+          // 本来はcourtValが"102"などのIDが理想。ここでは文字列でサンプルに。
+          // DBのデータと合わせる場合はvalueを工夫
+          courtIdField.value       = "";
           additionalFeeField.value = feeVal;
-          startTimeField.value = startVal;
-          endTimeField.value = endVal;
-          capacityField.value = capVal;
-          descField.value = descVal;
+          startTimeField.value     = startVal;
+          endTimeField.value       = endVal;
+          capacityField.value      = capVal;
+          descField.value          = descVal;
 
           eventModal.show();
         });
       });
 
-      // === 保存ボタン（追加／更新共通） ===
-      eventForm.addEventListener('submit', (e) => {
+      // ======= フォーム保存（追加・更新共通） =======
+      eventForm.addEventListener('submit', e => {
         e.preventDefault();
-        const isEdit = !!eventIdField.value;  // eventIdがあれば編集、なければ新規
+        const isEdit = !!eventIdField.value;  // IDがあれば編集モード
 
-        if(isEdit) {
-          // -- UPDATE 処理例 --
-          // ここでAjaxを呼んでUPDATEを行うなど
-          // UPDATE dat_events SET
-          //   event_date = :eventDate,
-          //   event_name = :eventName,
-          //   court_id = :courtId,
-          //   additional_fee = :additionalFee,
-          //   start_time = :startTime,
-          //   end_time = :endTime,
-          //   capacity = :capacity,
-          //   description = :desc
-          // WHERE id = :eventId
+        if (isEdit) {
+          // UPDATE例(モック)
+          // DB: UPDATE dat_events SET ... WHERE id=eventIdField.value
           alert("イベントを更新しました(モック)");
         } else {
-          // -- INSERT 処理例 --
-          // INSERT INTO dat_events (...columns...)
-          // VALUES (:eventDate, :eventName, ...)
+          // INSERT例(モック)
+          // DB: INSERT INTO dat_events(...) VALUES(...)
+          // トリガーやサーバで event_code(Exxx)を自動採番
           alert("イベントを追加しました(モック)");
         }
 
-        // モーダルを閉じてフォームをリセット
+        // モーダルを閉じてリセット
         eventModal.hide();
         eventForm.reset();
       });
 
-      // === 削除ボタン(論理削除想定) ===
+      // ======= 削除ボタン(論理削除想定) =======
       document.querySelectorAll('.delete-button').forEach(btn => {
         btn.addEventListener('click', () => {
           if (!confirm("このイベントを削除しますか？")) return;
-          // 例: UPDATE dat_events SET is_deleted = TRUE WHERE id = ?
+          // 例: UPDATE dat_events SET is_deleted=TRUE WHERE id=...
           alert("イベントを削除（論理削除）しました(モック)");
         });
       });
