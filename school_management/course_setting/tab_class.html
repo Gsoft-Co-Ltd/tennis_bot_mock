@@ -66,7 +66,7 @@
       margin: 24px 0;
     }
 
-    /* クラス一覧固有 */
+    /* クラス一覧固有のスタイル */
     .table-operations {
       display: flex;
       gap: 8px;
@@ -78,10 +78,6 @@
     .capacity-input {
       width: 100%;
       max-width: 180px;
-    }
-    .slot-select {
-      width: 100%;
-      max-width: 100px;
     }
     .multi-select-terms {
       max-height: 220px; 
@@ -105,8 +101,6 @@
   <div class="section-title">クラス一覧</div>
   <p class="text-secondary" style="font-size:0.85rem;">
     クラスの新規追加・編集・削除を行います。<br/>
-    学期（期）との関連付けや、曜日・時間・定員の設定、現在のメンバー数を確認できます。<br/>
-    ※メンバー数はモーダル上では扱わず、ここで表示のみです。
   </p>
 
   <!-- 新規クラス追加ボタン -->
@@ -126,7 +120,7 @@
           <th>曜日 / 時間</th>
           <th>コート</th>
           <th>定員</th>
-          <th>メンバー数</th>
+          <th>レギュラー数</th>
           <th style="width:120px;">操作</th>
         </tr>
       </thead>
@@ -185,20 +179,6 @@
               <!-- JSで生成 -->
             </select>
           </div>
-          <!-- 時間割スロット -->
-          <div class="col-md-3">
-            <label for="slotSelect" class="form-label">時間割スロット</label>
-            <select
-              id="slotSelect"
-              class="form-select form-select-sm slot-select"
-            >
-              <option value="">-</option>
-              <!-- JSで生成 (day_of_weekに応じてスロット名: start~end) -->
-            </select>
-            <span class="notice">
-              選択で開始/終了時刻を補完
-            </span>
-          </div>
           <!-- 開始時間/終了時間 -->
           <div class="col-md-3">
             <label class="form-label">開始時間</label>
@@ -216,9 +196,6 @@
               class="form-control form-control-sm time-input"
             />
           </div>
-        </div>
-
-        <div class="row g-2 mb-2">
           <!-- 定員 -->
           <div class="col-md-3">
             <label for="capacityInput" class="form-label">定員</label>
@@ -229,8 +206,11 @@
               min="0"
             />
           </div>
+        </div>
+
+        <div class="row g-2 mb-2">
           <!-- コート -->
-          <div class="col-md-9">
+          <div class="col-md-12">
             <label for="courtSelect" class="form-label">コート</label>
             <select 
               id="courtSelect" 
@@ -283,10 +263,9 @@
     - courseMaster    : コース一覧(クラスが紐づく先)
     - courtMaster     : コート一覧
     - termMaster      : 2025年1期～13期 (開始日～終了日入り)
-    - timeSlotData    : 時間割データ
-       { id, school_id, day_of_week, slot_name, start_time, end_time, ...}
     - classData       : クラス一覧 (memberCountを含むが、モーダルでは編集しない)
   */
+
   const dayOfWeekMaster = [
     { value: "mon", label: "月曜" },
     { value: "tue", label: "火曜" },
@@ -326,18 +305,6 @@
     { id: 11, name: "2025年11期(10/18～11/14)" },
     { id: 12, name: "2025年12期(11/15～12/12)" },
     { id: 13, name: "2025年13期(12/13～1/11)" }
-  ];
-
-  // timeSlotData (大部分省略し、サンプルとして一部のみ)
-  // 実際にはすべてのCSV行を変換して格納する想定
-  const timeSlotData = [
-    { id: 1,  school_id: 1, day_of_week: "mon", slot_name: "B", start_time: "09:30:00", end_time: "11:00:00" },
-    { id: 2,  school_id: 1, day_of_week: "mon", slot_name: "C", start_time: "11:10:00", end_time: "12:40:00" },
-    { id: 10, school_id: 1, day_of_week: "tue", slot_name: "A", start_time: "08:30:00", end_time: "10:00:00" },
-    { id: 58, school_id: 2, day_of_week: "mon", slot_name: "A", start_time: "09:00:00", end_time: "10:30:00" },
-    // ... (省略)
-    { id: 95, school_id: 3, day_of_week: "mon", slot_name: "A", start_time: "09:30:00", end_time: "11:00:00" },
-    // etc. 
   ];
 
   // クラス一覧 (ダミーデータ)
@@ -413,13 +380,7 @@
       termBoxArea.appendChild(lbl);
     });
 
-    // イベント: 曜日セレクトが変わったらスロット一覧を再描画
-    document.getElementById("dayOfWeekSelect").addEventListener("change", renderSlotOptions);
-
-    // イベント: スロット選択したら開始/終了時間を埋める
-    document.getElementById("slotSelect").addEventListener("change", fillTimeFromSlot);
-
-    // 初期描画
+    // 初回描画
     renderClassTable();
   });
 
@@ -470,6 +431,7 @@
       // 操作ボタン
       const tdOps = document.createElement("td");
       tdOps.className = "table-operations";
+
       const btnEdit = document.createElement("button");
       btnEdit.className = "btn btn-sm btn-success";
       btnEdit.textContent = "編集";
@@ -509,24 +471,19 @@
     document.getElementById("classModalLabel").textContent = "クラス編集";
     clearClassModal();
 
-    // フィールドに値をセット
+    // 値セット
     document.getElementById("classNameInput").value = cls.displayName;
     document.getElementById("courseSelect").value   = cls.courseId.toString();
     document.getElementById("dayOfWeekSelect").value = cls.dayOfWeek;
-    // スロット一覧を再描画
-    renderSlotOptions();
-
-    // start/endTimeをそのまま反映
     document.getElementById("startTimeInput").value  = cls.startTime;
     document.getElementById("endTimeInput").value    = cls.endTime;
-
     document.getElementById("capacityInput").value   = cls.capacity;
     document.getElementById("courtSelect").value     = cls.courtId.toString();
 
-    // 期(Term)チェック
-    const checkboxes = document.getElementById("termCheckboxes")
-                      .querySelectorAll("input[type=checkbox]");
-    checkboxes.forEach(chk => {
+    // 学期(Term)
+    const checks = document.getElementById("termCheckboxes")
+                    .querySelectorAll("input[type=checkbox]");
+    checks.forEach(chk => {
       const tmId = parseInt(chk.value);
       if (cls.termIds.includes(tmId)) {
         chk.checked = true;
@@ -549,10 +506,10 @@
     const courtId     = parseInt(document.getElementById("courtSelect").value);
 
     // Term選択
-    const checkboxes = document.getElementById("termCheckboxes")
-                      .querySelectorAll("input[type=checkbox]");
+    const checks = document.getElementById("termCheckboxes")
+                    .querySelectorAll("input[type=checkbox]");
     let selectedTerms = [];
-    checkboxes.forEach(chk => {
+    checks.forEach(chk => {
       if (chk.checked) {
         selectedTerms.push(parseInt(chk.value));
       }
@@ -580,7 +537,7 @@
         endTime,
         courtId,
         capacity: capacityVal,
-        memberCount: 0,   // 新規時のメンバー数は 0 として仮置き
+        memberCount: 0, // 新規時のメンバー数は 0 として仮置き
         termIds: selectedTerms
       });
     } else {
@@ -594,7 +551,7 @@
         cls.endTime     = endTime;
         cls.courtId     = courtId;
         cls.capacity    = capacityVal;
-        // memberCount はモーダル上で編集しない
+        // memberCount はモーダル上で非表示
         cls.termIds     = selectedTerms;
       }
     }
@@ -619,57 +576,18 @@
   // モーダル初期化
   // ------------------------------------------
   function clearClassModal() {
-    document.getElementById("classNameInput").value   = "";
-    document.getElementById("courseSelect").selectedIndex   = 0;
+    document.getElementById("classNameInput").value  = "";
+    document.getElementById("courseSelect").selectedIndex = 0;
     document.getElementById("dayOfWeekSelect").selectedIndex = 0;
-    document.getElementById("slotSelect").innerHTML = `<option value="">-</option>`; 
-    document.getElementById("startTimeInput").value  = "";
-    document.getElementById("endTimeInput").value    = "";
-    document.getElementById("capacityInput").value   = "0";
+    document.getElementById("startTimeInput").value = "";
+    document.getElementById("endTimeInput").value   = "";
+    document.getElementById("capacityInput").value  = "0";
     document.getElementById("courtSelect").selectedIndex = 0;
 
-    // Termチェックリセット
-    const checks = document.getElementById("termCheckboxes")
-                    .querySelectorAll("input[type=checkbox]");
+    // 学期チェックリセット
+    const checks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
     checks.forEach(chk => { chk.checked = false; });
   }
-
-  // ------------------------------------------
-  // スロット一覧を表示 (dayOfWeek + schoolId=1 or N?)
-  // ここでは school_id 1 と仮定し、day_of_week で絞る
-  // ------------------------------------------
-  function renderSlotOptions() {
-    const dayVal = document.getElementById("dayOfWeekSelect").value;
-    const slotSelect = document.getElementById("slotSelect");
-    slotSelect.innerHTML = `<option value="">-</option>`; // 先頭は空
-
-    // timeSlotDataから day_of_week === dayValのデータを抽出
-    // (school_id等、要件に合わせてフィルタすると良い)
-    const matchedSlots = timeSlotData.filter(ts => ts.day_of_week === dayVal);
-    matchedSlots.forEach(ts => {
-      const opt = document.createElement("option");
-      opt.value = ts.id; // time_slot.id
-      opt.textContent = `${ts.slot_name}`; 
-      slotSelect.appendChild(opt);
-    });
-  }
-
-  // ------------------------------------------
-  // スロット選択で startTime/endTime を補完
-  // ------------------------------------------
-  function fillTimeFromSlot() {
-    const slotId = document.getElementById("slotSelect").value;
-    if (!slotId) {
-      return; // "-"(空)のときは何もしない
-    }
-    const ts = timeSlotData.find(x => x.id === parseInt(slotId));
-    if (ts) {
-      // 補完
-      document.getElementById("startTimeInput").value = ts.start_time.slice(0,5); 
-      document.getElementById("endTimeInput").value   = ts.end_time.slice(0,5);   
-    }
-  }
-
 </script>
 </body>
 </html>
