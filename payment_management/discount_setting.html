@@ -33,13 +33,13 @@
       border: none;
     }
     .card-header {
-      /* ほかの画面と統一: 白ベース・黒文字にする例 */
+      /* 他画面と統一したいなら白ベースに */
       background: #fff;
+      color: #000;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
       font-weight: bold;
       padding: 10px 15px;
-      color: #000;
     }
     .card-body {
       padding: 15px;
@@ -62,13 +62,8 @@
     table tbody tr:nth-child(odd) {
       background-color: #f9f9f9;
     }
-    .btn-delete {
-      background: #dc3545;
-      color: #fff;
-    }
-    .btn-delete:hover {
-      background: #c82333;
-    }
+
+    /* ボタン色: 編集=黄, 保存=緑, キャンセル=グレー, 削除=赤 */
     .btn-edit {
       background-color: #ffc107;
       color: #212529;
@@ -77,6 +72,23 @@
       background-color: #e0a800;
       color: #212529;
     }
+    .btn-delete {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn-delete:hover {
+      background: #c82333;
+    }
+    /* "保存" は緑系 */
+    .btn-save {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .btn-save:hover {
+      background-color: #218838;
+      color: #fff;
+    }
+    /* キャンセルはグレー系 */
     .form-check {
       display: flex;
       align-items: center;
@@ -145,7 +157,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const discountList = document.getElementById("discountList");
-  
+
   // サンプルデータ
   const sampleDiscounts = [
     { name: "家族割引", type: "パーセンテージ割引", value: "10%", continuous: "いいえ" },
@@ -159,44 +171,40 @@
   };
 
   function loadSampleDiscounts() {
-    sampleDiscounts.forEach(discount => {
-      addDiscountToTable(discount.name, discount.type, discount.value, discount.continuous);
+    sampleDiscounts.forEach(d => {
+      addDiscountToTable(d.name, d.type, d.value, d.continuous);
     });
   }
 
-  // 「追加」ボタンクリック
-  document.getElementById("addDiscountButton").addEventListener("click", function () {
+  // 追加ボタンクリック
+  document.getElementById("addDiscountButton").addEventListener("click", () => {
     const name = document.getElementById("discountName").value.trim();
-    const typeValue = document.getElementById("discountType").value;
-    const discountVal = document.getElementById("discountValue").value.trim();
-    const continuousApply = document.getElementById("continuousApply").checked ? "はい" : "いいえ";
-    
-    if (!name || !discountVal) {
+    const typeVal = document.getElementById("discountType").value;
+    const val = document.getElementById("discountValue").value.trim();
+    const cont = document.getElementById("continuousApply").checked ? "はい" : "いいえ";
+
+    if (!name || !val) {
       alert("割引名と割引値を入力してください。");
       return;
     }
-    
+
     let typeText;
-    if (typeValue === "percentage") {
+    if (typeVal === "percentage") {
       typeText = "パーセンテージ割引";
-    } else if (typeValue === "fixed") {
+    } else if (typeVal === "fixed") {
       typeText = "固定金額割引";
     } else {
       typeText = "複数割引";
     }
+    const valueText = (typeVal === "percentage") ? val + "%" : val + "円";
 
-    const valueText = (typeValue === "percentage")
-      ? `${discountVal}%`
-      : `${discountVal}円`;
-
-    addDiscountToTable(name, typeText, valueText, continuousApply);
+    addDiscountToTable(name, typeText, valueText, cont);
     document.getElementById("discountForm").reset();
   });
 
-  // テーブルに行を追加
   function addDiscountToTable(name, type, value, continuous) {
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `
+    const row = document.createElement("tr");
+    row.innerHTML = `
       <td class="td-name">${name}</td>
       <td class="td-type">${type}</td>
       <td class="td-value">${value}</td>
@@ -208,107 +216,158 @@
         </div>
       </td>
     `;
-    discountList.appendChild(newRow);
+    discountList.appendChild(row);
 
     // 削除ボタン
-    newRow.querySelector(".delete-discount").addEventListener("click", () => {
-      if (confirm("本当に削除しますか？（削除フラグを立てます）")) {
-        newRow.remove();
+    const deleteBtn = row.querySelector(".delete-discount");
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("本当に削除しますか？")) {
+        row.remove();
       }
     });
 
     // 編集ボタン
-    newRow.querySelector(".edit-discount").addEventListener("click", () => {
-      enableRowEditing(newRow);
+    const editBtn = row.querySelector(".edit-discount");
+    editBtn.addEventListener("click", () => {
+      enableEditMode(row);
     });
   }
 
-  // 編集モードに切り替え
-  function enableRowEditing(row) {
+  // 編集モード
+  function enableEditMode(row) {
     const tdName = row.querySelector(".td-name");
     const tdType = row.querySelector(".td-type");
     const tdValue = row.querySelector(".td-value");
-    const tdContinuous = row.querySelector(".td-continuous");
-    const editButton = row.querySelector(".edit-discount");
+    const tdCont = row.querySelector(".td-continuous");
 
-    // ▼▼▼ 1) 現在の値をローカル変数で保持 ▼▼▼
+    const editBtn = row.querySelector(".edit-discount");
+    const deleteBtn = row.querySelector(".delete-discount");
+
+    // 元の値を保持
     const originalName = tdName.textContent;
     const originalType = tdType.textContent;
-    const originalValue = tdValue.textContent.replace("%","").replace("円","");
-    const originalContinuous = (tdContinuous.textContent === "はい"); // booleanで持つ
+    const originalVal = tdValue.textContent.replace("%", "").replace("円", "");
+    const originalCont = (tdCont.textContent === "はい");
 
-    // ▼▼▼ 2) セルを編集用フォームに変換 ▼▼▼
+    // フォーム化
     tdName.innerHTML = `<input type="text" class="form-control form-control-sm" value="${originalName}" />`;
     tdType.innerHTML = `
       <select class="form-select form-select-sm">
-        <option value="パーセンテージ割引" ${originalType==="パーセンテージ割引" ? "selected" : ""}>パーセンテージ割引</option>
-        <option value="固定金額割引" ${originalType==="固定金額割引" ? "selected" : ""}>固定金額割引</option>
-        <option value="複数割引" ${originalType==="複数割引" ? "selected" : ""}>複数割引</option>
+        <option value="パーセンテージ割引" ${originalType==="パーセンテージ割引"?"selected":""}>パーセンテージ割引</option>
+        <option value="固定金額割引" ${originalType==="固定金額割引"?"selected":""}>固定金額割引</option>
+        <option value="複数割引" ${originalType==="複数割引"?"selected":""}>複数割引</option>
       </select>
     `;
-    tdValue.innerHTML = `<input type="number" class="form-control form-control-sm" value="${originalValue}" />`;
-    tdContinuous.innerHTML = `
+    tdValue.innerHTML = `<input type="number" class="form-control form-control-sm" value="${originalVal}" />`;
+    tdCont.innerHTML = `
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="continuousEdit" ${originalContinuous ? "checked" : ""} />
-        <label class="form-check-label" for="continuousEdit">継続</label>
+        <input type="checkbox" class="form-check-input" id="contCheck" ${originalCont?"checked":""}>
+        <label for="contCheck" class="form-check-label">継続</label>
       </div>
     `;
 
-    // ▼▼▼ 3) 編集ボタンを「保存」にテキスト変更 ▼▼▼
-    editButton.textContent = "保存";
+    // 編集ボタン→保存ボタン(緑)
+    editBtn.textContent = "保存";
+    editBtn.classList.remove("btn-edit");
+    editBtn.classList.add("btn-save");
 
-    // ▼▼▼ 4) キャンセルボタンを新規追加 ▼▼▼
-    const cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = "btn btn-sm btn-secondary";
-    cancelButton.textContent = "キャンセル";
-    editButton.parentElement.appendChild(cancelButton);
+    // 削除ボタンは編集モード中は非表示
+    deleteBtn.style.display = "none";
 
-    // ▼▼▼ 5) 保存ボタンクリック時 ▼▼▼
-    editButton.onclick = () => {
-      // 入力値を取得
-      const newName = tdName.querySelector("input").value.trim();
-      const newType = tdType.querySelector("select").value;
-      const newVal  = tdValue.querySelector("input").value.trim();
-      const isContinuous = document.getElementById("continuousEdit").checked;
+    // キャンセルボタン追加
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn btn-sm btn-secondary";
+    cancelBtn.textContent = "キャンセル";
+    editBtn.parentElement.appendChild(cancelBtn);
 
-      if (!newName || !newVal) {
-        alert("割引名と割引値は必須です。");
-        return;
-      }
-
-      // 値を整形
-      let displayVal = (newType === "パーセンテージ割引") ? `${newVal}%` : `${newVal}円`;
-      tdName.textContent = newName;
-      tdType.textContent = newType;
-      tdValue.textContent = displayVal;
-      tdContinuous.textContent = isContinuous ? "はい" : "いいえ";
-
-      // ボタンを「編集」に戻す
-      editButton.textContent = "編集";
-      // クリックイベント復旧
-      editButton.onclick = () => enableRowEditing(row);
-      // キャンセルボタンを削除
-      cancelButton.remove();
+    // 保存ボタンクリック
+    editBtn.onclick = () => {
+      saveChanges(row, originalType);
     };
 
-    // ▼▼▼ 6) キャンセルボタンクリック時 ▼▼▼
-    cancelButton.onclick = () => {
-      // 元の表示に戻す
-      tdName.textContent = originalName;
-      tdType.textContent = originalType;
-      // 「10%」など表示用文字列に戻す
-      let displayVal = (originalType === "パーセンテージ割引") ? `${originalValue}%` : `${originalValue}円`;
-      tdValue.textContent = displayVal;
-      tdContinuous.textContent = originalContinuous ? "はい" : "いいえ";
-
-      // ボタンを「編集」に戻す
-      editButton.textContent = "編集";
-      editButton.onclick = () => enableRowEditing(row);
-
-      // キャンセルボタンを削除
-      cancelButton.remove();
+    // キャンセルボタンクリック
+    cancelBtn.onclick = () => {
+      cancelEdit(row, {
+        name: originalName,
+        type: originalType,
+        val: originalVal,
+        cont: originalCont
+      });
     };
+  }
+
+  // 保存処理
+  function saveChanges(row, oldType) {
+    const tdName = row.querySelector(".td-name");
+    const tdType = row.querySelector(".td-type");
+    const tdValue = row.querySelector(".td-value");
+    const tdCont  = row.querySelector(".td-continuous");
+
+    const editBtn  = row.querySelector(".edit-discount");
+    const deleteBtn= row.querySelector(".delete-discount");
+    const cancelBtn= editBtn.parentElement.querySelector(".btn-secondary");
+
+    const newName = tdName.querySelector("input").value.trim();
+    const newType = tdType.querySelector("select").value;
+    const newVal  = tdValue.querySelector("input").value.trim();
+    const check   = row.querySelector("#contCheck").checked;
+
+    if (!newName || !newVal) {
+      alert("割引名と割引値は必須です。");
+      return;
+    }
+
+    // 表示用に変換
+    let displayVal = (newType==="パーセンテージ割引") ? `${newVal}%` : `${newVal}円`;
+
+    // 更新
+    tdName.textContent = newName;
+    tdType.textContent = newType;
+    tdValue.textContent = displayVal;
+    tdCont.textContent  = check ? "はい" : "いいえ";
+
+    // ボタンを編集に戻す
+    editBtn.textContent = "編集";
+    editBtn.classList.remove("btn-save");
+    editBtn.classList.add("btn-edit");
+    editBtn.onclick = () => enableEditMode(row);
+
+    // 削除ボタンを復活
+    deleteBtn.style.display = "inline-block";
+
+    // キャンセルボタン削除
+    if (cancelBtn) cancelBtn.remove();
+  }
+
+  // キャンセル処理
+  function cancelEdit(row, original) {
+    const tdName = row.querySelector(".td-name");
+    const tdType = row.querySelector(".td-type");
+    const tdValue = row.querySelector(".td-value");
+    const tdCont  = row.querySelector(".td-continuous");
+
+    const editBtn  = row.querySelector(".edit-discount");
+    const deleteBtn= row.querySelector(".delete-discount");
+    const cancelBtn= editBtn.parentElement.querySelector(".btn-secondary");
+
+    // 元の表示に戻す
+    tdName.textContent = original.name;
+    tdType.textContent = original.type;
+    tdValue.textContent = (original.type==="パーセンテージ割引") ? `${original.val}%` : `${original.val}円`;
+    tdCont.textContent  = original.cont ? "はい" : "いいえ";
+
+    // ボタンを編集に戻す
+    editBtn.textContent = "編集";
+    editBtn.classList.remove("btn-save");
+    editBtn.classList.add("btn-edit");
+    editBtn.onclick = () => enableEditMode(row);
+
+    // 削除ボタン復活
+    deleteBtn.style.display = "inline-block";
+
+    // キャンセルボタンを削除
+    if (cancelBtn) cancelBtn.remove();
   }
 </script>
 </body>
