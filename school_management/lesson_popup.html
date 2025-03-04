@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* リセット */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      background: #f8fafc;
+      color: #334155;
+      padding: 20px;
+    }
+
+    /* ボタン共通 */
+    button {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .btn-primary   { background-color: #3498db; color: #fff; }
+    .btn-danger    { background-color: #e74c3c; color: #fff; }
+    .btn-secondary { background-color: #7f8c8d; color: #fff; }
+
+    /* オーバーレイ */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+
+    /* ポップアップ */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      z-index: 1000;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; /* 全体スクロールを抑える */
+    }
+
+    /* ポップアップ上部(レッスン情報 + ✖ボタン) */
+    .popup-header {
+      position: relative;
+      padding: 16px 56px 8px 16px; /* 右側に✖が入る余白をあける */
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .popup-header h2 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .popup-header h3 {
+      font-size: 14px;
+      color: #555;
+    }
+    /* ✖ボタン */
+    .close-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      cursor: pointer;
+      font-size: 16px;
+      color: #888;
+    }
+    .close-icon:hover {
+      color: #333;
+    }
+
+    /* テーブル領域 */
+    .popup-content {
+      flex: 1;
+      overflow: auto; 
+      padding: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #f0f8ff;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    /* 名前クリック用 */
+    .participant-name {
+      color: #3498db;
+      cursor: pointer;
+    }
+    /* フラグ表示 */
+    .flag {
+      margin-left: 6px;
+      font-size: 12px;
+      color: #e74c3c;
+    }
+
+    /* ステータス色分け */
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .status-レギュラー { background: #27ae60; }
+    .status-予約     { background: #1abc9c; }
+    .status-振替     { background: #3498db; }
+    .status-欠席予約   { background: #f39c12; }
+    .status-体験     { background: #9b59b6; }
+    .status-出席     { background: #2ecc71; }
+    .status-欠席     { background: #f1c40f; color: #333; }
+    .status-無断欠席   { background: #c0392b; }
+    .status-中止     { background: #7f8c8d; }
+
+    /* フッター: ボタンを左右に配置 */
+    .popup-footer {
+      display: flex;
+      justify-content: space-between; 
+      align-items: center;
+      padding: 8px 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer-left {
+      display: flex;
+      gap: 8px;
+    }
+    .footer-right {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<button class="btn-primary" id="showPopupBtn">テーブル表示ポップアップを開く</button>
+
+<!-- オーバーレイ -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ポップアップ -->
+<div class="popup" id="popup">
+  <!-- ヘッダ部 -->
+  <div class="popup-header">
+    <!-- ✖ボタン -->
+    <span class="close-icon" id="closeIcon">✖</span>
+    
+    <!-- レッスン情報 (ID, 名) -->
+    <h2>レッスンID: <span id="lesson-id"></span></h2>
+    <h3 id="lesson-name"></h3>
+  </div>
+
+  <!-- テーブル表示エリア -->
+  <div class="popup-content">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40%">氏名</th>
+          <th style="width:30%">ステータス</th>
+          <th style="width:30%">フラグ</th>
+        </tr>
+      </thead>
+      <tbody id="participant-tbody"></tbody>
+    </table>
+    <!-- 人数などを表示する領域 -->
+    <p id="count-info" style="font-size:14px; color:#555;"></p>
+  </div>
+
+  <!-- フッター(左:中止/削除, 右:閉じる) -->
+  <div class="popup-footer">
+    <div class="footer-left">
+      <button class="btn-secondary" id="cancelBtn">レッスン中止</button>
+      <button class="btn-danger"    id="deleteBtn">レッスン削除</button>
+    </div>
+    <div class="footer-right">
+      <button class="btn-primary"   id="closeBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ダミーデータ */
+const lessonId    = "L112";
+const lessonTitle = "初級クラス(月曜AM)";  // レッスン名
+const capacity    = 12;
+
+const statusOrder = [
+  "レギュラー","予約","振替","欠席予約","体験","出席","欠席","無断欠席","中止"
+];
+
+const participants = [
+  { name: "山田太郎(ヤマダタロウ)",   status: "レギュラー",  unpaid: false, memo: false },
+  { name: "鈴木一郎(スズキイチロウ)", status: "体験",      unpaid: false, memo: true  },
+  { name: "佐藤花子(サトウハナコ)",   status: "無断欠席",   unpaid: false, memo: false },
+  { name: "田中直樹(タナカナオキ)",   status: "予約",      unpaid: true,  memo: false },
+  { name: "高橋愛(タカハシアイ)",     status: "欠席予約",   unpaid: false, memo: false },
+  { name: "吉田二郎(ヨシダジロウ)",   status: "出席",      unpaid: false, memo: false },
+  { name: "小林美咲(コバヤシミサキ)", status: "振替",      unpaid: true,  memo: true  },
+  { name: "林佳奈(ハヤシカナ)",       status: "欠席",      unpaid: false, memo: false },
+  { name: "森川由紀(モリカワユキ)",   status: "中止",      unpaid: false, memo: false },
+];
+
+/* 要素 */
+const showPopupBtn   = document.getElementById("showPopupBtn");
+const overlay        = document.getElementById("overlay");
+const popup          = document.getElementById("popup");
+const closeIcon      = document.getElementById("closeIcon");
+const closeBtn       = document.getElementById("closeBtn");
+const deleteBtn      = document.getElementById("deleteBtn");
+const cancelBtn      = document.getElementById("cancelBtn");
+
+const lessonIdSpan   = document.getElementById("lesson-id");
+const lessonNameSpan = document.getElementById("lesson-name");
+
+const tbody          = document.getElementById("participant-tbody");
+const countInfo      = document.getElementById("count-info");
+
+/* ポップアップ表示 */
+function showPopup() {
+  // レッスン情報をセット
+  lessonIdSpan.textContent   = lessonId;
+  lessonNameSpan.textContent = lessonTitle;
+
+  // テーブル初期化
+  tbody.innerHTML = "";
+
+  // ステータス順でソート
+  const sorted = [...participants];
+  sorted.sort((a,b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status));
+
+  // 行を生成
+  sorted.forEach(p => {
+    const tr = document.createElement("tr");
+
+    // (1) 氏名セル(クリックで詳細)
+    const nameTd = document.createElement("td");
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "participant-name";
+    nameSpan.textContent = p.name;
+    nameSpan.onclick = () => goToUserDetail(p.name);
+    nameTd.appendChild(nameSpan);
+
+    // (2) ステータスセル(色分け)
+    const statusTd = document.createElement("td");
+    const statusSpan = document.createElement("span");
+    statusSpan.className = "status status-" + p.status;
+    statusSpan.textContent = p.status;
+    statusTd.appendChild(statusSpan);
+
+    // (3) フラグセル (未納, 申し送り)
+    const flagTd = document.createElement("td");
+    const flags = [];
+    if(p.unpaid) flags.push("未納");
+    if(p.memo)   flags.push("申し送り");
+    if(flags.length>0){
+      flagTd.textContent = flags.join(", ");
+      flagTd.style.color = "#e74c3c";
+      flagTd.style.fontSize = "13px";
+    } else {
+      flagTd.textContent = "-";
+      flagTd.style.color = "#999";
+      flagTd.style.fontSize = "12px";
+    }
+
+    tr.appendChild(nameTd);
+    tr.appendChild(statusTd);
+    tr.appendChild(flagTd);
+    tbody.appendChild(tr);
+  });
+
+  // 人数計算(欠席,無断欠席,欠席予約,中止は除外)
+  const activeCount = sorted.filter(p =>
+    !["欠席","無断欠席","欠席予約","中止"].includes(p.status)
+  ).length;
+  countInfo.textContent = `アクティブ人数: ${activeCount} / ${capacity}名`;
+
+  // 表示
+  overlay.style.display = "block";
+  popup.style.display   = "flex";
+}
+
+/* 閉じる */
+function closePopup(){
+  overlay.style.display = "none";
+  popup.style.display   = "none";
+}
+
+/* レッスン削除 */
+function deleteLesson() {
+  if(confirm("このレッスンを削除しますか？削除すると予約も全て削除されます。")){
+    alert("レッスンを削除しました");
+    closePopup();
+  }
+}
+
+/* レッスン中止（アラート追加） */
+function cancelLesson() {
+  const msg = "レッスンを中止しますか？\n中止するとこのレッスンの予約は全てキャンセルされます";
+  if(confirm(msg)){
+    alert("レッスンを中止しました");
+    closePopup();
+  }
+}
+
+/* 名前クリック => 詳細へ */
+function goToUserDetail(name){
+  alert(`[${name}]さんの詳細画面へ`);
+}
+
+/* イベント設定 */
+showPopupBtn.addEventListener("click", showPopup);
+closeIcon.addEventListener("click", closePopup);
+closeBtn.addEventListener("click", closePopup);
+overlay.addEventListener("click", closePopup);
+
+deleteBtn.addEventListener("click", deleteLesson);
+cancelBtn.addEventListener("click", cancelLesson);
+</script>
+</body>
+</html>
