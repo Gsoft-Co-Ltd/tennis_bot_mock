@@ -3,64 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>請求情報一覧</title>
+  <title>月次請求管理</title>
   <!-- Bootstrap 5 CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
-  <!-- Font Awesome (必要に応じて) -->
+  <!-- Font Awesome for icons (任意) -->
   <link
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     rel="stylesheet"
   />
   <style>
-    /* ベーススタイル */
+    /* スクール生一覧の見た目に合わせた共通スタイル */
     body {
       background-color: #f5f7fa;
-      font-family: "Noto Sans JP", sans-serif; /* 他画面と統一 */
+      font-family: "Noto Sans JP", sans-serif;
       margin: 0;
       padding: 20px;
     }
     .container {
       max-width: 1100px;
-      margin: 0 auto;
     }
-    h3 {
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-
-    /* .card & .card-body はスクール生一覧と同じ定義 */
     .card {
       margin-bottom: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       background: #fff;
-      border: none;
+    }
+    .card-header {
+      font-weight: bold;
+      background-color: #f0f0f0;
     }
     .card-body {
       padding: 15px;
     }
-    /* card-headerは特に背景色を付けない (デフォルト or 白)  */
-    .card-header {
-      /* Bootstrap標準で少し薄いグレー背景になりますが、
-         それも消したいなら下記を入れて白にしてもOK:
-         background: #fff;
-         border-bottom: none; */
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
-      font-weight: bold;
-      padding: 10px 15px;
-    }
-
-    /* テーブルの外枠（.table-wrap） */
     .table-wrap {
       background: #fff;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
     }
     table thead th {
       background-color: #007bff;
@@ -73,16 +55,25 @@
     table tbody tr:nth-child(odd) {
       background-color: #f9f9f9;
     }
-
-    /* ボタン色: 追加=青, 編集=黄, 削除=赤
-       (スクール生一覧でのポリシーを踏襲) */
+    /* 検索バーなどの調整 */
+    .search-bar {
+      max-width: 220px;
+    }
+    /* アクションボタン */
     .btn-edit {
-      background-color: #ffc107; /* 黄色系 */
+      background-color: #ffc107;
       color: #212529;
     }
     .btn-edit:hover {
       background-color: #e0a800;
-      color: #212529;
+      color: #fff;
+    }
+    .btn-details {
+      background: #6c757d;
+      color: #fff;
+    }
+    .btn-details:hover {
+      background: #5a6268;
     }
     .btn-delete {
       background: #dc3545;
@@ -91,305 +82,286 @@
     .btn-delete:hover {
       background: #c82333;
     }
-
-    /* 支払い状況ボタン(在籍ステータスと同様の色分けイメージ) */
-    .btn-before-request {
-      background-color: #e2e3e5;
-      color: #6c757d;
+    /* テーブル内のボタン配置 */
+    .action-buttons {
+      display: inline-flex;
+      gap: 0.5rem;
+      white-space: nowrap;
     }
-    .btn-paid {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .btn-failed {
-      background-color: #f8d7da;
-      color: #721c24;
+    /* 休会などのbadge表示など */
+    .badge-status {
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
+
 <div class="container">
-  <!-- タイトル -->
-  <h3>請求情報一覧</h3>
+  <h3 class="mb-4">月次請求管理</h3>
 
-  <!-- ▼▼▼ 企業・スクール選択カード ▼▼▼ -->
+  <!-- ▼ 検索エリア (カード) -->
   <div class="card mb-3">
+    <div class="card-header">検索・操作</div>
     <div class="card-body">
-      <div class="row align-items-end gx-2">
-        <!-- 企業選択 -->
+      <div class="row mb-3">
+        <!-- ▼ 月別検索 -->
         <div class="col-auto">
-          <label for="companySelect" class="form-label mb-0 fw-bold">企業</label>
-          <select id="companySelect" class="form-select form-select-sm">
-            <option value="companyA" selected>株式会社A</option>
-            <option value="companyB">株式会社B</option>
-            <option value="companyC">株式会社C</option>
-          </select>
+          <label for="monthInput" class="fw-bold mb-1">請求年月:</label><br/>
+          <input
+            type="month"
+            id="monthInput"
+            class="form-control form-control-sm"
+            style="width: 160px;"
+            value="2025-03"
+          />
         </div>
-        <!-- スクール選択 -->
-        <div class="col-auto">
-          <label for="schoolSelect" class="form-label mb-0 fw-bold">スクール</label>
-          <select id="schoolSelect" class="form-select form-select-sm">
-            <option value="schoolX" selected>東京スクール</option>
-            <option value="schoolY">大阪スクール</option>
-            <option value="schoolZ">福岡スクール</option>
-          </select>
+        <div class="col-auto d-flex align-items-end">
+          <button class="btn btn-primary btn-sm me-2" onclick="searchByMonth()">
+            <i class="fas fa-search"></i> 検索
+          </button>
+          <button class="btn btn-success btn-sm me-2" onclick="exportZenginExcel()">
+            <i class="fas fa-file-excel"></i> 全銀フォーマットExcel出力
+          </button>
+          <button class="btn btn-info btn-sm" onclick="toggleImportArea()">
+            <i class="fas fa-file-upload"></i> 引落結果インポート
+          </button>
         </div>
-        <!-- 選択ボタン -->
-        <div class="col-auto">
-          <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
-        </div>
+      </div>
+
+      <!-- ▼ 引落結果CSVアップロードエリア (トグル表示) -->
+      <div id="importArea" class="border p-3" style="display:none;">
+        <p class="fw-bold mb-2">引落結果CSVインポート</p>
+        <input type="file" class="form-control form-control-sm mb-2" accept=".csv" />
+        <button class="btn btn-secondary btn-sm" onclick="fakeUpload()">
+          インポート開始
+        </button>
+        <span class="text-muted ms-2">※モック実装</span>
       </div>
     </div>
   </div>
 
-  <!-- ▼▼▼ 2カラム: 左 = 請求情報追加 / 右 = 検索・フィルタ ▼▼▼ -->
-  <div class="row mb-3">
-    <!-- 請求情報追加カード -->
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-header">請求情報追加</div>
-        <div class="card-body">
-          <form id="addBillingForm" class="row g-3">
-            <div class="col-md-6">
-              <label for="memberName" class="form-label fw-bold">会員名</label>
-              <select id="memberName" class="form-select" required>
-                <option value="" disabled selected>選択</option>
-                <option value="山田 太郎">山田 太郎</option>
-                <option value="佐藤 花子">佐藤 花子</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="originalAmount" class="form-label fw-bold">元金額</label>
-              <input type="number" id="originalAmount" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-              <label for="billingDate" class="form-label fw-bold">請求日</label>
-              <input type="date" id="billingDate" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-              <label for="paymentStatus" class="form-label fw-bold">支払い状況</label>
-              <select id="paymentStatus" class="form-select" required>
-                <option value="引落依頼前">引落依頼前</option>
-                <option value="支払い済み">支払い済み</option>
-                <option value="引落失敗">引落失敗</option>
-                <option value="未払い">未払い</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label for="billingCategory" class="form-label fw-bold">請求内容</label>
-              <input
-                type="text"
-                id="billingCategory"
-                class="form-control"
-                placeholder="例: レッスン費"
-              />
-            </div>
-            <div class="col-12 text-end">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus"></i> 追加
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- 検索・フィルタカード -->
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-header">検索・フィルタ</div>
-        <div class="card-body">
-          <div class="row g-3 align-items-end">
-            <!-- 年 -->
-            <div class="col-auto">
-              <label for="yearSelect" class="form-label fw-bold mb-0">年</label>
-              <select id="yearSelect" class="form-select form-select-sm" style="width:80px;">
-                <option value="2024" selected>2024</option>
-                <option value="2025">2025</option>
-              </select>
-            </div>
-            <!-- 月 -->
-            <div class="col-auto">
-              <label for="monthSelect" class="form-label fw-bold mb-0">月</label>
-              <select id="monthSelect" class="form-select form-select-sm" style="width:80px;">
-                <option value="01">1</option>
-                <option value="02">2</option>
-                <!-- ... -->
-                <option value="11" selected>11</option>
-                <option value="12">12</option>
-              </select>
-            </div>
-            <!-- 会員名検索 -->
-            <div class="col-auto">
-              <label for="searchInput" class="form-label fw-bold mb-0">会員名</label>
-              <input
-                type="text"
-                id="searchInput"
-                class="form-control form-control-sm"
-                placeholder="名前で検索"
-                style="width: 150px;"
-              />
-            </div>
-            <!-- 引落失敗のみ -->
-            <div class="col-auto">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="failedOnly" />
-                <label class="form-check-label" for="failedOnly">引落失敗のみ</label>
-              </div>
-            </div>
-            <!-- 出力 & インポートボタン -->
-            <div class="col-auto">
-              <button class="btn btn-success btn-sm">
-                <i class="fas fa-file-excel"></i> 出力
-              </button>
-              <button class="btn btn-warning btn-sm" id="excelImportButton">
-                <i class="fas fa-file-import"></i> インポート
-              </button>
-            </div>
-          </div> <!-- row -->
-        </div>
+  <!-- ▼ テーブル (card) -->
+  <div class="card">
+    <div class="card-header">請求一覧</div>
+    <div class="card-body p-0">
+      <div class="table-wrap">
+        <table class="table table-striped table-hover mb-0" id="billingTable">
+          <thead>
+            <tr>
+              <th style="width:80px;">スクール生ID</th>
+              <th>氏名</th>
+              <th class="text-end">請求金額</th>
+              <th style="width:120px;">請求日</th>
+              <th style="width:160px;">ステータス</th>
+              <th style="width:120px;">請求書発行日</th>
+              <th style="width:100px;">支払方法</th>
+              <th style="width:160px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- ダミーデータ行 -->
+            <tr data-student-id="ST001" data-status="未請求">
+              <td>ST001</td>
+              <td>山田 太郎</td>
+              <td class="text-end">30,000</td>
+              <td>2025-03-05</td>
+              <td><span class="badge bg-secondary badge-status">未請求</span></td>
+              <td>2025-03-01</td>
+              <td>口座引落</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST001')">詳細</button>
+                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST001')">編集</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-student-id="ST002" data-status="請求済">
+              <td>ST002</td>
+              <td>佐藤 花子</td>
+              <td class="text-end">28,800</td>
+              <td>2025-03-05</td>
+              <td><span class="badge bg-warning text-dark badge-status">請求済</span></td>
+              <td>2025-03-02</td>
+              <td>口座引落</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST002')">詳細</button>
+                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST002')">編集</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-student-id="ST003" data-status="支払完了">
+              <td>ST003</td>
+              <td>田中 一郎</td>
+              <td class="text-end">12,000</td>
+              <td>2025-03-05</td>
+              <td><span class="badge bg-success badge-status">支払完了</span></td>
+              <td>2025-03-02</td>
+              <td>口座引落</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST003')">詳細</button>
+                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST003')">編集</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-student-id="ST004" data-status="引落失敗">
+              <td>ST004</td>
+              <td>高橋 雅</td>
+              <td class="text-end">5,000</td>
+              <td>2025-03-05</td>
+              <td><span class="badge bg-danger badge-status">引落失敗</span></td>
+              <td>2025-03-02</td>
+              <td>口座引落</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST004')">詳細</button>
+                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST004')">編集</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-student-id="ST005" data-status="現金支払済">
+              <td>ST005</td>
+              <td>伊藤 花</td>
+              <td class="text-end">18,000</td>
+              <td>2025-03-05</td>
+              <td><span class="badge bg-primary badge-status">現金支払済</span></td>
+              <td>2025-03-02</td>
+              <td>現金</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST005')">詳細</button>
+                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST005')">編集</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ▼▼▼ 請求一覧テーブル ▼▼▼ -->
-  <div class="table-wrap">
-    <table class="table table-striped table-hover mb-0" id="billingTable">
-      <thead>
-        <tr>
-          <th scope="col">請求ID</th>
-          <th scope="col">会員名</th>
-          <th scope="col">元金額</th>
-          <th scope="col">最終請求額（税込）</th>
-          <th scope="col">請求日</th>
-          <th scope="col">支払い状況</th>
-          <th scope="col">請求内容</th>
-          <th scope="col">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- サンプルデータ (カラム削減済み) -->
-        <tr>
-          <td>1001</td>
-          <td class="text-primary" style="cursor:pointer; text-decoration:underline;">山田 太郎</td>
-          <td>¥12,000</td>
-          <td>¥13,200</td>
-          <td>2024/09/01</td>
-          <td><button class="btn btn-paid btn-sm">支払い済み</button></td>
-          <td>レッスン費</td>
-          <td>
-            <button class="btn btn-sm btn-edit">編集</button>
-            <button class="btn btn-sm btn-delete">削除</button>
-          </td>
-        </tr>
-        <tr>
-          <td>1002</td>
-          <td class="text-primary" style="cursor:pointer; text-decoration:underline;">佐藤 花子</td>
-          <td>¥15,000</td>
-          <td>¥16,500</td>
-          <td>2024/09/15</td>
-          <td><button class="btn btn-failed btn-sm">引落失敗</button></td>
-          <td>ラケット費</td>
-          <td>
-            <button class="btn btn-sm btn-edit">編集</button>
-            <button class="btn btn-sm btn-delete">削除</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<!-- ▼ 編集用モーダル (Bootstrap) -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">請求ステータス編集</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <span class="fw-bold">スクール生ID:</span>
+          <span id="editStudentId"></span>
+        </p>
+        <div class="mb-3">
+          <label class="form-label" for="editStatusSelect">ステータス</label>
+          <select id="editStatusSelect" class="form-select form-select-sm">
+            <option value="未請求">未請求</option>
+            <option value="請求済">請求済</option>
+            <option value="支払完了">支払完了</option>
+            <option value="引落失敗">引落失敗</option>
+            <option value="現金支払済">現金支払済</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveStatus()">保存</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Bootstrap JS (Popper含む) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // ▼▼▼ 企業スクール選択 (モック) ▼▼▼
-  document.getElementById("selectButton").addEventListener("click", () => {
-    const company = document.getElementById("companySelect").value;
-    const school  = document.getElementById("schoolSelect").value;
-    alert(`企業: ${company}, スクール: ${school} を選択しました(モック)`);
-  });
+  let editModal;
+  let currentEditStudentId = null;
 
-  // ▼▼▼ 「請求情報追加」フォーム送信 ▼▼▼
-  document.getElementById("addBillingForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const memberName = document.getElementById("memberName").value;
-    const originalAmount = parseInt(document.getElementById("originalAmount").value, 10) || 0;
-    const billingDate = document.getElementById("billingDate").value;
-    const paymentStatus = document.getElementById("paymentStatus").value;
-    const category = document.getElementById("billingCategory").value.trim() || "未入力";
-    // 最終請求額 (例: 10%加算)
-    const finalAmount = Math.floor(originalAmount * 1.1);
-    const newId = Math.floor(Math.random() * 100000);
+  window.onload = () => {
+    const modalEl = document.getElementById('editModal');
+    editModal = new bootstrap.Modal(modalEl);
+  };
 
-    addRowToTable({
-      billingId: newId,
-      memberName,
-      originalAmount,
-      finalAmount,
-      billingDate,
-      paymentStatus,
-      category
-    });
-    alert("請求情報を追加しました（モック）");
-    this.reset();
-  });
-
-  // ▼▼▼ テーブルに行を追加 (モック) ▼▼▼
-  function addRowToTable(data) {
-    const tableBody = document.querySelector("#billingTable tbody");
-    const tr = document.createElement("tr");
-    // 支払い状況ボタンの色
-    let statusClass = "btn-before-request";
-    if (data.paymentStatus === "支払い済み") {
-      statusClass = "btn-paid";
-    } else if (data.paymentStatus === "引落失敗") {
-      statusClass = "btn-failed";
-    }
-
-    tr.innerHTML = `
-      <td>${data.billingId}</td>
-      <td class="text-primary" style="cursor:pointer; text-decoration:underline;">
-        ${data.memberName}
-      </td>
-      <td>¥${data.originalAmount.toLocaleString()}</td>
-      <td>¥${data.finalAmount.toLocaleString()}</td>
-      <td>${data.billingDate}</td>
-      <td><button class="btn btn-sm ${statusClass}">${data.paymentStatus}</button></td>
-      <td>${data.category}</td>
-      <td>
-        <button class="btn btn-sm btn-edit">編集</button>
-        <button class="btn btn-sm btn-delete">削除</button>
-      </td>
-    `;
-    tableBody.appendChild(tr);
-
-    // 編集・削除ボタン (モック)
-    tr.querySelector(".btn-edit").addEventListener("click", () => {
-      alert("編集機能はモックです。");
-    });
-    tr.querySelector(".btn-delete").addEventListener("click", () => {
-      if (confirm("本当に削除しますか？（削除フラグ）")) {
-        tr.remove();
-      }
-    });
-
-    // 会員名クリックで詳細モック
-    tr.querySelector(".text-primary").addEventListener("click", () => {
-      alert(`${data.memberName} さんの詳細(モック)`);
-    });
+  // ▼ 検索ボタン(モック)
+  function searchByMonth() {
+    const val = document.getElementById('monthInput').value;
+    alert("月別検索: " + val + " の請求を検索します(モック)");
   }
 
-  // ▼▼▼ 検索・フィルタはモック ▼▼▼
-  document.getElementById("excelImportButton").addEventListener("click", function() {
-    alert("Excelインポートはモックです。");
-  });
-  document.getElementById("searchInput").addEventListener("keyup", () => {
-    alert("検索機能はモックです。");
-  });
-  document.getElementById("failedOnly").addEventListener("change", () => {
-    alert("引落失敗のみ表示はモックです。");
-  });
+  // ▼ 全銀フォーマットExcel出力(モック)
+  function exportZenginExcel() {
+    alert("全銀フォーマットExcelをダウンロードします(モック)");
+  }
+
+  // ▼ インポート切替
+  function toggleImportArea() {
+    const area = document.getElementById('importArea');
+    if (area.style.display === 'none') {
+      area.style.display = 'block';
+    } else {
+      area.style.display = 'none';
+    }
+  }
+
+  // ▼ CSVインポート(モック)
+  function fakeUpload() {
+    alert("CSVをインポートしました(モック)");
+  }
+
+  // ▼ 請求詳細画面(モック)
+  function viewDetail(studentId) {
+    alert("請求詳細画面を開きます(モック)\n対象ID: " + studentId);
+  }
+
+  // ▼ 「編集」ボタンクリック→モーダル表示
+  function openEditModal(studentId) {
+    currentEditStudentId = studentId;
+    document.getElementById('editStudentId').textContent = studentId;
+
+    // 現在のステータスをtrから読み取る
+    const tr = document.querySelector(`tr[data-student-id="${studentId}"]`);
+    const currentStatus = tr ? tr.dataset.status : "未請求";
+    document.getElementById('editStatusSelect').value = currentStatus;
+
+    editModal.show();
+  }
+
+  // ▼ 「保存」ボタン
+  function saveStatus() {
+    const newStatus = document.getElementById('editStatusSelect').value;
+    if (!currentEditStudentId) return;
+
+    // テーブル更新
+    const tr = document.querySelector(`tr[data-student-id="${currentEditStudentId}"]`);
+    if (!tr) {
+      alert("該当のスクール生ID行が見つかりません。");
+      return;
+    }
+    tr.dataset.status = newStatus;
+    
+    // badge更新
+    const td = tr.querySelector("td:nth-child(5)"); 
+    td.innerHTML = renderBadge(newStatus);
+
+    alert("ステータスを変更しました(モック): " + newStatus);
+    editModal.hide();
+  }
+
+  // ▼ ステータスに応じてbadgeのHTMLを返す
+  function renderBadge(statusStr) {
+    let colorClass = "bg-secondary"; // default
+    switch (statusStr) {
+      case "未請求":    colorClass = "bg-secondary"; break;
+      case "請求済":    colorClass = "bg-warning text-dark"; break;
+      case "支払完了":  colorClass = "bg-success"; break;
+      case "引落失敗":  colorClass = "bg-danger"; break;
+      case "現金支払済": colorClass = "bg-primary"; break;
+    }
+    return `<span class="badge ${colorClass} badge-status">${statusStr}</span>`;
+  }
 </script>
 </body>
 </html>
