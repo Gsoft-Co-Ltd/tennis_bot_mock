@@ -3,164 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>時間軸とレッスンを同じ10分刻みグリッドで</title>
+<title>テニススクール管理ダッシュボード</title>
 <style>
 :root {
+  --primary-blue: #3498db;
+  --primary-green: #2ecc71;
+  --background-color: #f8fafc;
   --border-color: #e2e8f0;
   --text-color: #334155;
-  --bg-white: #fff;
-  --bg-court: #f0f8ff;
-  --primary-blue: #3498db;
 }
 
-/* リセット */
+/* 全要素リセット */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 body {
   font-family: "Noto Sans JP", sans-serif;
-  background: #f8fafc;
+  background: var(--background-color);
   color: var(--text-color);
 }
 
-/* カード */
+/* カード風レイアウト用(企業/スクール選択など) */
 .card {
-  background: var(--bg-white);
+  background: #fff;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-left: 20px;
   margin-top: 20px;
+  max-width: 600px;
   padding: 10px 20px;
-  display: inline-block;
 }
-.select-group, .switch-group {
+
+/* 企業・スクール選択ボックス */
+.select-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: left;
+  width: 100%;
 }
-.select-group label { font-weight: 600; }
-.select-group select, .switch-group select {
+.select-group label {
+  font-weight: 600;
+}
+.select-group select {
   padding: 6px 12px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
-  background: #fff;
+  background: white;
+  max-width: 150px;
 }
-.select-group button, .switch-group button {
+.select-group button {
   background-color: var(--primary-blue);
-  color: #fff;
+  color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
+  transition: opacity 0.2s;
+}
+.select-group button:hover {
+  opacity: 0.9;
 }
 
+/* 「今日の予定」「曜日フィルタ」ボックス */
+.switch-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  width: 100%;
+}
+.switch-group button {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.switch-group button:hover {
+  opacity: 0.9;
+}
+.switch-group select {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+/* メインのスケジュール領域 */
 #day-schedule-container {
   width: 1000px;
   margin: 20px auto;
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--bg-white);
+  background: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  min-height: 400px; /* ある程度の高さを確保 */
 }
 
+/* 上部にタイトル:ブロック要素として配置 */
 .day-schedule-title {
   font-size: 16px;
   font-weight: bold;
+  margin-bottom: 10px; 
   text-align: center;
-  margin-bottom: 10px;
 }
 
-/* ▼ 10分刻みのCSS Grid (9:00～21:30 → 75コマ) 
-   行1: 時刻ラベル
-   行2～: コートごとのレッスン
-   col1: コート名/空、 col2..col(2+75)=col77(排他) */
-#grid-schedule {
-  display: grid;
-  grid-template-columns:
-    100px
-    repeat(75, 1fr); 
-  grid-auto-rows: auto;
-  column-gap: 2px;
-  row-gap: 8px;
-  overflow-x: auto; 
-  padding-bottom: 10px;
-  border-top: 1px solid var(--border-color);
+/* スケジュールの「盤面」をまとめるラッパ。上から40px空けるなど自由 */
+.schedule-wrapper {
   position: relative;
+  width: 100%;
+  height: 360px; /* タイトル含めて全体400px想定 => 360に */
+  border-top: 1px solid var(--border-color);
 }
 
-/* 時刻ラベル (行1) */
-.time-label {
+/* コート表示、時間軸、レッスンなどを同じ座標系( top:0 )から配置 */
+.court-list,
+.day-time-axis,
+.day-timeslot-lane,
+.day-schedule-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+/* 左側コートリスト */
+.court-list {
+  left: 0;
+  width: 100px;
+  border-right: 1px solid var(--border-color);
+  background: #f0f8ff;
+  z-index: 2;
+}
+.court-item {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 12px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* 時間軸エリア */
+.day-time-axis {
+  left: 100px;
+  right: 0;
+  z-index: 2;
+}
+.day-time-axis-label {
+  position: absolute;
+  font-size: 11px;
   color: #64748b;
   text-align: center;
-  padding: 4px;
-  border-right: 1px solid #ccc;
-  /* 余裕あれば他の装飾 */
+  width: 40px;
+  transform: translateX(-50%);
 }
 
-/* コート名セル */
-.court-label {
-  background: var(--bg-court);
+/* タイムスロット(A枠等)を表示する帯 */
+.day-timeslot-lane {
+  left: 100px;
+  right: 0;
+  height: 16px; /* タイムスロット帯の高さ */
+  z-index: 4;
+  top: 0; /* コートの先頭行と被らないようにするなら適宜調整 */
+}
+
+/* タイムスロット帯 */
+.timeslot-block {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #eceffb;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #333;
   text-align: center;
-  font-weight: bold;
-  padding: 6px 0;
+  line-height: 16px;
+  overflow: hidden;
+}
+
+/* レッスン配置領域 */
+.day-schedule-content {
+  left: 100px;
+  right: 0;
+  z-index: 5; 
+  overflow: hidden;
+  /* コートが1つ60px × 3面 =180, さらにヘッダ等あれば調整 */
 }
 
 /* レッスンボタン */
 .day-lesson {
-  border: 1px solid var(--border-color);
+  position: absolute;
   border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  padding: 6px;
-  font-size: 12px;
+  padding: 4px 6px;
+  font-size: 11px;
   font-weight: bold;
-  text-align: center;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  min-height: 60px;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #333; 
+  z-index: 10;
+}
+.day-lesson.beginner {
+  background-color: #d1eaff; /* 薄い水色 */
+}
+.day-lesson.intermediate {
+  background-color: #d1ffd9; /* 薄い緑 */
+}
+.day-lesson.advanced {
+  background-color: #f1d1ff; /* 薄い紫 */
 }
 .day-lesson:hover {
   opacity: 0.9;
 }
-/* レベル別色 */
-.day-lesson.beginner {
-  background-color: #d1eaff;
-}
-.day-lesson.intermediate {
-  background-color: #d1ffd9;
-}
-.day-lesson.advanced {
-  background-color: #f1d1ff;
-}
 
-/* ポップアップ例 */
+/* ポップアップ: iframeで外部HTMLを読み込む例 */
 .overlay {
   display: none;
-  position: fixed; top:0; left:0; right:0; bottom:0;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.5);
   z-index: 999;
 }
 .popup {
   display: none;
-  position: fixed; 
-  top:50%; left:50%;
-  transform: translate(-50%,-50%);
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
   background: #fff;
-  width: 90%; max-width: 500px;
-  height: 400px;
+  padding: 0; /* iframeに合わせるなら余白なしでもOK */
   border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  width: 90%; 
+  max-width: 500px; 
+  height: 400px; /* 例として固定高さに */
 }
 .popup iframe {
-  width: 100%; 
+  width: 100%;
   height: 100%;
   border: none;
 }
@@ -168,19 +263,21 @@ body {
 </head>
 <body>
 
-<!-- 企業・スクール選択(モック) -->
+<!-- 企業・スクール選択 -->
 <div class="card">
   <div class="select-group">
     <label for="companySelect">企業:</label>
     <select id="companySelect">
       <option value="companyA" selected>株式会社A</option>
       <option value="companyB">株式会社B</option>
+      <option value="companyC">株式会社C</option>
     </select>
 
     <label for="schoolSelect">スクール:</label>
     <select id="schoolSelect">
       <option value="schoolX" selected>東京スクール</option>
       <option value="schoolY">大阪スクール</option>
+      <option value="schoolZ">福岡スクール</option>
     </select>
 
     <button id="selectButton">選択</button>
@@ -203,198 +300,370 @@ body {
   </div>
 </div>
 
-<!-- メイン -->
+<!-- 日表示コンテナ -->
 <div id="day-schedule-container">
   <div class="day-schedule-title" id="day-schedule-title"></div>
-  <div id="grid-schedule"></div>
+
+  <!-- スケジュール全体をまとめるラッパ -->
+  <div class="schedule-wrapper">
+
+    <div class="court-list" id="court-list"></div>
+    <div class="day-time-axis" id="day-time-axis"></div>
+    <div class="day-timeslot-lane" id="day-timeslot-lane"></div>
+    <div class="day-schedule-content" id="day-schedule-content"></div>
+
+  </div>
 </div>
 
-<!-- ポップアップ(モック) -->
+<!-- ポップアップ(外部HTML読込) -->
 <div class="overlay" id="overlay"></div>
 <div class="popup" id="popup">
+  <!-- iframeで外部htmlを読み込む -->
   <iframe id="popup-iframe" src=""></iframe>
 </div>
 
 <script>
-/* 0) ダミーデータ (レッスン2枠+コート3面) */
+/* ------------------------------
+ * 1) 曜日別の時間割データ (例)
+ * ------------------------------ */
 const dayTimeslots = {
   "月曜日": [
-    // (例) 9:00～9:30(初級), 9:30～10:00(上級)
-    { start:"09:00", end:"09:30", level:"beginner", coaches:["中村","山本"] },
-    { start:"09:30", end:"10:00", level:"advanced", coaches:["田中"] },
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "16:30", end: "18:00" },
+    { code: "F", start: "18:15", end: "19:45" },
+    { code: "G", start: "20:00", end: "21:30" },
   ],
-  /* 他曜日など省略 */
+  "火曜日": [
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "16:30", end: "18:00" },
+    { code: "F", start: "18:15", end: "19:45" },
+    { code: "G", start: "20:00", end: "21:30" },
+  ],
+  "水曜日": [
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "16:30", end: "18:00" },
+    { code: "F", start: "18:15", end: "19:45" },
+    { code: "G", start: "20:00", end: "21:30" },
+  ],
+  "木曜日": [
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "16:30", end: "18:00" },
+    { code: "F", start: "18:15", end: "19:45" },
+    { code: "G", start: "20:00", end: "21:30" },
+  ],
+  "金曜日": [
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "16:30", end: "18:00" },
+    { code: "F", start: "18:15", end: "19:45" },
+    { code: "G", start: "20:00", end: "21:30" },
+  ],
+  "土曜日": [
+    /* 土曜は例として5枠だけに */
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "14:45", end: "16:15" },
+    { code: "E", start: "17:00", end: "18:30" },
+  ],
+  "日曜日": [
+    /* 日曜は例として4枠 */
+    { code: "A", start: "09:00", end: "10:30" },
+    { code: "B", start: "10:45", end: "12:15" },
+    { code: "C", start: "13:00", end: "14:30" },
+    { code: "D", start: "15:00", end: "16:30" },
+  ],
 };
-const courts=["コートA","コートB","コートC"];
-const days=["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"];
 
-/** レッスンまとめ */
-const lessons=[];
+/* コート・レベル等の候補 */
+const courts = ["コートA","コートB","コートC"];
+const levels = ["beginner","intermediate","advanced"];
+const coaches= ["田中","佐藤","鈴木","山田","加藤","渡辺","高橋","松本","伊藤","中村",
+                "橋本","清水","林","斎藤","森田","原田","川島","石井","木村","山本"];
+const statuses=["出席","レギュラー","欠席","振替","体験"];
+
+/* ダミーデータ用に曜日一覧 */
+const days = ["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"];
+
+/** 受講者をランダム生成 */
+function randomParticipants(count, cap) {
+  const names = [
+    "田中","佐藤","鈴木","高橋","伊藤","渡辺","中村","小林","加藤","山本",
+    "松本","清水","木村","林","斎藤","山崎","原田","森田","桜井","相川",
+    "橋本","内田","石井","川島","藤田","島田","中村優子","加藤太一","山口美紀","松本麗子"
+  ];
+  const arr = [];
+  for (let i=0; i<count; i++){
+    const name  = names[Math.floor(Math.random()*names.length)];
+    const st    = statuses[Math.floor(Math.random()*statuses.length)];
+    const unpaid= Math.random()<0.1;
+    const memo  = Math.random()<0.1;
+    arr.push({ name, status: st, unpaid, memo });
+  }
+  return arr;
+}
+
+/** 全レッスン格納 */
+const lessons = [];
+/* 曜日別timeSlot×コートでレッスンを作成 */
 days.forEach(day=>{
-  const arr= dayTimeslots[day]||[];
-  arr.forEach(slot=>{
-    courts.forEach(c=>{
+  const tsArray = dayTimeslots[day] || [];
+  tsArray.forEach(ts=>{
+    courts.forEach(court=>{
+      const lvl = levels[Math.floor(Math.random()*levels.length)];
+      const cch = coaches[Math.floor(Math.random()*coaches.length)];
+      const cap = 5 + Math.floor(Math.random()*6);
+      const pCount = 2 + Math.floor(Math.random()*cap);
+      const parts  = randomParticipants(pCount, cap);
       lessons.push({
         day,
-        court: c,
-        level: slot.level,
-        coaches: slot.coaches||[],
-        startTime: slot.start,
-        endTime: slot.end
+        court,
+        level: lvl,
+        coach: cch,
+        capacity: cap,
+        participants: parts,
+        startTime: ts.start,
+        endTime:   ts.end,
+        timeslotCode: ts.code,
       });
     });
   });
 });
 
-/* 1) ポップアップ(ダミー) */
-function showPopup(les){
-  const ov= document.getElementById("overlay");
-  const pp= document.getElementById("popup");
-  const ifr=document.getElementById("popup-iframe");
-  if(!ov||!pp||!ifr)return;
-  // コーチ配列を渡す例
-  const q = new URLSearchParams({
-    day:les.day,
-    court:les.court,
-    level:les.level,
-    coaches:les.coaches.join(","),
-    start:les.startTime,
-    end:les.endTime
+/* -------------------------
+ * ポップアップ: iframeで表示
+ * ------------------------- */
+function showPopup(lesson){
+  const overlay= document.getElementById("overlay");
+  const popup  = document.getElementById("popup");
+  const iframe = document.getElementById("popup-iframe");
+  if(!overlay || !popup || !iframe) return;
+
+  /* 例: lesson情報をクエリパラメータに付けて外部HTMLに渡す */
+  const urlParams = new URLSearchParams({
+    day: lesson.day,
+    court: lesson.court,
+    level: lesson.level,
+    start: lesson.startTime,
+    end:   lesson.endTime,
+    coach: lesson.coach,
+    capacity: lesson.capacity
   }).toString();
-  ifr.src= "lesson_popup.html?"+q;
-  ov.style.display='block';
-  pp.style.display='block';
+  // たとえば "lesson_popup.html" という外部HTMLを読み込む
+  iframe.src = `lesson_popup.html?${urlParams}`;
+
+  overlay.style.display = 'block';
+  popup.style.display   = 'block';
 }
+/** ポップアップ閉じる */
 function closePopup(){
-  document.getElementById("overlay").style.display='none';
-  document.getElementById("popup").style.display='none';
-  document.getElementById("popup-iframe").src='';
-}
-document.getElementById("overlay").addEventListener("click",closePopup);
+  const overlay= document.getElementById("overlay");
+  const popup  = document.getElementById("popup");
+  const iframe = document.getElementById("popup-iframe");
+  if(!overlay || !popup || !iframe) return;
 
-/* 2) 10分刻み(9:00～21:30=75コマ) */
-function timeToTenOffset(tstr){
-  const [H,M]= tstr.split(":").map(Number);
-  const offset= (H-9)*6 + Math.floor(M/10);
-  if(offset<0)return 0;
-  if(offset>75)return 75; //21:30
-  return offset;
-}
-/** grid-column: (開始) / (終了) → 終了は+0 */
-function getGridColumnRange(start,end){
-  const s= timeToTenOffset(start);
-  const e= timeToTenOffset(end);
-  return {
-    startCol: 2 + s,
-    endCol:   2 + e   // +1しない
-  };
+  popup.style.display   = 'none';
+  overlay.style.display = 'none';
+  iframe.src = ''; // iframeをクリアしておく
 }
 
-/** コートは行3～ (A=0->3, B=1->4, etc.) */
-function getCourtRow(idx){
-  return 3+ idx;
-}
-function levelToText(lv){
-  return ({ beginner:"初級", intermediate:"中級", advanced:"上級" })[lv]||lv;
-}
+/* オーバーレイをクリックしても閉じられる */
+document.getElementById("overlay").addEventListener("click", closePopup);
 
-/* 3) スケジュール描画 */
+/* -------------------------
+ * 日表示
+ * ------------------------- */
+function getTodayName(){
+  const weekday=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
+  return weekday[new Date().getDay()];
+}
+/** 文字列 "HH:MM" を x座標(分)に (9:00=0) */
+function timeToX(time){
+  const [H,M] = time.split(":").map(Number);
+  return (H - 9)*60 + M;
+}
+/** 指定曜日のtimeslot */
+function getTimeslotsByDay(day){
+  return dayTimeslots[day] || [];
+}
+/** レベルを日本語ラベルに */
+function levelToText(l){
+  const map = { beginner:"初級", intermediate:"中級", advanced:"上級" };
+  return map[l] || l;
+}
+/** 指定曜日のスケジュールを描画 */
 function generateDaySchedule(day){
-  const title= document.getElementById("day-schedule-title");
-  const grid=  document.getElementById("grid-schedule");
-  if(!title||!grid)return;
+  const dayTitle   = document.getElementById("day-schedule-title");
+  const courtList  = document.getElementById("court-list");
+  const timeAxis   = document.getElementById("day-time-axis");
+  const timeslotLn = document.getElementById("day-timeslot-lane");
+  const content    = document.getElementById("day-schedule-content");
+  if(!dayTitle || !courtList || !timeAxis || !timeslotLn || !content) return;
 
   // タイトル
-  const wd=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
-  const now=new Date();
-  const diff= wd.indexOf(day)- now.getDay();
-  const tgt= new Date(now);
-  tgt.setDate(now.getDate()+ diff);
-  const label= `${tgt.getMonth()+1}月${tgt.getDate()}日(${day})`;
-  title.textContent= label+" のスケジュール";
+  const todayDate = new Date();
+  const weekday   = ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
+  const todayIndex= todayDate.getDay();
+  const targetIndex= weekday.indexOf(day);
+  const diff = targetIndex - todayIndex;
+  const targetDate= new Date(todayDate);
+  targetDate.setDate(todayDate.getDate() + diff);
+  const formatted = `${targetDate.getMonth()+1}月${targetDate.getDate()}日(${day})`;
+  dayTitle.textContent = `${formatted} のスケジュール`;
 
   // クリア
-  grid.innerHTML="";
+  courtList.innerHTML  = "";
+  timeAxis.innerHTML   = "";
+  timeslotLn.innerHTML = "";
+  content.innerHTML    = "";
 
-  // 行1: 時刻ラベル( offset=0..75 )
-  // col1(左上)は空
-  const emptyDiv= document.createElement("div");
-  emptyDiv.style.gridRow="1"; 
-  emptyDiv.style.gridColumn="1";
-  grid.appendChild(emptyDiv);
+  // コート一覧(縦)
+  const courtHeight= 60;
+  courts.forEach(c=>{
+    const ci = document.createElement('div');
+    ci.className= "court-item";
+    ci.textContent= c;
+    courtList.appendChild(ci);
+  });
 
-  for(let off=0; off<=75; off++){
-    const col= 2+ off;
-    // 9:00+ off*10分
-    const totalMin= off*10;
-    const HH= 9 + Math.floor(totalMin/60);
-    const MM= totalMin%60;
-    // 30分刻みラベルにするなら if(off%3==0){...} でもOK
-    const lbl= document.createElement("div");
-    lbl.className="time-label";
-    lbl.textContent= `${String(HH).padStart(2,"0")}:${String(MM).padStart(2,"0")}`;
-    lbl.style.gridRow= "1";
-    lbl.style.gridColumn= `${col} / ${col+1}`;
-    grid.appendChild(lbl);
+  // 時間軸を9:00〜21:00(＋21:30)表示
+  for(let h=9; h<=21; h++){
+    const x = timeToX(`${h}:00`);
+    // ラベル
+    const lbl = document.createElement('div');
+    lbl.className= 'day-time-axis-label';
+    lbl.style.left= (x+100) + 'px';
+    lbl.style.top = '5px'; // ちょっと下げる
+    lbl.textContent= `${h}:00`;
+    timeAxis.appendChild(lbl);
+
+    // 縦線
+    const line= document.createElement('div');
+    line.style.position = 'absolute';
+    line.style.top  = '25px'; 
+    line.style.left = (x+100)+'px';
+    line.style.width= '1px';
+    line.style.bottom= '0';
+    line.style.background= '#ccc';
+    timeAxis.appendChild(line);
+  }
+  // 21:30
+  {
+    const x = timeToX("21:30");
+    const lbl = document.createElement('div');
+    lbl.className= 'day-time-axis-label';
+    lbl.style.left= (x+100) + 'px';
+    lbl.style.top = '5px';
+    lbl.textContent= `21:30`;
+    timeAxis.appendChild(lbl);
+
+    const line= document.createElement('div');
+    line.style.position = 'absolute';
+    line.style.top  = '25px';
+    line.style.left = (x+100)+'px';
+    line.style.width= '1px';
+    line.style.bottom= '0';
+    line.style.background= '#ccc';
+    timeAxis.appendChild(line);
   }
 
-  // 行2は(省略など) → 行3以降にコート
-  courts.forEach((cName,cIdx)=>{
-    const row= getCourtRow(cIdx);
-    // 左端にコート名
-    const cLabel= document.createElement("div");
-    cLabel.className="court-label";
-    cLabel.textContent= cName;
-    cLabel.style.gridRow= row;
-    cLabel.style.gridColumn="1";
-    grid.appendChild(cLabel);
+  // タイムスロット帯(A~G)
+  const timeslots = getTimeslotsByDay(day);
+  timeslots.forEach(ts=>{
+    const startX = timeToX(ts.start);
+    const endX   = timeToX(ts.end);
+    const width  = endX - startX;
 
-    // レッスン配置
-    const dayLessons= lessons.filter(l=>l.day===day && l.court===cName);
-    dayLessons.forEach(les=>{
-      const {startCol,endCol}= getGridColumnRange(les.startTime, les.endTime);
-      const lessonDiv= document.createElement("div");
-      lessonDiv.className="day-lesson "+ les.level;
-      const coachText= les.coaches.join("\n");
-      lessonDiv.textContent=
-        `${levelToText(les.level)}\n`+
-        `${coachText}\n`+
-        `${les.startTime} - ${les.endTime}`;
+    const div = document.createElement('div');
+    div.className= 'timeslot-block';
+    div.style.left= startX + 'px';
+    div.style.width= width + 'px';
+    div.textContent= ts.code; // "A","B",...
+    timeslotLn.appendChild(div);
+  });
 
-      lessonDiv.style.gridRow= row;
-      lessonDiv.style.gridColumn= `${startCol} / ${endCol}`;
-      lessonDiv.onclick= ()=> showPopup(les);
-      grid.appendChild(lessonDiv);
-    });
+  // レッスン配置
+  // .day-schedule-content内の座標 => left,topを計算
+  const dayLessons = lessons.filter(l => l.day===day);
+  dayLessons.forEach(les=>{
+    const cIndex= courts.indexOf(les.court);
+    if(cIndex<0) return;
+
+    const startX= timeToX(les.startTime);
+    const endX  = timeToX(les.endTime);
+    const width = endX - startX;
+    const topY  = cIndex* courtHeight; // コートごとに60pxずつ下
+
+    const lessonDiv= document.createElement('div');
+    lessonDiv.className= 'day-lesson ' + les.level;
+    lessonDiv.style.left= startX + 'px';
+    lessonDiv.style.top = topY + 'px';
+    lessonDiv.style.width = (width - 4)+'px';
+    lessonDiv.style.height= (courtHeight - 4)+'px';
+    lessonDiv.innerHTML= `
+      ${levelToText(les.level)}<br>
+      ${les.coach}コーチ<br>
+      ${les.startTime}-${les.endTime}
+    `;
+    lessonDiv.onclick= ()=>showPopup(les);
+    content.appendChild(lessonDiv);
   });
 }
 
-/* ダミーボタン */
+// 企業スクール選択
 document.getElementById("selectButton").addEventListener("click",()=>{
-  alert("企業・スクール選択(モック)");
-});
-document.getElementById("today-button").addEventListener("click",()=>{
-  const t = getTodayName();
-  const sel= document.getElementById("filter-day");
-  if([...sel.options].some(o=>o.value===t)){
-    sel.value= t;
+  const cVal= document.getElementById("companySelect").value;
+  const sVal= document.getElementById("schoolSelect").value;
+  if(!cVal || !sVal){
+    alert("企業とスクールを選んでください");
+    return;
   }
-  generateDaySchedule(t);
+  alert(`企業:${cVal}\nスクール:${sVal}\nが選択されました(モック)`);
 });
-function getTodayName(){
-  const w=["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
-  return w[new Date().getDay()];
-}
+
+// 今日の予定ボタン
+document.getElementById("today-button").addEventListener("click",()=>{
+  const today = getTodayName(); // "月曜日" 等
+  const sel   = document.getElementById("filter-day");
+  if(sel){
+    if([...sel.options].some(o=>o.value===today)){
+      sel.value= today;
+    } else {
+      sel.selectedIndex=0;
+    }
+  }
+  generateDaySchedule(today);
+});
+
+// 曜日セレクト
 document.getElementById("filter-day").addEventListener("change",function(){
   generateDaySchedule(this.value);
 });
 
-/* 初期表示 */
+// 初期表示
 document.addEventListener("DOMContentLoaded",()=>{
-  const sel= document.getElementById("filter-day");
-  const t= getTodayName();
-  if([...sel.options].some(o=>o.value===t)){
-    sel.value= t;
+  const today = getTodayName();
+  const sel   = document.getElementById("filter-day");
+  if(sel){
+    if([...sel.options].some(o=>o.value===today)){
+      sel.value= today;
+    } else {
+      sel.selectedIndex=0;
+    }
   }
   generateDaySchedule(sel.value);
 });
