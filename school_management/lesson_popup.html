@@ -293,7 +293,7 @@ function showPopup() {
   const activeCount = sorted.filter(p =>
     !["欠席","無断欠席","欠席予約","中止"].includes(p.status)
   ).length;
-  countInfo.textContent = `アクティブ人数: ${activeCount} / ${capacity}名`;
+  countInfo.textContent = `参加人数: ${activeCount} / ${capacity}名`;
 
   // 表示
   overlay.style.display = "block";
