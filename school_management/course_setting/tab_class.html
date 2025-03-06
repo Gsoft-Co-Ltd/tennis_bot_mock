@@ -2,16 +2,13 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
-  
   <style>
-    /* ベーススタイル（他画面との統一感） */
     body {
       font-family: Arial, sans-serif;
       font-size: 14px;
@@ -19,7 +16,6 @@
       padding: 20px;
       background-color: #ffffff;
     }
-
     .section-title {
       font-size: 1rem;
       font-weight: bold;
@@ -28,8 +24,6 @@
       padding-left: 8px;
       margin-bottom: 12px;
     }
-
-    /* テーブル系 */
     .table {
       font-size: 14px;
       background-color: #fff;
@@ -51,22 +45,10 @@
       text-align: center;
       vertical-align: middle;
     }
-
-    /* フォーム関連 */
     .form-label {
       font-weight: bold;
       margin-bottom: 6px;
     }
-    .notice {
-      color: #6c757d;
-      font-size: 0.85rem;
-      margin-left: 8px;
-    }
-    hr {
-      margin: 24px 0;
-    }
-
-    /* クラス一覧固有のスタイル */
     .table-operations {
       display: flex;
       gap: 8px;
@@ -79,18 +61,26 @@
       width: 100%;
       max-width: 180px;
     }
-    .multi-select-terms {
-      max-height: 220px; 
+    .multi-select-terms,
+    .multi-select-coaches {
+      max-height: 120px; 
       overflow-y: auto;
       border: 1px solid #ccc;
       border-radius: 4px;
       background: #fff;
       padding: 6px;
     }
-    .multi-select-terms label {
+    .multi-select-terms label,
+    .multi-select-coaches label {
       display: block;
       margin-bottom: 4px;
       cursor: pointer;
+    }
+    .coach-limit-warning {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: none;
     }
   </style>
 </head>
@@ -99,172 +89,133 @@
 <!-- クラス一覧セクション -->
 <div class="mb-4">
   <div class="section-title">クラス一覧</div>
-  <p class="text-secondary" style="font-size:0.85rem;">
-    クラスの新規追加・編集・削除を行います。<br/>
-  </p>
 
-  <!-- 新規クラス追加ボタン -->
-  <div class="mb-3">
-    <button class="btn btn-primary btn-sm" onclick="showCreateClassModal()">
+  <!-- 学期フィルタ + 新規クラス -->
+  <div class="mb-3 d-flex align-items-center" style="gap:8px;">
+    <label for="termFilterSelect" class="form-label mb-0">表示する期:</label>
+    <select id="termFilterSelect" class="form-select form-select-sm" style="width:auto;"></select>
+    <button class="btn btn-primary btn-sm ms-auto" onclick="showCreateClassModal()">
       + 新規クラス追加
     </button>
   </div>
 
   <!-- クラス一覧テーブル -->
   <div class="table-responsive">
-    <table class="table table-bordered table-sm align-middle" id="classTable">
+    <table class="table table-bordered tablesm align-middle" id="classTable">
       <thead>
         <tr>
+          <th>曜日</th>
+          <th>開始時間</th>
+          <th>終了時間</th>
           <th>クラス名</th>
-          <th>紐づくコース</th>
-          <th>曜日 / 時間</th>
+          <th>コーチ</th>
           <th>コート</th>
           <th>定員</th>
           <th>レギュラー数</th>
           <th style="width:120px;">操作</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- JSで生成 -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
-</div><!-- /クラス一覧 -->
+</div>
 
-<!-- ========== クラス登録/編集モーダル ========== -->
+<!-- クラス登録/編集モーダル -->
 <div class="modal fade" id="classModal" tabindex="-1" aria-labelledby="classModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="classModalLabel">クラス登録/編集</h5>
-        <button 
-          type="button" 
-          class="btn-close" 
-          data-bs-dismiss="modal" 
-          aria-label="閉じる">
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
       </div>
       <div class="modal-body">
-        <!-- フォーム内容 -->
-        <div class="row g-2 mb-2">
-          <!-- クラス名 -->
-          <div class="col-md-6">
-            <label for="classNameInput" class="form-label">クラス名</label>
-            <input 
-              type="text" 
-              class="form-control form-control-sm" 
-              id="classNameInput"
-            />
-          </div>
-          <!-- 紐づくコース -->
-          <div class="col-md-6">
-            <label for="courseSelect" class="form-label">紐づくコース</label>
-            <select 
-              id="courseSelect" 
-              class="form-select form-select-sm"
-            >
-              <!-- JSで生成 -->
-            </select>
-          </div>
-        </div>
 
+        <!-- 1) 曜日 / 時間 / 定員 -->
         <div class="row g-2 mb-2">
-          <!-- 曜日 -->
           <div class="col-md-3">
             <label for="dayOfWeekSelect" class="form-label">曜日</label>
-            <select 
-              id="dayOfWeekSelect" 
-              class="form-select form-select-sm day-select"
-            >
-              <!-- JSで生成 -->
-            </select>
-          </div>
-          <!-- 開始時間/終了時間 -->
-          <div class="col-md-3">
-            <label class="form-label">開始時間</label>
-            <input 
-              type="time" 
-              id="startTimeInput" 
-              class="form-control form-control-sm time-input"
-            />
+            <select id="dayOfWeekSelect" class="form-select form-select-sm day-select"></select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">終了時間</label>
-            <input 
-              type="time" 
-              id="endTimeInput" 
-              class="form-control form-control-sm time-input"
-            />
+            <label for="startTimeInput" class="form-label">開始</label>
+            <input type="time" class="form-control form-control-sm time-input" id="startTimeInput" />
           </div>
-          <!-- 定員 -->
+          <div class="col-md-3">
+            <label for="endTimeInput" class="form-label">終了</label>
+            <input type="time" class="form-control form-control-sm time-input" id="endTimeInput" />
+          </div>
           <div class="col-md-3">
             <label for="capacityInput" class="form-label">定員</label>
-            <input 
-              type="number" 
-              id="capacityInput" 
-              class="form-control form-control-sm capacity-input" 
-              min="0"
-            />
+            <input type="number" class="form-control form-control-sm capacity-input" id="capacityInput" min="0" />
           </div>
         </div>
 
+        <!-- 2) クラス名 / コース -->
         <div class="row g-2 mb-2">
-          <!-- コート -->
-          <div class="col-md-12">
-            <label for="courtSelect" class="form-label">コート</label>
-            <select 
-              id="courtSelect" 
-              class="form-select form-select-sm"
-            >
+          <div class="col-md-6">
+            <label for="classNameInput" class="form-label">クラス名</label>
+            <input type="text" class="form-control form-control-sm" id="classNameInput" />
+          </div>
+          <div class="col-md-6">
+            <label for="courseSelect" class="form-label">紐づけコース</label>
+            <select id="courseSelect" class="form-select form-select-sm">
               <!-- JSで生成 -->
             </select>
           </div>
         </div>
 
-        <!-- 学期（Term）との関連: 多数チェックを想定(2025年1期～13期) -->
+        <!-- 3) コート -->
+        <div class="row g-2 mb-2">
+          <div class="col-md-12">
+            <label for="courtSelect" class="form-label">コート</label>
+            <select id="courtSelect" class="form-select form-select-sm"></select>
+          </div>
+        </div>
+
+        <!-- 4) コーチ(最大2) -->
+        <div class="mb-3">
+          <label class="form-label">担当コーチ(最大2名)</label>
+          <div class="multi-select-coaches" id="coachCheckboxes"></div>
+          <div class="coach-limit-warning" id="coachLimitWarning">
+            ※コーチは最大2名までしか選択できません
+          </div>
+        </div>
+
+        <!-- 5) 学期(多対多) -->
         <div class="mb-3">
           <label class="form-label">関連づける期(学期)</label>
-          <div class="multi-select-terms" id="termCheckboxes">
-            <!-- JSで生成 -->
-          </div>
+          <div class="multi-select-terms" id="termCheckboxes"></div>
         </div>
 
       </div><!-- /modal-body -->
       <div class="modal-footer">
-        <button 
-          type="button" 
-          class="btn btn-secondary btn-sm" 
-          data-bs-dismiss="modal"
-        >
-          キャンセル
-        </button>
-        <button 
-          type="button" 
-          class="btn btn-primary btn-sm" 
-          onclick="saveClass()"
-        >
-          保存
-        </button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveClass()">保存</button>
       </div>
     </div>
   </div>
 </div>
-<!-- ========== /クラスモーダル ========== -->
+<!-- /モーダル -->
 
 <!-- Bootstrap JS -->
-<script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   /*
-    ▼▼▼ ダミーデータ ▼▼▼
-    - dayOfWeekMaster : 曜日のリスト
-    - courseMaster    : コース一覧(クラスが紐づく先)
-    - courtMaster     : コート一覧
-    - termMaster      : 2025年1期～13期 (開始日～終了日入り)
-    - classData       : クラス一覧 (memberCountを含むが、モーダルでは編集しない)
+    ▼ ダミーデータ ▼
+    - termMaster(2期)
+    - dayOfWeekMaster(曜日)
+    - courseMaster(3コース) => モーダルでのみ使用
+    - courtMaster(3コート)
+    - coachMaster(4名: 佐藤,鈴木,田中,山田)
+    - classData(期ごとに20: 合計40クラス)
+      -> テーブルではコース列を表示しない
+      -> coachIds: 最大2人
   */
+
+  const termMaster = [
+    { id: 1, name: "2025年1期(4/1～5/31)" },
+    { id: 2, name: "2025年2期(6/1～7/30)" }
+  ];
 
   const dayOfWeekMaster = [
     { value: "mon", label: "月曜" },
@@ -276,247 +227,324 @@
     { value: "sun", label: "日曜" }
   ];
 
-  // コース一覧 (例)
   const courseMaster = [
     { id: 1, name: "平日昼コース" },
     { id: 2, name: "土日コース" },
     { id: 3, name: "フリー利用コース" }
   ];
 
-  // コート一覧 (例)
   const courtMaster = [
     { id: 1, name: "コートA" },
     { id: 2, name: "コートB" },
     { id: 3, name: "室内コート1" }
   ];
 
-  // 2025年1期～13期(例)
-  const termMaster = [
-    { id: 1,  name: "2025年1期(1/12～2/7)" },
-    { id: 2,  name: "2025年2期(2/8～3/7)" },
-    { id: 3,  name: "2025年3期(3/8～4/4)" },
-    { id: 4,  name: "2025年4期(4/5～5/2)" },
-    { id: 5,  name: "2025年5期(5/3～5/30)" },
-    { id: 6,  name: "2025年6期(5/31～6/27)" },
-    { id: 7,  name: "2025年7期(6/28～7/25)" },
-    { id: 8,  name: "2025年8期(7/26～8/22)" },
-    { id: 9,  name: "2025年9期(8/23～9/19)" },
-    { id: 10, name: "2025年10期(9/20～10/17)" },
-    { id: 11, name: "2025年11期(10/18～11/14)" },
-    { id: 12, name: "2025年12期(11/15～12/12)" },
-    { id: 13, name: "2025年13期(12/13～1/11)" }
+  const coachMaster = [
+    { id: 1, name: "佐藤" },
+    { id: 2, name: "鈴木" },
+    { id: 3, name: "田中" },
+    { id: 4, name: "山田" }
   ];
 
-  // クラス一覧 (ダミーデータ)
-  // memberCount: 「現在のレギュラーメンバー数」
-  let classData = [
-    {
-      id: 1,
-      displayName: "月曜 午前 初級クラス",
-      courseId: 1,
-      dayOfWeek: "mon",
-      startTime: "09:00",
-      endTime: "10:30",
-      courtId: 1,
-      capacity: 10,
-      memberCount: 7,
-      termIds: [1,2]
-    },
-    {
-      id: 2,
-      displayName: "土曜 夕方 フリークラス",
-      courseId: 3,
-      dayOfWeek: "sat",
-      startTime: "17:00",
-      endTime: "18:30",
-      courtId: 3,
-      capacity: 8,
-      memberCount: 5,
-      termIds: [2,3,4]
+  let currentTermId = 1; // 当期=1
+
+  // クラス一覧(40クラス: 期1=20, 期2=20)
+  let classData = (function(){
+    const data = [];
+    const days = ["mon","tue","wed","thu","fri","sat","sun"];
+
+    // 期1(20)
+    for(let i=1; i<=20; i++){
+      data.push({
+        id: i,
+        dayOfWeek: days[i%days.length],
+        startTime: `${8+(i%3)}:00`,
+        endTime:   `${8+(i%3)}:30`,
+        displayName: `初級クラス${i}`,
+        courseId: (i%3)+1,
+        coachIds: [ (i%4)+1 ], // 1コーチ
+        courtId: (i%3)+1,
+        capacity: 10 + (i%5),
+        memberCount: Math.floor(Math.random()*8),
+        termIds: [1]
+      });
     }
-  ];
+    // 期2(20)
+    for(let i=21; i<=40; i++){
+      data.push({
+        id: i,
+        dayOfWeek: days[i%days.length],
+        startTime: `${9+(i%2)}:15`,
+        endTime:   `${9+(i%2)}:45`,
+        displayName: `ジュニア${i}`,
+        courseId: (i%3)+1,
+        coachIds: (i%2===0)? [ (i%4)+1, ((i+2)%4)+1 ] : [ (i%4)+1 ],
+        courtId: (i%3)+1,
+        capacity: 10 + (i%4),
+        memberCount: Math.floor(Math.random()*10),
+        termIds: [2]
+      });
+    }
+    return data;
+  })();
 
   let editingClassId = null;
-  const classModal = new bootstrap.Modal(document.getElementById("classModal"), {});
 
-  // ページロード時
   window.addEventListener('DOMContentLoaded', () => {
-    // コースセレクト
-    const courseSelect = document.getElementById("courseSelect");
-    courseMaster.forEach(cm => {
+    // 学期フィルタ
+    const termFilter = document.getElementById("termFilterSelect");
+    termMaster.forEach(t => {
       const opt = document.createElement("option");
-      opt.value = cm.id;
-      opt.textContent = cm.name;
-      courseSelect.appendChild(opt);
+      opt.value = t.id;
+      opt.textContent = t.name;
+      termFilter.appendChild(opt);
+    });
+    termFilter.value = currentTermId;
+    termFilter.addEventListener("change", () => {
+      currentTermId = parseInt(termFilter.value);
+      renderClassTable();
     });
 
-    // コートセレクト
-    const courtSelect = document.getElementById("courtSelect");
-    courtMaster.forEach(ct => {
+    // 曜日
+    const daySel = document.getElementById("dayOfWeekSelect");
+    dayOfWeekMaster.forEach(d => {
       const opt = document.createElement("option");
-      opt.value = ct.id;
-      opt.textContent = ct.name;
-      courtSelect.appendChild(opt);
+      opt.value = d.value;
+      opt.textContent = d.label;
+      daySel.appendChild(opt);
     });
 
-    // 曜日セレクト
-    const dayOfWeekSelect = document.getElementById("dayOfWeekSelect");
-    dayOfWeekMaster.forEach(dw => {
+    // コート
+    const courtSel = document.getElementById("courtSelect");
+    courtMaster.forEach(c => {
       const opt = document.createElement("option");
-      opt.value = dw.value;
-      opt.textContent = dw.label;
-      dayOfWeekSelect.appendChild(opt);
+      opt.value = c.id;
+      opt.textContent = c.name;
+      courtSel.appendChild(opt);
     });
 
-    // 学期(期)チェックボックス
-    const termBoxArea = document.getElementById("termCheckboxes");
-    termMaster.forEach(tm => {
+    // コース(フォームのみ)
+    const courseSel = document.getElementById("courseSelect");
+    courseMaster.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.name;
+      courseSel.appendChild(opt);
+    });
+
+    // コーチ(チェック: 最大2)
+    const coachArea = document.getElementById("coachCheckboxes");
+    coachMaster.forEach(coach => {
       const lbl = document.createElement("label");
       const chk = document.createElement("input");
       chk.type = "checkbox";
-      chk.value = tm.id;
+      chk.value = coach.id;
+      chk.addEventListener("change", handleCoachCheckChange); 
       lbl.appendChild(chk);
-      lbl.appendChild(document.createTextNode(" " + tm.name));
-      termBoxArea.appendChild(lbl);
+      lbl.appendChild(document.createTextNode(" " + coach.name));
+      coachArea.appendChild(lbl);
     });
 
-    // 初回描画
+    // 学期(多対多)
+    const termArea = document.getElementById("termCheckboxes");
+    termMaster.forEach(t => {
+      const lbl = document.createElement("label");
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.value = t.id;
+      lbl.appendChild(chk);
+      lbl.appendChild(document.createTextNode(" " + t.name));
+      termArea.appendChild(lbl);
+    });
+
     renderClassTable();
   });
 
   // ------------------------------------------
-  // クラス一覧テーブル描画
+  // コーチチェック(最大2)
+  // ------------------------------------------
+  function handleCoachCheckChange() {
+    const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
+    const selectedCount = Array.from(coachChecks).filter(ch => ch.checked).length;
+    const warnEl = document.getElementById("coachLimitWarning");
+
+    if (selectedCount > 2) {
+      // revert
+      this.checked = false;
+      warnEl.style.display = "block";
+      setTimeout(() => {
+        warnEl.style.display = "none";
+      }, 2000);
+    }
+  }
+
+  // ------------------------------------------
+  // 一覧 (学期フィルタ)
   // ------------------------------------------
   function renderClassTable() {
     const tbody = document.getElementById("classTable").querySelector("tbody");
     tbody.innerHTML = "";
 
-    classData.forEach(cls => {
+    const filtered = classData.filter(cls => cls.termIds.includes(currentTermId));
+
+    filtered.forEach(cls => {
       const tr = document.createElement("tr");
+
+      // 曜日
+      const d = dayOfWeekMaster.find(x => x.value === cls.dayOfWeek);
+      const dayLabel = d ? d.label : cls.dayOfWeek;
+      const tdDay = document.createElement("td");
+      tdDay.textContent = dayLabel;
+      tr.appendChild(tdDay);
+
+      // 開始時間
+      const tdStart = document.createElement("td");
+      tdStart.textContent = cls.startTime;
+      tr.appendChild(tdStart);
+
+      // 終了時間
+      const tdEnd = document.createElement("td");
+      tdEnd.textContent = cls.endTime;
+      tr.appendChild(tdEnd);
 
       // クラス名
       const tdName = document.createElement("td");
       tdName.textContent = cls.displayName;
       tr.appendChild(tdName);
 
-      // 紐づくコース
-      const tdCourse = document.createElement("td");
-      const co = courseMaster.find(c => c.id === cls.courseId);
-      tdCourse.textContent = co ? co.name : "-";
-      tr.appendChild(tdCourse);
-
-      // 曜日 / 時間
-      const dw = dayOfWeekMaster.find(d => d.value === cls.dayOfWeek);
-      const dayLabel = dw ? dw.label : cls.dayOfWeek;
-      const tdDayTime = document.createElement("td");
-      tdDayTime.textContent = `${dayLabel} ${cls.startTime}～${cls.endTime}`;
-      tr.appendChild(tdDayTime);
+      // コーチ
+      const tdCoaches = document.createElement("td");
+      const coachNames = cls.coachIds.map(cid => {
+        const found = coachMaster.find(cc => cc.id === cid);
+        return found ? found.name : "";
+      });
+      tdCoaches.textContent = coachNames.join(", ");
+      tr.appendChild(tdCoaches);
 
       // コート
-      const ct = courtMaster.find(c => c.id === cls.courtId);
+      const cObj = courtMaster.find(cr => cr.id === cls.courtId);
       const tdCourt = document.createElement("td");
-      tdCourt.textContent = ct ? ct.name : "-";
+      tdCourt.textContent = cObj ? cObj.name : "-";
       tr.appendChild(tdCourt);
 
       // 定員
-      const tdCapacity = document.createElement("td");
-      tdCapacity.textContent = cls.capacity;
-      tr.appendChild(tdCapacity);
+      const tdCap = document.createElement("td");
+      tdCap.textContent = cls.capacity;
+      tr.appendChild(tdCap);
 
-      // メンバー数
-      const tdMemberCount = document.createElement("td");
-      tdMemberCount.textContent = cls.memberCount || 0;
-      tr.appendChild(tdMemberCount);
+      // レギュラー数
+      const tdMem = document.createElement("td");
+      tdMem.textContent = cls.memberCount;
+      tr.appendChild(tdMem);
 
-      // 操作ボタン
+      // 操作
       const tdOps = document.createElement("td");
       tdOps.className = "table-operations";
-
       const btnEdit = document.createElement("button");
       btnEdit.className = "btn btn-warning btn-sm";
       btnEdit.textContent = "編集";
       btnEdit.onclick = () => showEditClassModal(cls.id);
 
-      const btnDelete = document.createElement("button");
-      btnDelete.className = "btn btn-sm btn-danger";
-      btnDelete.textContent = "削除";
-      btnDelete.onclick = () => deleteClass(cls.id);
+      const btnDel = document.createElement("button");
+      btnDel.className = "btn btn-danger btn-sm";
+      btnDel.textContent = "削除";
+      btnDel.onclick = () => deleteClass(cls.id);
 
       tdOps.appendChild(btnEdit);
-      tdOps.appendChild(btnDelete);
-
+      tdOps.appendChild(btnDel);
       tr.appendChild(tdOps);
+
       tbody.appendChild(tr);
     });
   }
 
   // ------------------------------------------
-  // 新規クラスモーダル
+  // 新規
   // ------------------------------------------
   function showCreateClassModal() {
     editingClassId = null;
     document.getElementById("classModalLabel").textContent = "新規クラス登録";
     clearClassModal();
-    classModal.show();
+    const bsModal = new bootstrap.Modal(document.getElementById("classModal"), {});
+    bsModal.show();
   }
 
   // ------------------------------------------
-  // 既存クラス編集モーダル
+  // 編集
   // ------------------------------------------
   function showEditClassModal(classId) {
     editingClassId = classId;
-    const cls = classData.find(c => c.id === classId);
+    const cls = classData.find(x => x.id === classId);
     if (!cls) return;
 
     document.getElementById("classModalLabel").textContent = "クラス編集";
     clearClassModal();
 
-    // 値セット
-    document.getElementById("classNameInput").value = cls.displayName;
-    document.getElementById("courseSelect").value   = cls.courseId.toString();
+    // フィールド
     document.getElementById("dayOfWeekSelect").value = cls.dayOfWeek;
     document.getElementById("startTimeInput").value  = cls.startTime;
     document.getElementById("endTimeInput").value    = cls.endTime;
     document.getElementById("capacityInput").value   = cls.capacity;
+    document.getElementById("classNameInput").value  = cls.displayName;
+    document.getElementById("courseSelect").value    = cls.courseId.toString();
     document.getElementById("courtSelect").value     = cls.courtId.toString();
 
-    // 学期(Term)
-    const checks = document.getElementById("termCheckboxes")
-                    .querySelectorAll("input[type=checkbox]");
-    checks.forEach(chk => {
-      const tmId = parseInt(chk.value);
-      if (cls.termIds.includes(tmId)) {
-        chk.checked = true;
+    // コーチ(最大2)
+    const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
+    coachChecks.forEach(ch => {
+      if (cls.coachIds.includes(parseInt(ch.value))) {
+        ch.checked = true;
       }
     });
 
-    classModal.show();
+    // 学期(多対多)
+    const termChecks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
+    termChecks.forEach(ch => {
+      if (cls.termIds.includes(parseInt(ch.value))) {
+        ch.checked = true;
+      }
+    });
+
+    const bsModal = new bootstrap.Modal(document.getElementById("classModal"), {});
+    bsModal.show();
   }
 
   // ------------------------------------------
-  // 保存ボタン
+  // 保存
   // ------------------------------------------
   function saveClass() {
-    const displayName = document.getElementById("classNameInput").value.trim();
-    const courseId    = parseInt(document.getElementById("courseSelect").value);
-    const dayOfWeek   = document.getElementById("dayOfWeekSelect").value;
-    const startTime   = document.getElementById("startTimeInput").value;
-    const endTime     = document.getElementById("endTimeInput").value;
-    const capacityVal = parseInt(document.getElementById("capacityInput").value || "0");
-    const courtId     = parseInt(document.getElementById("courtSelect").value);
+    const dayOfWeek  = document.getElementById("dayOfWeekSelect").value;
+    const startTime  = document.getElementById("startTimeInput").value;
+    const endTime    = document.getElementById("endTimeInput").value;
+    const capacity   = parseInt(document.getElementById("capacityInput").value.trim()||"0");
+    const className  = document.getElementById("classNameInput").value.trim();
+    const courseId   = parseInt(document.getElementById("courseSelect").value);
+    const courtId    = parseInt(document.getElementById("courtSelect").value);
 
-    // Term選択
-    const checks = document.getElementById("termCheckboxes")
-                    .querySelectorAll("input[type=checkbox]");
+    // コーチ
+    const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
+    let selectedCoaches = [];
+    coachChecks.forEach(ch => {
+      if (ch.checked) {
+        selectedCoaches.push(parseInt(ch.value));
+      }
+    });
+    if (selectedCoaches.length > 2) {
+      alert("コーチは最大2名までです。");
+      return;
+    }
+
+    // 学期(多対多)
+    const termChecks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
     let selectedTerms = [];
-    checks.forEach(chk => {
-      if (chk.checked) {
-        selectedTerms.push(parseInt(chk.value));
+    termChecks.forEach(ch => {
+      if (ch.checked) {
+        selectedTerms.push(parseInt(ch.value));
       }
     });
 
     // バリデーション
-    if (!displayName) {
+    if (!className) {
       alert("クラス名を入力してください。");
       return;
     }
@@ -530,38 +558,44 @@
       const newId = classData.length ? Math.max(...classData.map(x => x.id)) + 1 : 1;
       classData.push({
         id: newId,
-        displayName,
-        courseId,
         dayOfWeek,
         startTime,
         endTime,
+        displayName: className,
+        courseId,
+        coachIds: selectedCoaches,
         courtId,
-        capacity: capacityVal,
-        memberCount: 0, // 新規時のメンバー数は 0 として仮置き
+        capacity,
+        memberCount: 0, // 新規 -> 0
         termIds: selectedTerms
       });
     } else {
       // 更新
-      const cls = classData.find(c => c.id === editingClassId);
+      const cls = classData.find(x => x.id === editingClassId);
       if (cls) {
-        cls.displayName = displayName;
-        cls.courseId    = courseId;
         cls.dayOfWeek   = dayOfWeek;
         cls.startTime   = startTime;
         cls.endTime     = endTime;
+        cls.displayName = className;
+        cls.courseId    = courseId;
+        cls.coachIds    = selectedCoaches;
         cls.courtId     = courtId;
-        cls.capacity    = capacityVal;
-        // memberCount はモーダル上で非表示
+        cls.capacity    = capacity;
         cls.termIds     = selectedTerms;
       }
     }
 
-    classModal.hide();
+    // モーダル閉じ
+    const modalEl = document.getElementById("classModal");
+    const bsModal = bootstrap.Modal.getInstance(modalEl);
+    if (bsModal) bsModal.hide();
+
+    // 再描画
     renderClassTable();
   }
 
   // ------------------------------------------
-  // 削除(物理)
+  // 削除
   // ------------------------------------------
   function deleteClass(classId) {
     if (!confirm("このクラスを削除しますか？")) return;
@@ -576,17 +610,19 @@
   // モーダル初期化
   // ------------------------------------------
   function clearClassModal() {
-    document.getElementById("classNameInput").value  = "";
-    document.getElementById("courseSelect").selectedIndex = 0;
     document.getElementById("dayOfWeekSelect").selectedIndex = 0;
     document.getElementById("startTimeInput").value = "";
     document.getElementById("endTimeInput").value   = "";
     document.getElementById("capacityInput").value  = "0";
-    document.getElementById("courtSelect").selectedIndex = 0;
+    document.getElementById("classNameInput").value = "";
+    document.getElementById("courseSelect").selectedIndex = 0;
+    document.getElementById("courtSelect").selectedIndex  = 0;
 
-    // 学期チェックリセット
-    const checks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
-    checks.forEach(chk => { chk.checked = false; });
+    const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
+    coachChecks.forEach(ch => ch.checked = false);
+
+    const termChecks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
+    termChecks.forEach(ch => ch.checked = false);
   }
 </script>
 </body>

@@ -1,376 +1,576 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>イベント管理</title>
   <!-- Bootstrap 5 CSS -->
-  <link 
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
-  >
+  />
+  <!-- Font Awesome for icons (必要に応じて) -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background-color: #f5f7fa;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Noto Sans JP", sans-serif;
+      margin: 0;
+      padding: 20px;
     }
     .container {
-      margin-top: 40px;
+      max-width: 1100px;
     }
-    .form-inline-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .card {
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: #fff;
     }
-    .form-inline-container .form-label {
-      margin: 0;
-      font-weight: 600;
+    .card-body {
+      padding: 15px;
+    }
+    .table-wrap {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    table thead th {
+      background-color: #007bff;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
       white-space: nowrap;
     }
-    .form-inline-container .form-select {
-      max-width: 150px;
-      font-size: 0.9rem;
+    table tbody tr:nth-child(odd) {
+      background-color: #f9f9f9;
     }
-    .form-inline-container .btn {
-      font-size: 0.9rem;
-      padding: 6px 12px; /* ボタンの高さを調整 */
+    .pagination-container {
+      margin-top: 16px;
+    }
+    .pagination .page-link {
+      color: #007bff;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: #fff;
+    }
+    /* フォーム要素レイアウト補助 */
+    .row-gap-2 > [class^="col-"] {
+      margin-bottom: 8px;
+    }
+    /* レベル選択例 */
+    .levels-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .levels-group .form-check {
+      margin-right: 15px;
+    }
+    /* モーダル横幅調整 */
+    .modal-dialog {
+      max-width: 650px;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h3 class="mb-4">イベント管理</h3>
+<div class="container">
+  <h3 class="mb-4">イベント管理</h3>
 
-    <!-- ▼▼▼ 企業・スクール選択 ▼▼▼ -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="row align-items-center gx-2">
-          <!-- 企業選択 -->
-          <div class="col-auto">
-            <div class="form-inline-container">
-              <label for="companySelect" class="form-label">企業</label>
-              <select id="companySelect" class="form-select form-select-sm">
-                <!-- 実際にはDBの mst_companies から取得して表示する -->
-                <option value="1" selected>株式会社A</option>
-                <option value="2">株式会社B</option>
-                <option value="3">株式会社C</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- スクール選択 -->
-          <div class="col-auto">
-            <div class="form-inline-container">
-              <label for="schoolSelect" class="form-label">スクール</label>
-              <select id="schoolSelect" class="form-select form-select-sm">
-                <!-- 実際には mst_schools から取得して表示する -->
-                <option value="10" selected>東京スクール</option>
-                <option value="20">大阪スクール</option>
-                <option value="30">福岡スクール</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 選択ボタン -->
-          <div class="col-auto">
-            <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
-          </div>
+  <!-- ▼▼▼ 企業・スクール選択 (カード) ▼▼▼ -->
+  <div class="card mb-3" style="max-width: 500px;">
+    <div class="card-body">
+      <div class="row align-items-center gx-2">
+        <!-- 企業 -->
+        <div class="col-auto">
+          <label for="companySelect" class="form-label fw-bold mb-0">企業</label>
+          <select id="companySelect" class="form-select form-select-sm">
+            <option value="1" selected>株式会社A</option>
+            <option value="2">株式会社B</option>
+            <option value="3">株式会社C</option>
+          </select>
+        </div>
+        <!-- スクール -->
+        <div class="col-auto">
+          <label for="schoolSelect" class="form-label fw-bold mb-0">スクール</label>
+          <select id="schoolSelect" class="form-select form-select-sm">
+            <option value="10" selected>東京スクール</option>
+            <option value="20">大阪スクール</option>
+            <option value="30">福岡スクール</option>
+          </select>
+        </div>
+        <!-- ボタン -->
+        <div class="col-auto">
+          <button id="selectButton" class="btn btn-primary btn-sm">選択</button>
         </div>
       </div>
     </div>
-    <!-- 企業・スクール選択 ここまで -->
+  </div>
 
-    <!-- 年月フィルタ -->
-    <div class="mb-4">
-      <label for="monthFilter" class="form-label">表示する年月:</label>
-      <select id="monthFilter" class="form-select" style="max-width: 200px;">
-        <option value="all" selected>すべての年月</option>
-        <option value="2024-12">2024年12月</option>
-        <option value="2025-01">2025年1月</option>
-      </select>
+  <!-- ▼▼▼ フィルタカード -->
+  <div class="card mb-3">
+    <div class="card-header">検索・フィルタ</div>
+    <div class="card-body">
+      <div class="row align-items-end gx-3">
+        <div class="col-auto">
+          <label for="monthFilter" class="form-label fw-bold mb-1">表示する年月:</label>
+          <select id="monthFilter" class="form-select" style="max-width:180px;">
+            <option value="all" selected>すべての年月</option>
+            <option value="2024-12">2024年12月</option>
+            <option value="2025-01">2025年1月</option>
+            <option value="2025-02">2025年2月</option>
+            <option value="2025-03">2025年3月</option>
+            <option value="2025-04">2025年4月</option>
+            <option value="2025-05">2025年5月</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" id="filterButton">
+             絞り込み
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- イベント追加ボタン -->
-    <button class="btn btn-primary mb-3" id="openAddModalBtn">
-      + イベント追加
-    </button>
+  <!-- 上部: 件数表示 & イベント追加ボタン & 表示件数セレクト -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <span id="totalCount" class="text-muted fw-bold">全体件数: 0 件</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <label for="rowsPerPage" class="fw-bold me-2">表示件数</label>
+      <select id="rowsPerPage" class="form-select me-3" style="width: 80px;">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="60">60</option>
+      </select>
+      <button class="btn btn-primary" id="openAddModalBtn">
+        <i class="fas fa-calendar-plus"></i> イベント追加
+      </button>
+    </div>
+  </div>
 
-    <!-- イベント一覧テーブル -->
-    <table class="table table-striped table-hover" id="eventTable">
+  <!-- ▼▼▼ テーブル表示 (table-wrap) -->
+  <div class="table-wrap mb-3">
+    <table class="table table-striped table-hover mb-0" id="eventTable">
       <thead>
         <tr>
-          <th scope="col">ID</th> <!-- Eから始まる連番 -->
-          <th scope="col">日付</th>
-          <th scope="col">イベント名</th>
-          <th scope="col">コート</th>
-          <th scope="col">追加料金</th>
-          <th scope="col">開始時間</th>
-          <th scope="col">終了時間</th>
-          <th scope="col">定員</th>
-          <th scope="col">説明</th>
-          <th scope="col">操作</th>
+          <th style="width:80px;">ID</th>
+          <th style="width:160px;">日付</th>
+          <th>イベント名</th>
+          <th>コート</th>
+          <th style="width:90px;">追加料金</th>
+          <th style="width:80px;">定員</th>
+          <th style="width:140px;">操作</th>
         </tr>
       </thead>
       <tbody>
-        <!-- サンプルデータ: data-xxx 属性で内部キーや各種情報を保持 -->
-        <tr
-          data-internal-id="101"         
-          data-event-code="E111"        
-          data-date="2024-12-25"
-          data-name="年末特別レッスン"
-          data-court="コートB"          
-          data-fee="1000"
-          data-start="12:00"
-          data-end="14:00"
-          data-capacity="15"
-          data-desc="年末に集中ラリー練習"
-          data-month="2024-12"          
-        >
-          <td>E111</td> <!-- event_code -->
-          <td>2024-12-25</td>
-          <td>年末特別レッスン</td>
-          <td>コートB</td>
-          <td>1000</td>
-          <td>12:00</td>
-          <td>14:00</td>
-          <td>15</td>
-          <td>年末に集中ラリー練習</td>
-          <td>
-            <button class="btn btn-warning btn-sm edit-button">編集</button>
-            <button class="btn btn-danger btn-sm delete-button">削除</button>
-          </td>
-        </tr>
-        <tr
-          data-internal-id="102"
-          data-event-code="E112"
-          data-date="2025-01-05"
-          data-name="お正月イベント"
-          data-court="コートC"
-          data-fee="1500"
-          data-start="10:00"
-          data-end="12:00"
-          data-capacity="10"
-          data-desc="新年初打ちの特別レッスン"
-          data-month="2025-01"
-        >
-          <td>E112</td>
-          <td>2025-01-05</td>
-          <td>お正月イベント</td>
-          <td>コートC</td>
-          <td>1500</td>
-          <td>10:00</td>
-          <td>12:00</td>
-          <td>10</td>
-          <td>新年初打ちの特別レッスン</td>
-          <td>
-            <button class="btn btn-warning btn-sm edit-button">編集</button>
-            <button class="btn btn-danger btn-sm delete-button">削除</button>
-          </td>
-        </tr>
+        <!-- JSで埋め込み 60件分の中の該当ページだけ表示 -->
       </tbody>
     </table>
   </div>
 
-  <!-- ▼▼▼ イベント追加・編集モーダル（同じフォームを使い回し） ▼▼▼ -->
-  <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <form class="modal-content" id="eventForm">
-        <div class="modal-header">
-          <h5 class="modal-title" id="eventModalTitle">イベント追加</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+  <div class="pagination-container d-flex justify-content-center">
+    <ul class="pagination pagination-sm" id="paginationUl">
+      <!-- JSで生成 -->
+    </ul>
+  </div>
+</div>
 
-        <div class="modal-body">
-          <!-- hidden: 内部ID（BIGSERIAL） -->
-          <input type="hidden" id="eventId" name="eventId" value="">
+<!-- ▼▼▼ イベント追加/編集モーダル ▼▼▼ -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <form class="modal-content" id="eventForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalTitle">イベント追加</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- hidden: 内部ID -->
+        <input type="hidden" id="eventId" value="">
 
-          <div class="mb-3">
-            <label for="eventDate" class="form-label">開催日</label>
-            <input type="date" id="eventDate" name="eventDate" class="form-control" required>
+        <!-- 行1: イベント名 + コート -->
+        <div class="row row-gap-2">
+          <div class="col-md-7">
+            <label for="eventName" class="form-label fw-bold">イベント名</label>
+            <input type="text" id="eventName" class="form-control" required>
           </div>
-          <div class="mb-3">
-            <label for="eventName" class="form-label">イベント名</label>
-            <input type="text" id="eventName" name="eventName" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="courtId" class="form-label">コート</label>
-            <select id="courtId" name="courtId" class="form-select" required>
-              <option value="">-- 選択してください --</option>
-              <!-- 本来はmst_courtsを参照して動的に生成など -->
+          <div class="col-md-5">
+            <label for="courtSelect" class="form-label fw-bold">コート</label>
+            <select id="courtSelect" class="form-select">
+              <option value="">--選択--</option>
               <option value="101">コートA</option>
               <option value="102">コートB</option>
               <option value="103">コートC</option>
             </select>
           </div>
-          <div class="mb-3">
-            <label for="additionalFee" class="form-label">追加料金</label>
-            <input type="number" id="additionalFee" name="additionalFee" class="form-control" value="0">
+        </div>
+
+        <!-- 行2: 日付 + 開始 + 終了 -->
+        <div class="row row-gap-2 mt-2">
+          <div class="col-md-4">
+            <label for="eventDate" class="form-label fw-bold">開催日</label>
+            <input type="date" id="eventDate" class="form-control" required>
           </div>
-          <div class="mb-3">
-            <label for="startTime" class="form-label">開始時間</label>
-            <input type="time" id="startTime" name="startTime" class="form-control" required>
+          <div class="col-md-4">
+            <label for="startTime" class="form-label fw-bold">開始時間</label>
+            <input type="time" id="startTime" class="form-control" required>
           </div>
-          <div class="mb-3">
-            <label for="endTime" class="form-label">終了時間</label>
-            <input type="time" id="endTime" name="endTime" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="capacity" class="form-label">定員</label>
-            <input type="number" id="capacity" name="capacity" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="eventDescription" class="form-label">説明</label>
-            <textarea id="eventDescription" name="eventDescription" class="form-control" rows="3"></textarea>
+          <div class="col-md-4">
+            <label for="endTime" class="form-label fw-bold">終了時間</label>
+            <input type="time" id="endTime" class="form-control" required>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-          <button type="submit" class="btn btn-primary" id="saveEventBtn">
-            追加
-          </button>
+        <!-- 行3: 定員 + 追加料金 -->
+        <div class="row row-gap-2 mt-2">
+          <div class="col-md-4">
+            <label for="capacity" class="form-label fw-bold">定員</label>
+            <input type="number" id="capacity" class="form-control" min="0">
+          </div>
+          <div class="col-md-4">
+            <label for="additionalFee" class="form-label fw-bold">追加料金</label>
+            <input type="number" step="0.01" id="additionalFee" class="form-control" value="0">
+          </div>
         </div>
-      </form>
-    </div>
+
+        <!-- 行4: 対象レベル -->
+        <div class="mt-2">
+          <label class="form-label fw-bold d-block">対象レベル</label>
+          <div class="levels-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="levelBeginner" value="1">
+              <label class="form-check-label" for="levelBeginner">初級</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="levelIntermediate" value="2">
+              <label class="form-check-label" for="levelIntermediate">中級</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="levelAdvanced" value="3">
+              <label class="form-check-label" for="levelAdvanced">上級</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 行5: 説明 -->
+        <div class="mt-2">
+          <label for="description" class="form-label fw-bold">説明</label>
+          <textarea id="description" class="form-control" rows="3" placeholder="イベント概要・注意事項など"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+        <button type="submit" class="btn btn-primary" id="saveEventBtn">追加</button>
+      </div>
+    </form>
   </div>
-  <!-- モーダルここまで -->
+</div>
 
-  <!-- BootstrapバンドルJS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // ======= 月ごとのフィルタリング =======
-      const monthFilter = document.getElementById('monthFilter');
-      const rows = document.querySelectorAll('#eventTable tbody tr');
-
-      function filterEvents() {
-        const selectedMonth = monthFilter.value;
-        rows.forEach(row => {
-          const rowMonth = row.getAttribute('data-month');
-          row.style.display = 
-            (selectedMonth === 'all' || rowMonth === selectedMonth)
-              ? ''
-              : 'none';
-        });
-      }
-      monthFilter.addEventListener('change', filterEvents);
-      filterEvents(); // 初期表示
-
-      // ======= 企業・スクール選択 =======
-      document.getElementById('selectButton').addEventListener('click', () => {
-        const companyId = document.getElementById('companySelect').value;
-        const schoolId  = document.getElementById('schoolSelect').value;
-        if (!companyId || !schoolId) {
-          alert("企業とスクールを選んでください。");
-          return;
-        }
-        alert(`企業ID:${companyId} / スクールID:${schoolId} が選択されました(モック)`);
-        // 実際にはAjax等でイベント一覧を再取得などを行う
-      });
-
-      // ======= イベントモーダル関連 =======
-      const eventModalElem = document.getElementById('eventModal');
-      const eventModal = new bootstrap.Modal(eventModalElem);
-      const eventForm = document.getElementById('eventForm');
-      const modalTitle = document.getElementById('eventModalTitle');
-      const saveEventBtn = document.getElementById('saveEventBtn');
-
-      // ======= フォーム要素参照 =======
-      const eventIdField = document.getElementById('eventId');
-      const eventDateField = document.getElementById('eventDate');
-      const eventNameField = document.getElementById('eventName');
-      const courtIdField = document.getElementById('courtId');
-      const additionalFeeField = document.getElementById('additionalFee');
-      const startTimeField = document.getElementById('startTime');
-      const endTimeField = document.getElementById('endTime');
-      const capacityField = document.getElementById('capacity');
-      const descField = document.getElementById('eventDescription');
-
-      // ======= 「イベント追加」ボタン（新規モード） =======
-      document.getElementById('openAddModalBtn').addEventListener('click', () => {
-        modalTitle.textContent = "イベント追加";
-        saveEventBtn.textContent = "追加";
-
-        // hiddenフィールド含めフォームをリセット
-        eventIdField.value = "";
-        eventDateField.value = "";
-        eventNameField.value = "";
-        courtIdField.value = "";
-        additionalFeeField.value = 0;
-        startTimeField.value = "";
-        endTimeField.value = "";
-        capacityField.value = "";
-        descField.value = "";
-
-        eventModal.show();
-      });
-
-      // ======= 「編集」ボタン（編集モード） =======
-      document.querySelectorAll('.edit-button').forEach(btn => {
-        btn.addEventListener('click', e => {
-          const row = e.target.closest('tr');
-          // 行データ取得
-          const internalId = row.getAttribute('data-internal-id');
-          const dateVal    = row.getAttribute('data-date');
-          const nameVal    = row.getAttribute('data-name');
-          const courtVal   = row.getAttribute('data-court');
-          const feeVal     = row.getAttribute('data-fee');
-          const startVal   = row.getAttribute('data-start');
-          const endVal     = row.getAttribute('data-end');
-          const capVal     = row.getAttribute('data-capacity');
-          const descVal    = row.getAttribute('data-desc') || "";
-
-          modalTitle.textContent = "イベント編集";
-          saveEventBtn.textContent = "更新";
-
-          // フィールドにセット
-          eventIdField.value       = internalId;
-          eventDateField.value     = dateVal;
-          eventNameField.value     = nameVal;
-          // 本来はcourtValが"102"などのIDが理想。ここでは文字列でサンプルに。
-          // DBのデータと合わせる場合はvalueを工夫
-          courtIdField.value       = "";
-          additionalFeeField.value = feeVal;
-          startTimeField.value     = startVal;
-          endTimeField.value       = endVal;
-          capacityField.value      = capVal;
-          descField.value          = descVal;
-
-          eventModal.show();
-        });
-      });
-
-      // ======= フォーム保存（追加・更新共通） =======
-      eventForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const isEdit = !!eventIdField.value;  // IDがあれば編集モード
-
-        if (isEdit) {
-          // UPDATE例(モック)
-          // DB: UPDATE dat_events SET ... WHERE id=eventIdField.value
-          alert("イベントを更新しました(モック)");
-        } else {
-          // INSERT例(モック)
-          // DB: INSERT INTO dat_events(...) VALUES(...)
-          // トリガーやサーバで event_code(Exxx)を自動採番
-          alert("イベントを追加しました(モック)");
-        }
-
-        // モーダルを閉じてリセット
-        eventModal.hide();
-        eventForm.reset();
-      });
-
-      // ======= 削除ボタン(論理削除想定) =======
-      document.querySelectorAll('.delete-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (!confirm("このイベントを削除しますか？")) return;
-          // 例: UPDATE dat_events SET is_deleted=TRUE WHERE id=...
-          alert("イベントを削除（論理削除）しました(モック)");
-        });
-      });
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // ---------- 企業・スクール選択(モック) ----------
+    document.getElementById("selectButton").addEventListener("click", () => {
+      const companyId = document.getElementById("companySelect").value;
+      const schoolId  = document.getElementById("schoolSelect").value;
+      alert(`企業ID:${companyId} / スクールID:${schoolId} (モック)`);
     });
-  </script>
+
+    // ---------- ダミーデータ60件 ----------
+    // (省略せず一式まとめたものを前回例と同様に貼り付け)
+    // 2024-12 => E201～E210
+    // 2025-01 => E211～E220
+    // 2025-02 => E221～E230
+    // 2025-03 => E231～E240
+    // 2025-04 => E241～E250
+    // 2025-05 => E251～E260
+    const eventData = [
+      { internalId:201, eventCode:"E201", date:"2024-12-01(日)", month:"2024-12", name:"イベント#201", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:202, eventCode:"E202", date:"2024-12-03(火)", month:"2024-12", name:"イベント#202", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:203, eventCode:"E203", date:"2024-12-05(木)", month:"2024-12", name:"イベント#203", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:204, eventCode:"E204", date:"2024-12-07(土)", month:"2024-12", name:"イベント#204", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:205, eventCode:"E205", date:"2024-12-10(火)", month:"2024-12", name:"イベント#205", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:206, eventCode:"E206", date:"2024-12-12(木)", month:"2024-12", name:"イベント#206", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:207, eventCode:"E207", date:"2024-12-15(日)", month:"2024-12", name:"イベント#207", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:208, eventCode:"E208", date:"2024-12-18(水)", month:"2024-12", name:"イベント#208", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:209, eventCode:"E209", date:"2024-12-20(金)", month:"2024-12", name:"イベント#209", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:210, eventCode:"E210", date:"2024-12-22(日)", month:"2024-12", name:"イベント#210", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+
+      // 2025-01 => E211～E220
+      { internalId:211, eventCode:"E211", date:"2025-01-02(木)", month:"2025-01", name:"イベント#211", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:212, eventCode:"E212", date:"2025-01-03(金)", month:"2025-01", name:"イベント#212", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:213, eventCode:"E213", date:"2025-01-05(日)", month:"2025-01", name:"イベント#213", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:214, eventCode:"E214", date:"2025-01-07(火)", month:"2025-01", name:"イベント#214", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:215, eventCode:"E215", date:"2025-01-10(金)", month:"2025-01", name:"イベント#215", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:216, eventCode:"E216", date:"2025-01-11(土)", month:"2025-01", name:"イベント#216", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:217, eventCode:"E217", date:"2025-01-14(火)", month:"2025-01", name:"イベント#217", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:218, eventCode:"E218", date:"2025-01-16(木)", month:"2025-01", name:"イベント#218", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:219, eventCode:"E219", date:"2025-01-18(土)", month:"2025-01", name:"イベント#219", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:220, eventCode:"E220", date:"2025-01-20(月)", month:"2025-01", name:"イベント#220", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+
+      // 2025-02 => E221～E230
+      { internalId:221, eventCode:"E221", date:"2025-02-01(土)", month:"2025-02", name:"イベント#221", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:222, eventCode:"E222", date:"2025-02-03(月)", month:"2025-02", name:"イベント#222", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:223, eventCode:"E223", date:"2025-02-05(水)", month:"2025-02", name:"イベント#223", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:224, eventCode:"E224", date:"2025-02-07(金)", month:"2025-02", name:"イベント#224", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:225, eventCode:"E225", date:"2025-02-09(日)", month:"2025-02", name:"イベント#225", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:226, eventCode:"E226", date:"2025-02-11(火)", month:"2025-02", name:"イベント#226", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:227, eventCode:"E227", date:"2025-02-13(木)", month:"2025-02", name:"イベント#227", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:228, eventCode:"E228", date:"2025-02-15(土)", month:"2025-02", name:"イベント#228", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:229, eventCode:"E229", date:"2025-02-17(月)", month:"2025-02", name:"イベント#229", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:230, eventCode:"E230", date:"2025-02-19(水)", month:"2025-02", name:"イベント#230", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+
+      // 2025-03 => E231～E240
+      { internalId:231, eventCode:"E231", date:"2025-03-02(日)", month:"2025-03", name:"イベント#231", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:232, eventCode:"E232", date:"2025-03-04(火)", month:"2025-03", name:"イベント#232", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:233, eventCode:"E233", date:"2025-03-06(木)", month:"2025-03", name:"イベント#233", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:234, eventCode:"E234", date:"2025-03-08(土)", month:"2025-03", name:"イベント#234", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:235, eventCode:"E235", date:"2025-03-10(月)", month:"2025-03", name:"イベント#235", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:236, eventCode:"E236", date:"2025-03-12(水)", month:"2025-03", name:"イベント#236", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:237, eventCode:"E237", date:"2025-03-14(金)", month:"2025-03", name:"イベント#237", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:238, eventCode:"E238", date:"2025-03-16(日)", month:"2025-03", name:"イベント#238", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:239, eventCode:"E239", date:"2025-03-18(火)", month:"2025-03", name:"イベント#239", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:240, eventCode:"E240", date:"2025-03-20(木)", month:"2025-03", name:"イベント#240", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+
+      // 2025-04 => E241～E250
+      { internalId:241, eventCode:"E241", date:"2025-04-01(火)", month:"2025-04", name:"イベント#241", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:242, eventCode:"E242", date:"2025-04-03(木)", month:"2025-04", name:"イベント#242", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:243, eventCode:"E243", date:"2025-04-05(土)", month:"2025-04", name:"イベント#243", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:244, eventCode:"E244", date:"2025-04-07(月)", month:"2025-04", name:"イベント#244", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:245, eventCode:"E245", date:"2025-04-09(水)", month:"2025-04", name:"イベント#245", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:246, eventCode:"E246", date:"2025-04-11(金)", month:"2025-04", name:"イベント#246", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:247, eventCode:"E247", date:"2025-04-13(日)", month:"2025-04", name:"イベント#247", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:248, eventCode:"E248", date:"2025-04-15(火)", month:"2025-04", name:"イベント#248", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:249, eventCode:"E249", date:"2025-04-17(木)", month:"2025-04", name:"イベント#249", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:250, eventCode:"E250", date:"2025-04-19(土)", month:"2025-04", name:"イベント#250", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+
+      // 2025-05 => E251～E260
+      { internalId:251, eventCode:"E251", date:"2025-05-01(木)", month:"2025-05", name:"イベント#251", court:"コートA", fee:1000, start:"09:00", end:"10:30", capacity:10 },
+      { internalId:252, eventCode:"E252", date:"2025-05-02(金)", month:"2025-05", name:"イベント#252", court:"コートB", fee:1200, start:"10:00", end:"11:30", capacity:8 },
+      { internalId:253, eventCode:"E253", date:"2025-05-03(土)", month:"2025-05", name:"イベント#253", court:"コートC", fee:900,  start:"14:00", end:"15:30", capacity:12 },
+      { internalId:254, eventCode:"E254", date:"2025-05-05(月)", month:"2025-05", name:"イベント#254", court:"コートB", fee:1300, start:"08:30", end:"10:00", capacity:6  },
+      { internalId:255, eventCode:"E255", date:"2025-05-07(水)", month:"2025-05", name:"イベント#255", court:"コートA", fee:1100, start:"11:00", end:"12:00", capacity:10 },
+      { internalId:256, eventCode:"E256", date:"2025-05-09(金)", month:"2025-05", name:"イベント#256", court:"コートC", fee:800,  start:"13:00", end:"14:30", capacity:7  },
+      { internalId:257, eventCode:"E257", date:"2025-05-11(日)", month:"2025-05", name:"イベント#257", court:"コートB", fee:1500, start:"15:00", end:"16:00", capacity:10 },
+      { internalId:258, eventCode:"E258", date:"2025-05-13(火)", month:"2025-05", name:"イベント#258", court:"コートA", fee:950,  start:"09:30", end:"10:30", capacity:14 },
+      { internalId:259, eventCode:"E259", date:"2025-05-15(木)", month:"2025-05", name:"イベント#259", court:"コートB", fee:1250, start:"10:30", end:"12:00", capacity:9  },
+      { internalId:260, eventCode:"E260", date:"2025-05-17(土)", month:"2025-05", name:"イベント#260", court:"コートC", fee:700,  start:"14:00", end:"15:00", capacity:8  },
+    ];
+
+    // 各種要素参照
+    let filteredEvents = [];
+    let currentPage = 1;
+    let itemsPerPage = 10; // デフォルトは10件表示
+
+    const tableBody    = document.querySelector("#eventTable tbody");
+    const paginationUl = document.getElementById("paginationUl");
+    const totalCountEl = document.getElementById("totalCount");
+    const monthFilter  = document.getElementById("monthFilter");
+    const rowsPerPageSelect = document.getElementById("rowsPerPage");
+
+    document.getElementById("filterButton").addEventListener("click", applyFilter);
+    rowsPerPageSelect.addEventListener("change", () => {
+      itemsPerPage = parseInt(rowsPerPageSelect.value, 10);
+      currentPage = 1;
+      renderTable();
+    });
+
+    // ▼▼▼ フィルタ適用 ▼▼▼
+    function applyFilter() {
+      const selMonth = monthFilter.value;
+      if (selMonth === "all") {
+        filteredEvents = eventData;
+      } else {
+        filteredEvents = eventData.filter(ev => ev.month === selMonth);
+      }
+      currentPage = 1;
+      renderTable();
+    }
+    applyFilter(); // 初期
+
+    // ▼▼▼ テーブル描画 & ページング ▼▼▼
+    function renderTable() {
+      const totalItems = filteredEvents.length;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex   = startIndex + itemsPerPage;
+      const pageItems  = filteredEvents.slice(startIndex, endIndex);
+
+      tableBody.innerHTML = "";
+      pageItems.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.eventCode}</td>
+          <td>${item.date}</td>
+          <td>${item.name}</td>
+          <td>${item.court}</td>
+          <td>${item.fee}</td>
+          <td>${item.capacity}</td>
+          <td>
+            <button class="btn btn-warning btn-sm me-1" onclick="editEvent(${item.internalId})">編集</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteEvent(${item.internalId})">削除</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+      totalCountEl.textContent = `全体件数: ${totalItems} 件`;
+
+      renderPagination(totalItems);
+    }
+
+    function renderPagination(totalItems) {
+      paginationUl.innerHTML = "";
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+      // Prev
+      const prevLi = document.createElement("li");
+      prevLi.className = "page-item " + (currentPage === 1 ? "disabled" : "");
+      const prevLink = document.createElement("a");
+      prevLink.className = "page-link";
+      prevLink.href = "#";
+      prevLink.innerText = "Prev";
+      prevLink.onclick = (e)=> {
+        e.preventDefault();
+        if (currentPage>1) {
+          currentPage--;
+          renderTable();
+        }
+      };
+      prevLi.appendChild(prevLink);
+      paginationUl.appendChild(prevLi);
+
+      // 数字リンク
+      for (let i=1; i<=totalPages; i++){
+        const li = document.createElement("li");
+        li.className = "page-item "+(i===currentPage?"active":"");
+        const a = document.createElement("a");
+        a.className = "page-link";
+        a.href = "#";
+        a.innerText = i;
+        a.onclick = (e)=>{
+          e.preventDefault();
+          currentPage = i;
+          renderTable();
+        };
+        li.appendChild(a);
+        paginationUl.appendChild(li);
+      }
+
+      // Next
+      const nextLi = document.createElement("li");
+      nextLi.className = "page-item " + (currentPage===totalPages?"disabled":"");
+      const nextLink = document.createElement("a");
+      nextLink.className = "page-link";
+      nextLink.href="#";
+      nextLink.innerText="Next";
+      nextLink.onclick=(e)=>{
+        e.preventDefault();
+        if(currentPage<totalPages){
+          currentPage++;
+          renderTable();
+        }
+      };
+      nextLi.appendChild(nextLink);
+      paginationUl.appendChild(nextLi);
+    }
+
+    // ▼▼▼ イベント追加/編集モーダル ▼▼▼
+    const eventModalElem = document.getElementById("eventModal");
+    const eventModal = new bootstrap.Modal(eventModalElem);
+    const eventForm  = document.getElementById("eventForm");
+    const modalTitle = document.getElementById("eventModalTitle");
+    const saveEventBtn= document.getElementById("saveEventBtn");
+
+    // フィールド
+    const eventIdField    = document.getElementById("eventId");
+    const eventNameField  = document.getElementById("eventName");
+    const courtSelect     = document.getElementById("courtSelect");
+    const eventDateField  = document.getElementById("eventDate");
+    const startTimeField  = document.getElementById("startTime");
+    const endTimeField    = document.getElementById("endTime");
+    const capacityField   = document.getElementById("capacity");
+    const additionalFeeField= document.getElementById("additionalFee");
+    const descriptionField= document.getElementById("description");
+    // レベル(checkbox)
+    const levelBeginner   = document.getElementById("levelBeginner");
+    const levelIntermediate= document.getElementById("levelIntermediate");
+    const levelAdvanced   = document.getElementById("levelAdvanced");
+
+    // 「イベント追加」ボタン
+    document.getElementById("openAddModalBtn").addEventListener("click", () => {
+      modalTitle.textContent = "イベント追加";
+      saveEventBtn.textContent= "追加";
+      // 初期化
+      eventIdField.value     = "";
+      eventNameField.value   = "";
+      courtSelect.value      = "";
+      eventDateField.value   = "";
+      startTimeField.value   = "";
+      endTimeField.value     = "";
+      capacityField.value    = "";
+      additionalFeeField.value="0";
+      descriptionField.value = "";
+      // レベルoff
+      levelBeginner.checked  = false;
+      levelIntermediate.checked = false;
+      levelAdvanced.checked  = false;
+
+      eventModal.show();
+    });
+
+    // フォーム送信
+    eventForm.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const isEdit = !!eventIdField.value;
+      if (isEdit) {
+        alert("イベントを更新しました(モック)");
+      } else {
+        alert("イベントを追加しました(モック)");
+      }
+      eventModal.hide();
+      eventForm.reset();
+    });
+
+    // 編集
+    window.editEvent = (id) => {
+      const ev = eventData.find(x=> x.internalId===id);
+      if (!ev) {
+        alert("イベントが見つかりません");
+        return;
+      }
+      modalTitle.textContent = "イベント編集";
+      saveEventBtn.textContent= "更新";
+      eventIdField.value   = ev.internalId;
+      eventNameField.value = ev.name;
+      courtSelect.value    = "";
+      eventDateField.value = "2025-01-01";
+      startTimeField.value = ev.start;
+      endTimeField.value   = ev.end;
+      capacityField.value  = ev.capacity;
+      additionalFeeField.value = ev.fee ?? "0";
+      descriptionField.value = "ダミーの説明";
+      // レベルはモック
+      eventModal.show();
+    };
+
+    // 削除
+    window.deleteEvent = (id) => {
+      if (!confirm("このイベントを削除しますか？")) return;
+      alert("イベントを削除(論理削除)しました(モック)");
+    };
+  });
+</script>
 </body>
 </html>
