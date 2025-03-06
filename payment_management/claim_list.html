@@ -15,7 +15,7 @@
     rel="stylesheet"
   />
   <style>
-    /* スクール生一覧の見た目に合わせた共通スタイル */
+    /* 全体レイアウト */
     body {
       background-color: #f5f7fa;
       font-family: "Noto Sans JP", sans-serif;
@@ -38,6 +38,8 @@
     .card-body {
       padding: 15px;
     }
+
+    /* テーブルまわり */
     .table-wrap {
       background: #fff;
       border-radius: 8px;
@@ -55,10 +57,7 @@
     table tbody tr:nth-child(odd) {
       background-color: #f9f9f9;
     }
-    /* 検索バーなどの調整 */
-    .search-bar {
-      max-width: 220px;
-    }
+
     /* アクションボタン */
     .btn-edit {
       background-color: #ffc107;
@@ -75,22 +74,28 @@
     .btn-details:hover {
       background: #5a6268;
     }
-    .btn-delete {
-      background: #dc3545;
-      color: #fff;
-    }
-    .btn-delete:hover {
-      background: #c82333;
-    }
-    /* テーブル内のボタン配置 */
     .action-buttons {
       display: inline-flex;
       gap: 0.5rem;
       white-space: nowrap;
     }
-    /* 休会などのbadge表示など */
+
+    /* ステータス用バッジ */
     .badge-status {
       font-size: 0.9rem;
+    }
+
+    /* ページネーション */
+    .pagination-container {
+      margin-top: 16px;
+    }
+    .pagination .page-link {
+      color: #007bff;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: #fff;
     }
   </style>
 </head>
@@ -103,8 +108,8 @@
   <div class="card mb-3">
     <div class="card-header">検索・操作</div>
     <div class="card-body">
-      <div class="row mb-3">
-        <!-- ▼ 月別検索 -->
+      <div class="row g-3 align-items-end">
+        <!-- ▼ 請求年月 -->
         <div class="col-auto">
           <label for="monthInput" class="fw-bold mb-1">請求年月:</label><br/>
           <input
@@ -115,32 +120,72 @@
             value="2025-03"
           />
         </div>
-        <div class="col-auto d-flex align-items-end">
-          <button class="btn btn-primary btn-sm me-2" onclick="searchByMonth()">
+        <!-- ▼ 氏名検索 -->
+        <div class="col-auto">
+          <label for="nameInput" class="fw-bold mb-1">氏名:</label><br/>
+          <input
+            type="text"
+            id="nameInput"
+            class="form-control form-control-sm"
+            style="width: 160px;"
+            placeholder="例) 山田"
+          />
+        </div>
+        <!-- ▼ 前月との差額ありチェックボックス -->
+        <div class="col-auto">
+          <div class="form-check mt-4">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="diffOnlyCheckbox"
+            />
+            <label class="form-check-label" for="diffOnlyCheckbox">
+              前月との差額ありのみ
+            </label>
+          </div>
+        </div>
+        <!-- ▼ ボタン群 -->
+        <div class="col-auto d-flex">
+          <button class="btn btn-primary btn-sm me-2" onclick="searchRecords()">
             <i class="fas fa-search"></i> 検索
           </button>
           <button class="btn btn-success btn-sm me-2" onclick="exportZenginExcel()">
             <i class="fas fa-file-excel"></i> 全銀フォーマットExcel出力
           </button>
-          <button class="btn btn-info btn-sm" onclick="toggleImportArea()">
+          <button
+            class="btn btn-info btn-sm"
+            onclick="document.getElementById('hiddenFileInput').click()"
+          >
             <i class="fas fa-file-upload"></i> 引落結果インポート
           </button>
+          <input
+            type="file"
+            id="hiddenFileInput"
+            style="display:none;"
+            accept=".csv"
+            onchange="alert('CSVをインポートしました(モック)');"
+          />
         </div>
-      </div>
-
-      <!-- ▼ 引落結果CSVアップロードエリア (トグル表示) -->
-      <div id="importArea" class="border p-3" style="display:none;">
-        <p class="fw-bold mb-2">引落結果CSVインポート</p>
-        <input type="file" class="form-control form-control-sm mb-2" accept=".csv" />
-        <button class="btn btn-secondary btn-sm" onclick="fakeUpload()">
-          インポート開始
-        </button>
-        <span class="text-muted ms-2">※モック実装</span>
       </div>
     </div>
   </div>
 
-  <!-- ▼ テーブル (card) -->
+  <!-- ▼ 一覧とページネーション -->
+  <!-- ▼ 表示件数切り替え＆件数表示 -->
+  <div class="d-flex align-items-center mb-3 justify-content-between">
+    <div class="d-flex align-items-center">
+      <span id="totalCount" class="text-muted fw-bold me-2">全体件数: 0 件</span>
+      <label for="rowsPerPageSelect" class="me-2 fw-bold">表示件数:</label>
+      <select id="rowsPerPageSelect" class="form-select form-select-sm" style="width:100px;" onchange="changeRowsPerPage()">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- テーブル (card) -->
   <div class="card">
     <div class="card-header">請求一覧</div>
     <div class="card-body p-0">
@@ -155,212 +200,299 @@
               <th style="width:160px;">ステータス</th>
               <th style="width:120px;">請求書発行日</th>
               <th style="width:100px;">支払方法</th>
-              <th style="width:160px;">操作</th>
+              <th style="width:100px;">前月との差額</th>
+              <th style="width:140px;">操作</th>
             </tr>
           </thead>
           <tbody>
-            <!-- ダミーデータ行 -->
-            <tr data-student-id="ST001" data-status="未請求">
-              <td>ST001</td>
-              <td>山田 太郎</td>
-              <td class="text-end">30,000</td>
-              <td>2025-03-05</td>
-              <td><span class="badge bg-secondary badge-status">未請求</span></td>
-              <td>2025-03-01</td>
-              <td>口座引落</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST001')">詳細</button>
-                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST001')">編集</button>
-                </div>
-              </td>
-            </tr>
-            <tr data-student-id="ST002" data-status="請求済">
-              <td>ST002</td>
-              <td>佐藤 花子</td>
-              <td class="text-end">28,800</td>
-              <td>2025-03-05</td>
-              <td><span class="badge bg-warning text-dark badge-status">請求済</span></td>
-              <td>2025-03-02</td>
-              <td>口座引落</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST002')">詳細</button>
-                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST002')">編集</button>
-                </div>
-              </td>
-            </tr>
-            <tr data-student-id="ST003" data-status="支払完了">
-              <td>ST003</td>
-              <td>田中 一郎</td>
-              <td class="text-end">12,000</td>
-              <td>2025-03-05</td>
-              <td><span class="badge bg-success badge-status">支払完了</span></td>
-              <td>2025-03-02</td>
-              <td>口座引落</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST003')">詳細</button>
-                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST003')">編集</button>
-                </div>
-              </td>
-            </tr>
-            <tr data-student-id="ST004" data-status="引落失敗">
-              <td>ST004</td>
-              <td>高橋 雅</td>
-              <td class="text-end">5,000</td>
-              <td>2025-03-05</td>
-              <td><span class="badge bg-danger badge-status">引落失敗</span></td>
-              <td>2025-03-02</td>
-              <td>口座引落</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST004')">詳細</button>
-                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST004')">編集</button>
-                </div>
-              </td>
-            </tr>
-            <tr data-student-id="ST005" data-status="現金支払済">
-              <td>ST005</td>
-              <td>伊藤 花</td>
-              <td class="text-end">18,000</td>
-              <td>2025-03-05</td>
-              <td><span class="badge bg-primary badge-status">現金支払済</span></td>
-              <td>2025-03-02</td>
-              <td>現金</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm btn-details" onclick="viewDetail('ST005')">詳細</button>
-                  <button class="btn btn-sm btn-edit" onclick="openEditModal('ST005')">編集</button>
-                </div>
-              </td>
-            </tr>
+            <!-- JSで描画 -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ▼ 編集用モーダル (Bootstrap) -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">請求ステータス編集</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-      </div>
-      <div class="modal-body">
-        <p>
-          <span class="fw-bold">スクール生ID:</span>
-          <span id="editStudentId"></span>
-        </p>
-        <div class="mb-3">
-          <label class="form-label" for="editStatusSelect">ステータス</label>
-          <select id="editStatusSelect" class="form-select form-select-sm">
-            <option value="未請求">未請求</option>
-            <option value="請求済">請求済</option>
-            <option value="支払完了">支払完了</option>
-            <option value="引落失敗">引落失敗</option>
-            <option value="現金支払済">現金支払済</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">閉じる</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="saveStatus()">保存</button>
-      </div>
-    </div>
+  <!-- ページネーション -->
+  <div class="pagination-container d-flex justify-content-center">
+    <ul class="pagination" id="pagination">
+      <!-- JSで動的生成 -->
+    </ul>
   </div>
 </div>
 
 <!-- Bootstrap JS (Popper含む) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  let editModal;
-  let currentEditStudentId = null;
+  // ▼ ダミーデータ(diffFlag: "あり"/"なし" を含む)
+  const originalData = [
+    { studentId: "ABC0001", name: "山田 太郎",   price: 30000, date: "2025-03-05", status: "未請求",   issueDate: "2025-03-01", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0002", name: "佐藤 花子",   price: 28800, date: "2025-03-05", status: "請求済",   issueDate: "2025-03-02", method: "口座引落", diffFlag: "なし" },
+    { studentId: "ABC0003", name: "田中 一郎",   price: 12000, date: "2025-03-05", status: "支払完了", issueDate: "2025-03-02", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0004", name: "高橋 雅",     price:  5000, date: "2025-03-05", status: "引落失敗", issueDate: "2025-03-02", method: "口座引落", diffFlag: "なし" },
+    { studentId: "ABC0005", name: "伊藤 花",     price: 18000, date: "2025-03-05", status: "支払完了", issueDate: "2025-03-02", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0006", name: "鈴木 三郎",   price: 20000, date: "2025-04-05", status: "未請求",   issueDate: "2025-04-01", method: "口座引落", diffFlag: "なし" },
+    { studentId: "ABC0007", name: "小林 美紀",   price: 25000, date: "2025-03-10", status: "請求済",   issueDate: "2025-03-09", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0008", name: "森下 夏希",   price: 15000, date: "2025-03-15", status: "支払完了", issueDate: "2025-03-14", method: "口座引落", diffFlag: "なし" },
+    { studentId: "ABC0009", name: "斎藤 優",     price:  9000, date: "2025-03-20", status: "引落失敗", issueDate: "2025-03-19", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0010", name: "渡辺 英子",   price: 22000, date: "2025-03-25", status: "請求済",   issueDate: "2025-03-24", method: "口座引落", diffFlag: "なし" },
+    { studentId: "ABC0011", name: "吉田 光",     price: 11000, date: "2025-03-12", status: "支払完了", issueDate: "2025-03-11", method: "口座引落", diffFlag: "あり" },
+    { studentId: "ABC0012", name: "原口 太",     price:  8000, date: "2025-03-31", status: "引落失敗", issueDate: "2025-03-30", method: "口座引落", diffFlag: "なし" },
+  ];
 
+  let currentPage = 1;
+  let rowsPerPage = 10;
+
+  // 初期表示
   window.onload = () => {
-    const modalEl = document.getElementById('editModal');
-    editModal = new bootstrap.Modal(modalEl);
+    updateTable(originalData);
   };
 
-  // ▼ 検索ボタン(モック)
-  function searchByMonth() {
-    const val = document.getElementById('monthInput').value;
-    alert("月別検索: " + val + " の請求を検索します(モック)");
+  // 同時表示件数の切り替え
+  function changeRowsPerPage() {
+    rowsPerPage = parseInt(document.getElementById("rowsPerPageSelect").value, 10);
+    currentPage = 1;
+    updateTable(originalData);
   }
 
-  // ▼ 全銀フォーマットExcel出力(モック)
+  // 全銀フォーマットExcel(モック)
   function exportZenginExcel() {
     alert("全銀フォーマットExcelをダウンロードします(モック)");
   }
 
-  // ▼ インポート切替
-  function toggleImportArea() {
-    const area = document.getElementById('importArea');
-    if (area.style.display === 'none') {
-      area.style.display = 'block';
-    } else {
-      area.style.display = 'none';
+  // 検索ボタンクリック
+  function searchRecords() {
+    currentPage = 1;
+    updateTable(originalData);
+  }
+
+  // テーブル更新
+  function updateTable(data) {
+    // 1) フィルタ
+    const filtered = filterData(data);
+
+    // 2) ページング
+    const totalItems = filtered.length;
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex   = startIndex + rowsPerPage;
+    const pageData   = filtered.slice(startIndex, endIndex);
+
+    // 3) テーブル描画
+    const tbody = document.querySelector("#billingTable tbody");
+    tbody.innerHTML = "";
+    pageData.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.dataset.studentId = item.studentId;
+      tr.innerHTML = `
+        <td>${item.studentId}</td>
+        <td>${item.name}</td>
+        <td class="text-end">${formatPrice(item.price)}</td>
+        <td>${item.date}</td>
+        <td>${renderStatusBadge(item.status)}</td>
+        <td>${item.issueDate}</td>
+        <td>${item.method}</td>
+        <td>${renderDiffFlag(item.diffFlag)}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-details" onclick="goToDetail('${item.studentId}')">詳細</button>
+            <button class="btn btn-sm btn-edit" onclick="startEdit('${item.studentId}')">編集</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // 4) ページネーション & 件数
+    renderPagination(totalItems);
+    document.getElementById("totalCount").textContent = `全体件数: ${totalItems} 件`;
+  }
+
+  // フィルタ(請求年月, 氏名, 差額)
+  function filterData(dataArray) {
+    const monthVal      = document.getElementById("monthInput").value;
+    const nameVal       = document.getElementById("nameInput").value.trim();
+    const diffOnlyCheck = document.getElementById("diffOnlyCheckbox").checked;
+
+    return dataArray.filter(row => {
+      // 請求年月
+      if (monthVal) {
+        if (row.date.slice(0,7) !== monthVal) return false;
+      }
+      // 氏名
+      if (nameVal) {
+        if (!row.name.includes(nameVal)) return false;
+      }
+      // 前月との差額「あり」のみ表示
+      if (diffOnlyCheck && row.diffFlag !== "あり") {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  // ページネーション
+  function renderPagination(totalItems) {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+    // Prev
+    const prevLi = document.createElement("li");
+    prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+    const prevLink = document.createElement("a");
+    prevLink.className = "page-link";
+    prevLink.href = "#";
+    prevLink.innerText = "Prev";
+    prevLink.onclick = (e) => {
+      e.preventDefault();
+      if (currentPage > 1) {
+        currentPage--;
+        updateTable(originalData);
+      }
+    };
+    prevLi.appendChild(prevLink);
+    pagination.appendChild(prevLi);
+
+    // ページ番号
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${currentPage === i ? "active" : ""}`;
+      const a = document.createElement("a");
+      a.className = "page-link";
+      a.href = "#";
+      a.innerText = i;
+      a.onclick = (e) => {
+        e.preventDefault();
+        currentPage = i;
+        updateTable(originalData);
+      };
+      li.appendChild(a);
+      pagination.appendChild(li);
     }
+
+    // Next
+    const nextLi = document.createElement("li");
+    nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+    const nextLink = document.createElement("a");
+    nextLink.className = "page-link";
+    nextLink.href = "#";
+    nextLink.innerText = "Next";
+    nextLink.onclick = (e) => {
+      e.preventDefault();
+      if (currentPage < totalPages) {
+        currentPage++;
+        updateTable(originalData);
+      }
+    };
+    nextLi.appendChild(nextLink);
+    pagination.appendChild(nextLi);
   }
 
-  // ▼ CSVインポート(モック)
-  function fakeUpload() {
-    alert("CSVをインポートしました(モック)");
+  // 価格表示フォーマット
+  function formatPrice(num) {
+    return num.toLocaleString();
   }
 
-  // ▼ 請求詳細画面(モック)
-  function viewDetail(studentId) {
-    alert("請求詳細画面を開きます(モック)\n対象ID: " + studentId);
-  }
-
-  // ▼ 「編集」ボタンクリック→モーダル表示
-  function openEditModal(studentId) {
-    currentEditStudentId = studentId;
-    document.getElementById('editStudentId').textContent = studentId;
-
-    // 現在のステータスをtrから読み取る
-    const tr = document.querySelector(`tr[data-student-id="${studentId}"]`);
-    const currentStatus = tr ? tr.dataset.status : "未請求";
-    document.getElementById('editStatusSelect').value = currentStatus;
-
-    editModal.show();
-  }
-
-  // ▼ 「保存」ボタン
-  function saveStatus() {
-    const newStatus = document.getElementById('editStatusSelect').value;
-    if (!currentEditStudentId) return;
-
-    // テーブル更新
-    const tr = document.querySelector(`tr[data-student-id="${currentEditStudentId}"]`);
-    if (!tr) {
-      alert("該当のスクール生ID行が見つかりません。");
-      return;
-    }
-    tr.dataset.status = newStatus;
-    
-    // badge更新
-    const td = tr.querySelector("td:nth-child(5)"); 
-    td.innerHTML = renderBadge(newStatus);
-
-    alert("ステータスを変更しました(モック): " + newStatus);
-    editModal.hide();
-  }
-
-  // ▼ ステータスに応じてbadgeのHTMLを返す
-  function renderBadge(statusStr) {
-    let colorClass = "bg-secondary"; // default
+  // ステータスバッジ(「現金支払済み」は削除済)
+  function renderStatusBadge(statusStr) {
+    let colorClass = "bg-secondary";
     switch (statusStr) {
       case "未請求":    colorClass = "bg-secondary"; break;
       case "請求済":    colorClass = "bg-warning text-dark"; break;
       case "支払完了":  colorClass = "bg-success"; break;
       case "引落失敗":  colorClass = "bg-danger"; break;
-      case "現金支払済": colorClass = "bg-primary"; break;
     }
     return `<span class="badge ${colorClass} badge-status">${statusStr}</span>`;
+  }
+
+  // 前月との差額表示
+  // diffFlag="あり" → イエローのバッジ
+  //          "なし" → グレーのバッジ
+  function renderDiffFlag(flagValue) {
+    if (flagValue === "あり") {
+      return `<span class="badge text-dark"style="background-color: darkorange;">あり</span>`;
+    } else {
+      return `<span class="badge bg-secondary">なし</span>`;
+    }
+  }
+
+  // 詳細画面(モック)
+  function goToDetail(studentId) {
+    window.location.href = "/billingDetail.html?studentId=" + studentId;
+  }
+
+  // 行内編集開始（差額は変更不可）
+  function startEdit(studentId) {
+    const tr = document.querySelector(`tr[data-student-id="${studentId}"]`);
+    if (!tr) return;
+
+    const record = originalData.find(x => x.studentId === studentId);
+    if (!record) return;
+
+    tr.innerHTML = `
+      <td>${record.studentId}</td>
+      <td><input type="text" class="form-control form-control-sm" value="${record.name}"></td>
+      <td class="text-end">
+        <input type="number" class="form-control form-control-sm" style="text-align:right;" value="${record.price}">
+      </td>
+      <td>
+        <input type="date" class="form-control form-control-sm" value="${record.date}">
+      </td>
+      <td>
+        <select class="form-select form-select-sm">
+          <option value="未請求"     ${record.status==="未請求"   ? "selected":""}>未請求</option>
+          <option value="請求済"     ${record.status==="請求済"   ? "selected":""}>請求済</option>
+          <option value="支払完了"   ${record.status==="支払完了" ? "selected":""}>支払完了</option>
+          <option value="引落失敗"   ${record.status==="引落失敗" ? "selected":""}>引落失敗</option>
+        </select>
+      </td>
+      <td>
+        <input type="date" class="form-control form-control-sm" value="${record.issueDate}">
+      </td>
+      <td>
+        <!-- 支払方法は口座引落のみ -->
+        <select class="form-select form-select-sm">
+          <option value="口座引落" selected>口座引落</option>
+        </select>
+      </td>
+      <td>
+        ${renderDiffFlag(record.diffFlag)}
+      </td>
+      <td>
+        <div class="action-buttons">
+          <button class="btn btn-sm btn-primary" onclick="saveEdit('${studentId}')">保存</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelEdit()">キャンセル</button>
+        </div>
+      </td>
+    `;
+  }
+
+  // 保存
+  function saveEdit(studentId) {
+    const tr = document.querySelector(`tr[data-student-id="${studentId}"]`);
+    if (!tr) return;
+
+    const inputs = tr.querySelectorAll("input, select");
+    // 順番: [ nameInput, priceInput, dateInput, statusSelect, issueDateInput, methodSelect, (diffは非編集) ]
+    const [ nameInput, priceInput, dateInput, statusSelect, issueDateInput, methodSelect ] = inputs;
+
+    const record = originalData.find(x => x.studentId === studentId);
+    if (record) {
+      record.name      = nameInput.value;
+      record.price     = Number(priceInput.value) || 0;
+      record.date      = dateInput.value;
+      record.status    = statusSelect.value;
+      record.issueDate = issueDateInput.value;
+      record.method    = methodSelect.value;
+      // diffFlagは変更不可のまま
+    }
+    alert("編集内容を保存しました(モック): " + studentId);
+
+    updateTable(originalData);
+  }
+
+  // キャンセル
+  function cancelEdit() {
+    updateTable(originalData);
   }
 </script>
 </body>
