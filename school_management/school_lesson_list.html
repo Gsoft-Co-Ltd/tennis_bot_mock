@@ -140,26 +140,25 @@
       </div>
     </div>
   </div>
-
-  <!-- 上部: 件数表示 & イベント追加ボタン & 表示件数セレクト -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <span id="totalCount" class="text-muted fw-bold">全体件数: 0 件</span>
-    </div>
-    <div class="d-flex align-items-center">
+<!-- 上部: 全体件数 & 表示件数 & イベント追加ボタン -->
+<div class="d-flex align-items-center mb-3">
+  <!-- 全体件数と表示件数を同じコンテナ内に配置 -->
+  <div class="d-flex align-items-center">
+    <span id="totalCount" class="text-muted fw-bold">全体件数: 0 件</span>
+    <div class="d-flex align-items-center ms-3">
       <label for="rowsPerPage" class="fw-bold me-2">表示件数</label>
-      <select id="rowsPerPage" class="form-select me-3" style="width: 80px;">
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="20">20</option>
-        <option value="50">50</option>
-        <option value="60">60</option>
+      <select id="rowsPerPage" class="form-select" style="width: 80px;">
+        <option value="50">20</option>
+        <option value="60">50</option>
       </select>
-      <button class="btn btn-primary" id="openAddModalBtn">
-        <i class="fas fa-calendar-plus"></i> イベント追加
-      </button>
     </div>
   </div>
+  <!-- イベント追加ボタンを右端に配置 -->
+  <button class="btn btn-primary ms-auto" id="openAddModalBtn">
+    <i class="fas fa-calendar-plus"></i> イベント追加
+  </button>
+</div>
+
 
   <!-- ▼▼▼ テーブル表示 (table-wrap) -->
   <div class="table-wrap mb-3">
