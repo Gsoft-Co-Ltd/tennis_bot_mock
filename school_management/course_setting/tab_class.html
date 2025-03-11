@@ -62,7 +62,8 @@
       max-width: 180px;
     }
     .multi-select-terms,
-    .multi-select-coaches {
+    .multi-select-coaches,
+    .multi-select-levels {
       max-height: 120px; 
       overflow-y: auto;
       border: 1px solid #ccc;
@@ -71,7 +72,8 @@
       padding: 6px;
     }
     .multi-select-terms label,
-    .multi-select-coaches label {
+    .multi-select-coaches label,
+    .multi-select-levels label {
       display: block;
       margin-bottom: 4px;
       cursor: pointer;
@@ -101,7 +103,7 @@
 
   <!-- クラス一覧テーブル -->
   <div class="table-responsive">
-    <table class="table table-bordered tablesm align-middle" id="classTable">
+    <table class="table table-bordered table-sm align-middle" id="classTable">
       <thead>
         <tr>
           <th>曜日</th>
@@ -158,9 +160,7 @@
           </div>
           <div class="col-md-6">
             <label for="courseSelect" class="form-label">紐づけコース</label>
-            <select id="courseSelect" class="form-select form-select-sm">
-              <!-- JSで生成 -->
-            </select>
+            <select id="courseSelect" class="form-select form-select-sm"></select>
           </div>
         </div>
 
@@ -171,6 +171,12 @@
             <select id="courtSelect" class="form-select form-select-sm"></select>
           </div>
         </div>
+                <!-- 6) レベル(多対多) ★追加★ -->
+                <div class="mb-3">
+                  <label class="form-label">対象レベル</label>
+                  <div class="multi-select-levels" id="levelCheckboxes"></div>
+                </div>
+        
 
         <!-- 4) コーチ(最大2) -->
         <div class="mb-3">
@@ -188,9 +194,14 @@
         </div>
 
       </div><!-- /modal-body -->
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="saveClass()">保存</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          キャンセル
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveClass()">
+          保存
+        </button>
       </div>
     </div>
   </div>
@@ -202,15 +213,24 @@
 <script>
   /*
     ▼ ダミーデータ ▼
-    - termMaster(2期)
-    - dayOfWeekMaster(曜日)
-    - courseMaster(3コース) => モーダルでのみ使用
-    - courtMaster(3コート)
-    - coachMaster(4名: 佐藤,鈴木,田中,山田)
-    - classData(期ごとに20: 合計40クラス)
-      -> テーブルではコース列を表示しない
-      -> coachIds: 最大2人
+    - levelMaster       : レベル一覧(追加したのでクラス登録で使う)
+    - termMaster(2期)  : 学期データ
+    - dayOfWeekMaster  : 曜日
+    - courseMaster     : コース一覧(3コース)
+    - courtMaster      : コート一覧(3コート)
+    - coachMaster      : コーチ一覧(4名)
+    - classData(40クラス): 
+        * 期1=20クラス、期2=20クラス
+        * 各クラスは coachIds, termIds の他にレベル用 levelIds を持つ
   */
+
+  // 追加: レベル一覧
+  const levelMaster = [
+    { id: 1, name: "初級" },
+    { id: 2, name: "中級" },
+    { id: 3, name: "上級" },
+    { id: 4, name: "ジュニア" }
+  ];
 
   const termMaster = [
     { id: 1, name: "2025年1期(4/1～5/31)" },
@@ -266,11 +286,15 @@
         courtId: (i%3)+1,
         capacity: 10 + (i%5),
         memberCount: Math.floor(Math.random()*8),
-        termIds: [1]
+        termIds: [1],
+        levelIds: [1]  // ダミー: ここでは"初級"固定など(適宜散らしても良い)
       });
     }
     // 期2(20)
     for(let i=21; i<=40; i++){
+      const coArr = (i%2===0)? [ (i%4)+1, ((i+2)%4)+1 ] : [ (i%4)+1 ];
+      const lvArr = (i%2===0)? [2,3] : [1,4]; // ダミーでレベル2,3か1,4か
+
       data.push({
         id: i,
         dayOfWeek: days[i%days.length],
@@ -278,11 +302,12 @@
         endTime:   `${9+(i%2)}:45`,
         displayName: `ジュニア${i}`,
         courseId: (i%3)+1,
-        coachIds: (i%2===0)? [ (i%4)+1, ((i+2)%4)+1 ] : [ (i%4)+1 ],
+        coachIds: coArr,
         courtId: (i%3)+1,
         capacity: 10 + (i%4),
         memberCount: Math.floor(Math.random()*10),
-        termIds: [2]
+        termIds: [2],
+        levelIds: lvArr
       });
     }
     return data;
@@ -290,8 +315,11 @@
 
   let editingClassId = null;
 
+  // ------------------------------------------
+  // ページ初期処理
+  // ------------------------------------------
   window.addEventListener('DOMContentLoaded', () => {
-    // 学期フィルタ
+    // 1) 学期フィルタ
     const termFilter = document.getElementById("termFilterSelect");
     termMaster.forEach(t => {
       const opt = document.createElement("option");
@@ -305,7 +333,7 @@
       renderClassTable();
     });
 
-    // 曜日
+    // 2) 曜日セレクト
     const daySel = document.getElementById("dayOfWeekSelect");
     dayOfWeekMaster.forEach(d => {
       const opt = document.createElement("option");
@@ -314,7 +342,7 @@
       daySel.appendChild(opt);
     });
 
-    // コート
+    // 3) コートセレクト
     const courtSel = document.getElementById("courtSelect");
     courtMaster.forEach(c => {
       const opt = document.createElement("option");
@@ -323,7 +351,7 @@
       courtSel.appendChild(opt);
     });
 
-    // コース(フォームのみ)
+    // 4) コースセレクト
     const courseSel = document.getElementById("courseSelect");
     courseMaster.forEach(c => {
       const opt = document.createElement("option");
@@ -332,7 +360,7 @@
       courseSel.appendChild(opt);
     });
 
-    // コーチ(チェック: 最大2)
+    // 5) コーチチェック(最大2)
     const coachArea = document.getElementById("coachCheckboxes");
     coachMaster.forEach(coach => {
       const lbl = document.createElement("label");
@@ -345,7 +373,7 @@
       coachArea.appendChild(lbl);
     });
 
-    // 学期(多対多)
+    // 6) 学期チェック(多対多)
     const termArea = document.getElementById("termCheckboxes");
     termMaster.forEach(t => {
       const lbl = document.createElement("label");
@@ -357,6 +385,20 @@
       termArea.appendChild(lbl);
     });
 
+    // 7) レベルチェック(多対多) [★追加部分★]
+    const levelArea = document.getElementById("levelCheckboxes");
+    levelMaster.forEach(lv => {
+      const lbl = document.createElement("label");
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.value = lv.id;
+      // コーチのように制限はなし（複数OK）
+      lbl.appendChild(chk);
+      lbl.appendChild(document.createTextNode(" " + lv.name));
+      levelArea.appendChild(lbl);
+    });
+
+    // 最終: クラス一覧描画
     renderClassTable();
   });
 
@@ -379,12 +421,13 @@
   }
 
   // ------------------------------------------
-  // 一覧 (学期フィルタ)
+  // テーブル描画(期フィルタ)
   // ------------------------------------------
   function renderClassTable() {
     const tbody = document.getElementById("classTable").querySelector("tbody");
     tbody.innerHTML = "";
 
+    // termIdsに currentTermId を含むクラスを表示
     const filtered = classData.filter(cls => cls.termIds.includes(currentTermId));
 
     filtered.forEach(cls => {
@@ -412,7 +455,7 @@
       tdName.textContent = cls.displayName;
       tr.appendChild(tdName);
 
-      // コーチ
+      // コーチ(名前の一覧)
       const tdCoaches = document.createElement("td");
       const coachNames = cls.coachIds.map(cid => {
         const found = coachMaster.find(cc => cc.id === cid);
@@ -434,7 +477,7 @@
 
       // レギュラー数
       const tdMem = document.createElement("td");
-      tdMem.textContent = cls.memberCount;
+      tdMem.textContent = cls.memberCount || 0;
       tr.appendChild(tdMem);
 
       // 操作
@@ -459,7 +502,7 @@
   }
 
   // ------------------------------------------
-  // 新規
+  // 新規クラス登録
   // ------------------------------------------
   function showCreateClassModal() {
     editingClassId = null;
@@ -470,7 +513,7 @@
   }
 
   // ------------------------------------------
-  // 編集
+  // 既存クラス編集
   // ------------------------------------------
   function showEditClassModal(classId) {
     editingClassId = classId;
@@ -480,7 +523,7 @@
     document.getElementById("classModalLabel").textContent = "クラス編集";
     clearClassModal();
 
-    // フィールド
+    // メイン入力項目
     document.getElementById("dayOfWeekSelect").value = cls.dayOfWeek;
     document.getElementById("startTimeInput").value  = cls.startTime;
     document.getElementById("endTimeInput").value    = cls.endTime;
@@ -489,7 +532,7 @@
     document.getElementById("courseSelect").value    = cls.courseId.toString();
     document.getElementById("courtSelect").value     = cls.courtId.toString();
 
-    // コーチ(最大2)
+    // コーチ(複数可,最大2)
     const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
     coachChecks.forEach(ch => {
       if (cls.coachIds.includes(parseInt(ch.value))) {
@@ -505,6 +548,14 @@
       }
     });
 
+    // レベル(多対多) [追加部分]
+    const levelChecks = document.getElementById("levelCheckboxes").querySelectorAll("input[type=checkbox]");
+    levelChecks.forEach(ch => {
+      if (cls.levelIds.includes(parseInt(ch.value))) {
+        ch.checked = true;
+      }
+    });
+
     const bsModal = new bootstrap.Modal(document.getElementById("classModal"), {});
     bsModal.show();
   }
@@ -516,34 +567,39 @@
     const dayOfWeek  = document.getElementById("dayOfWeekSelect").value;
     const startTime  = document.getElementById("startTimeInput").value;
     const endTime    = document.getElementById("endTimeInput").value;
-    const capacity   = parseInt(document.getElementById("capacityInput").value.trim()||"0");
+    const capacityVal= parseInt(document.getElementById("capacityInput").value.trim() || "0");
     const className  = document.getElementById("classNameInput").value.trim();
     const courseId   = parseInt(document.getElementById("courseSelect").value);
     const courtId    = parseInt(document.getElementById("courtSelect").value);
 
-    // コーチ
+    // コーチIDs
     const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
     let selectedCoaches = [];
     coachChecks.forEach(ch => {
-      if (ch.checked) {
-        selectedCoaches.push(parseInt(ch.value));
-      }
+      if (ch.checked) selectedCoaches.push(parseInt(ch.value));
     });
     if (selectedCoaches.length > 2) {
       alert("コーチは最大2名までです。");
       return;
     }
 
-    // 学期(多対多)
+    // 学期IDs
     const termChecks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
     let selectedTerms = [];
     termChecks.forEach(ch => {
+      if (ch.checked) selectedTerms.push(parseInt(ch.value));
+    });
+
+    // レベルIDs [★追加★]
+    const levelChecks = document.getElementById("levelCheckboxes").querySelectorAll("input[type=checkbox]");
+    let selectedLevels = [];
+    levelChecks.forEach(ch => {
       if (ch.checked) {
-        selectedTerms.push(parseInt(ch.value));
+        selectedLevels.push(parseInt(ch.value));
       }
     });
 
-    // バリデーション
+    // 簡易バリデーション
     if (!className) {
       alert("クラス名を入力してください。");
       return;
@@ -565,9 +621,10 @@
         courseId,
         coachIds: selectedCoaches,
         courtId,
-        capacity,
+        capacity: capacityVal,
         memberCount: 0, // 新規 -> 0
-        termIds: selectedTerms
+        termIds: selectedTerms,
+        levelIds: selectedLevels
       });
     } else {
       // 更新
@@ -580,8 +637,9 @@
         cls.courseId    = courseId;
         cls.coachIds    = selectedCoaches;
         cls.courtId     = courtId;
-        cls.capacity    = capacity;
+        cls.capacity    = capacityVal;
         cls.termIds     = selectedTerms;
+        cls.levelIds    = selectedLevels;
       }
     }
 
@@ -590,7 +648,7 @@
     const bsModal = bootstrap.Modal.getInstance(modalEl);
     if (bsModal) bsModal.hide();
 
-    // 再描画
+    // 一覧再描画
     renderClassTable();
   }
 
@@ -618,11 +676,20 @@
     document.getElementById("courseSelect").selectedIndex = 0;
     document.getElementById("courtSelect").selectedIndex  = 0;
 
-    const coachChecks = document.getElementById("coachCheckboxes").querySelectorAll("input[type=checkbox]");
+    // コーチチェックリセット
+    const coachChecks = document.getElementById("coachCheckboxes")
+                      .querySelectorAll("input[type=checkbox]");
     coachChecks.forEach(ch => ch.checked = false);
 
-    const termChecks = document.getElementById("termCheckboxes").querySelectorAll("input[type=checkbox]");
+    // 期チェックリセット
+    const termChecks = document.getElementById("termCheckboxes")
+                      .querySelectorAll("input[type=checkbox]");
     termChecks.forEach(ch => ch.checked = false);
+
+    // レベルチェックリセット [追加]
+    const levelChecks = document.getElementById("levelCheckboxes")
+                      .querySelectorAll("input[type=checkbox]");
+    levelChecks.forEach(ch => ch.checked = false);
   }
 </script>
 </body>
