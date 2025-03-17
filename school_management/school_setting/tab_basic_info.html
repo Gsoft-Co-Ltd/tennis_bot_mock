@@ -110,6 +110,19 @@
             <label for="schoolName" class="form-label">スクール名</label>
             <input type="text" id="schoolName" class="form-control" value="東別院テニススクール" readonly />
           </div>
+
+          <!-- ▼▼▼ 追加：スケジュールURL ▼▼▼ -->
+          <div class="form-group">
+            <label for="scheduleUrl" class="form-label">スケジュールURL</label>
+            <input
+              type="text"
+              id="scheduleUrl"
+              class="form-control"
+              value="https://example.com/schedule.pdf"
+              readonly
+            />
+          </div>
+
           <!-- 曜日別営業時間 -->
           <div class="form-group">
             <label class="form-label">曜日別 営業時間</label>
@@ -264,6 +277,7 @@
         endInput.disabled = disabled;
         rowEl.classList.toggle('closed', disabled);
       });
+      // 初期表示で定休日チェックが入っていれば反映
       if(closedCb.checked) {
         startInput.disabled = true;
         endInput.disabled = true;
@@ -272,27 +286,35 @@
     });
 
     function toggleEdit() {
-      const schoolName = document.getElementById("schoolName");
+      const schoolNameEl = document.getElementById("schoolName");
+      const scheduleUrlEl = document.getElementById("scheduleUrl");
+
+      // 定休日チェック含む、営業時間項目を編集可にする
       dayConfigs.forEach(cfg => {
         const closedEl = document.getElementById(cfg.closedId);
         closedEl.disabled = !closedEl.disabled;
-        const start = document.getElementById(cfg.startId);
-        const end = document.getElementById(cfg.endId);
-        if (start.hasAttribute("readonly")) {
-          start.removeAttribute("readonly");
-          end.removeAttribute("readonly");
+
+        const startEl = document.getElementById(cfg.startId);
+        const endEl = document.getElementById(cfg.endId);
+        if (startEl.hasAttribute("readonly")) {
+          startEl.removeAttribute("readonly");
+          endEl.removeAttribute("readonly");
         } else {
-          start.setAttribute("readonly", "readonly");
-          end.setAttribute("readonly", "readonly");
+          startEl.setAttribute("readonly", "readonly");
+          endEl.setAttribute("readonly", "readonly");
         }
       });
-      const isReadOnly = schoolName.hasAttribute("readonly");
-      if (isReadOnly) {
-        schoolName.removeAttribute("readonly");
+
+      // スクール名・スケジュールURL
+      const isReadOnlyName = schoolNameEl.hasAttribute("readonly");
+      if (isReadOnlyName) {
+        schoolNameEl.removeAttribute("readonly");
+        scheduleUrlEl.removeAttribute("readonly");
         document.getElementById("editButton").style.display = "none";
         document.getElementById("saveButton").style.display = "inline-block";
       } else {
-        schoolName.setAttribute("readonly", "readonly");
+        schoolNameEl.setAttribute("readonly", "readonly");
+        scheduleUrlEl.setAttribute("readonly", "readonly");
         document.getElementById("editButton").style.display = "inline-block";
         document.getElementById("saveButton").style.display = "none";
       }
@@ -300,15 +322,25 @@
 
     function saveInfo() {
       const schoolName = document.getElementById("schoolName").value.trim();
+      const scheduleUrl = document.getElementById("scheduleUrl").value.trim();
+
       const scheduleData = dayConfigs.map(cfg => ({
-        day: cfg.closedId.replace("Closed", ""),
+        day: cfg.closedId.replace("Closed", ""), // mon, tue, wed etc
         isClosed: document.getElementById(cfg.closedId).checked,
         startTime: document.getElementById(cfg.startId).value,
         endTime: document.getElementById(cfg.endId).value
       }));
-      const data = { schoolName, schedule: scheduleData };
+
+      const data = {
+        schoolName,
+        scheduleUrl,
+        schedule: scheduleData
+      };
+
       console.log("スクール情報の保存データ:", data);
       alert("スクール情報を保存しました。");
+
+      // 編集モードを終了
       toggleEdit();
     }
 
