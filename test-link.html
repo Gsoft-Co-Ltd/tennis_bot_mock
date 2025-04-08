@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>テスト用リンクジェネレーター（拡張版）</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    function updateLinks() {
+      // 各フォーム項目の値を取得
+      const lnSId = document.getElementById("lnSId").value;
+      const lnUId = document.getElementById("lnUId").value;
+      const companyId = document.getElementById("companyId").value;
+      const refShop = document.getElementById("refShop").value;
+      
+      // URLを動的に生成（開発環境・本番環境両方）
+      const devURL = "https://tennis-st.schoolbot.jp/websquare/websquareM.html?lnSId=" + lnSId + "&lnUId=" + lnUId + "&companyId=" + companyId + "&refShop=" + refShop;
+      const prodURL = "https://tennis.schoolbot.jp/websquare/websquareM.html?lnSId=" + lnSId + "&lnUId=" + lnUId + "&companyId=" + companyId + "&refShop=" + refShop;
+      
+      // リンク部分を更新
+      document.getElementById("devLine").href = devURL;
+      document.getElementById("prodLine").href = prodURL;
+      
+      // QRコード更新：既存の中身をクリアしてから生成
+      document.getElementById("qrDevLine").innerHTML = "";
+      document.getElementById("qrProdLine").innerHTML = "";
+      
+      new QRCode(document.getElementById("qrDevLine"), {
+        text: devURL,
+        width: 150,
+        height: 150
+      });
+      new QRCode(document.getElementById("qrProdLine"), {
+        text: prodURL,
+        width: 150,
+        height: 150
+      });
+    }
+    
+    window.onload = updateLinks;
+  </script>
+</head>
+<body>
+  <div class="container my-4">
+    <h1 class="mb-4 text-center">テスト用リンクジェネレータ</h1>
+    
+    <div class="alert alert-info">
+      LINEユーザー画面のテスト用ページです。パラメータは任意に変更可能です。
+    </div>
+    
+    <!-- 管理者システム接続URL -->
+    <div class="card mb-4">
+      <div class="card-header">管理者システム接続URL</div>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item">
+            開発環境: 
+            <a href="https://tennis-st.schoolbot.jp/websquare/websquare.html" target="_blank">
+              https://tennis-st.schoolbot.jp/websquare/websquare.html
+            </a>
+          </li>
+          <li class="list-group-item">
+            本番環境: 
+            <a href="https://tennis.schoolbot.jp/websquare/websquare.html" target="_blank">
+              https://tennis.schoolbot.jp/websquare/websquare.html
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- LINE送信システム連携接続URL -->
+    <div class="card mb-4">
+      <div class="card-header">
+        LINE送信システム連携接続URL 
+        <small class="text-muted">(必須パラメーター：lnSId, lnUId, companyId, refShop)</small>
+      </div>
+      <div class="card-body">
+        <form class="row g-3 mb-4">
+          <!-- 画面ID（画面名付き表示） -->
+          <div class="col-md-3">
+            <label for="lnSId" class="form-label">画面ID・画面名</label>
+            <select class="form-select" id="lnSId" onchange="updateLinks()">
+              <option value="LN-RG-01">LN-RG-01 会員登録</option>
+              <option value="LN-LK-01">LN-LK-01 会員LINEID紐付け</option>
+              <option value="LN-RS-01">LN-RS-01 結果表示</option>
+              <option value="LN-CI-01">LN-CI-01 チェックイン</option>
+              <option value="LN-LS-01">LN-LS-01 レッスン予約管理</option>
+              <option value="LN-AB-01">LN-AB-01 レッスンステータス変更</option>
+              <option value="LN-TR-01">LN-TR-01 レッスン予約・振替</option>
+              <option value="LN-IM-01">LN-IM-01 会員情報変更</option>
+              <option value="LN-VS-02">LN-VS-02 体験レッスン申し込み</option>
+              <option value="LN-PD-01">LN-PD-01 手続きメニュー</option>
+              <option value="LN-LE-01">LN-LE-01 休会申請</option>
+              <option value="LN-LE-02">LN-LE-02 退会申請</option>
+              <option value="LN-EV-01">LN-EV-01 イベント予約管理</option>
+            </select>
+          </div>
+          <!-- LINE UID -->
+          <div class="col-md-3">
+            <label for="lnUId" class="form-label">LINE UID</label>
+            <input type="text" class="form-control" id="lnUId" value="sampleUID" onchange="updateLinks()">
+          </div>
+          <!-- 会社ID（1～7） -->
+          <div class="col-md-3">
+            <label for="companyId" class="form-label">会社ID</label>
+            <select class="form-select" id="companyId" onchange="updateLinks()">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+          </div>
+          <!-- refShop（1～7） -->
+          <div class="col-md-3">
+            <label for="refShop" class="form-label">refShop</label>
+            <select class="form-select" id="refShop" onchange="updateLinks()">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+          </div>
+        </form>
+        <div class="row">
+          <!-- 開発環境 -->
+          <div class="col-md-6 text-center mb-3">
+            <h5>開発環境</h5>
+            <a id="devLine" href="" target="_blank" class="btn btn-primary mb-2">テストリンク（開発環境）</a>
+            <div id="qrDevLine" class="d-flex justify-content-center"></div>
+          </div>
+          <!-- 本番環境 -->
+          <div class="col-md-6 text-center mb-3">
+            <h5>本番環境</h5>
+            <a id="prodLine" href="" target="_blank" class="btn btn-success mb-2">テストリンク（本番環境）</a>
+            <div id="qrProdLine" class="d-flex justify-content-center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
